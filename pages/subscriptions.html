@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subtrack – Dashboard</title>
+  <title>Subtrack – My Subscriptions</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/modal.css" />
 </head>
 <body>
 
 <div class="app-shell">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
@@ -25,15 +24,15 @@
 
     <div class="nav-section">
       <div class="nav-label">Menu</div>
-      <a href="index.html" class="nav-item active">
+      <a href="../index.html" class="nav-item">
         <i class="ti ti-layout-dashboard"></i>
         <span>Dashboard</span>
       </a>
-      <a href="pages/subscriptions.html" class="nav-item">
+      <a href="subscriptions.html" class="nav-item active">
         <i class="ti ti-list"></i>
         <span>My Subscriptions</span>
       </a>
-      <a href="pages/analytics.html" class="nav-item">
+      <a href="analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
         <span>Analytics</span>
       </a>
@@ -67,12 +66,9 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-area">
-
-    <!-- TOPBAR -->
     <header class="topbar">
-      <h1 class="page-title">Dashboard</h1>
+      <h1 class="page-title">My Subscriptions</h1>
       <div class="topbar-actions">
         <div class="search-box">
           <i class="ti ti-search"></i>
@@ -89,34 +85,7 @@
       </div>
     </header>
 
-    <!-- CONTENT -->
     <div class="content">
-
-      <!-- STAT CARDS -->
-      <div class="summary-row">
-        <div class="stat-card">
-          <div class="stat-label">Total Monthly</div>
-          <div class="stat-value">RM 187.70</div>
-          <div class="stat-sub">4 active subscriptions</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Active</div>
-          <div class="stat-value">3</div>
-          <div class="stat-sub">subscriptions</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Renewing Soon</div>
-          <div class="stat-value">2</div>
-          <div class="stat-sub">within 7 days</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Cancelled</div>
-          <div class="stat-value">1</div>
-          <div class="stat-sub">subscriptions</div>
-        </div>
-      </div>
-
-      <!-- TABLE SECTION -->
       <div class="section-header">
         <div class="section-title">All Subscriptions</div>
         <div class="filter-tabs">
@@ -202,12 +171,8 @@
             <button class="icon-btn" title="Delete"><i class="ti ti-trash"></i></button>
           </div>
         </div>
-
       </div>
-      <!-- end sub-table -->
-
     </div>
-    <!-- end content -->
   </main>
 </div>
 
@@ -260,6 +225,6 @@
   </div>
 </div>
 
-<script src="js/modal.js"></script>
+<script src="../js/modal.js"></script>
 </body>
 </html>

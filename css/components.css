@@ -1,0 +1,324 @@
+/* ======================
+   COMPONENTS.CSS
+   Stat cards, subscription table, badges, buttons, search, tabs
+   ====================== */
+
+/* --- Stat cards --- */
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--mc-700);
+  border: 1px solid var(--mc-500);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--mc-200);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--mc-40);
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--mc-200);
+  margin-top: 6px;
+}
+
+/* --- Section header --- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mc-80);
+  letter-spacing: 0.4px;
+}
+
+/* --- Filter tabs --- */
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--mc-200);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.tab.active {
+  background: rgba(253, 180, 121, 0.12);
+  border-color: var(--mc-500);
+  color: var(--mc-40);
+}
+
+/* --- Subscription table --- */
+.sub-table {
+  background: var(--mc-700);
+  border: 1px solid var(--mc-500);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+  padding: 11px 18px;
+  background: rgba(93, 61, 46, 0.30);
+  border-bottom: 1px solid var(--mc-500);
+}
+
+.th {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--mc-200);
+  font-weight: 400;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(93, 61, 46, 0.40);
+  transition: background var(--transition-fast);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: rgba(253, 180, 121, 0.04);
+}
+
+.sub-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sub-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--mc-500);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  color: var(--mc-40);
+  flex-shrink: 0;
+}
+
+.sub-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--mc-40);
+}
+
+.sub-category {
+  font-size: 11px;
+  color: var(--mc-200);
+  margin-top: 2px;
+}
+
+.td {
+  font-size: 13px;
+  color: var(--mc-80);
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge-active {
+  background: rgba(147, 197, 114, 0.12);
+  color: #93c572;
+  border: 1px solid rgba(147, 197, 114, 0.25);
+}
+
+.badge-active .badge-dot {
+  background: #93c572;
+}
+
+.badge-cancelled {
+  background: rgba(207, 146, 99, 0.12);
+  color: var(--mc-80);
+  border: 1px solid rgba(207, 146, 99, 0.25);
+}
+
+.badge-cancelled .badge-dot {
+  background: var(--mc-80);
+}
+
+/* --- Row actions --- */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--mc-200);
+  font-size: 15px;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.icon-btn:hover {
+  background: rgba(253, 180, 121, 0.10);
+  color: var(--mc-40);
+  border-color: var(--mc-500);
+}
+
+/* --- Search box --- */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mc-800);
+  border: 1px solid var(--mc-500);
+  border-radius: var(--radius-md);
+  padding: 7px 14px;
+  width: 210px;
+  cursor: text;
+}
+
+.search-box i {
+  font-size: 15px;
+  color: var(--mc-200);
+  flex-shrink: 0;
+}
+
+.search-box span {
+  font-size: 13px;
+  color: var(--mc-200);
+  white-space: nowrap;
+}
+
+/* --- View toggle --- */
+.view-toggle {
+  display: flex;
+}
+
+.vbtn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--mc-500);
+  color: var(--mc-200);
+  font-size: 16px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.vbtn:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.vbtn:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border-left: none;
+}
+
+.vbtn.active {
+  background: rgba(253, 180, 121, 0.12);
+  color: var(--mc-50);
+}
+
+/* --- Primary button --- */
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--mc-50);
+  color: var(--mc-800);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.btn-add:hover {
+  background: var(--mc-40);
+}
+
+.btn-add i {
+  font-size: 16px;
+}
+
+/* --- Analytics placeholder --- */
+.placeholder-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  gap: 12px;
+  color: var(--mc-200);
+}
+
+.placeholder-section i {
+  font-size: 40px;
+  opacity: 0.4;
+}
+
+.placeholder-section p {
+  font-size: 14px;
+  opacity: 0.6;
+}

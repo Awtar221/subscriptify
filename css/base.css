@@ -1,0 +1,61 @@
+/* ======================
+   BASE.CSS
+   Variables, reset, typography
+   ====================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --mc-800: #1d110f;
+  --mc-700: #2d1e17;
+  --mc-500: #5b3d2e;
+  --mc-200: #956749;
+  --mc-80:  #cf9263;
+  --mc-50:  #FDB479;
+  --mc-40:  #fcca9e;
+  --mc-30:  #fadcb6;
+  --mc-20:  #faeaca;
+  --mc-10:  #fcf7eb;
+
+  --font-display: 'Playfair Display', serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+
+  --transition-fast: 0.15s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--mc-800);
+  color: var(--mc-40);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+}
