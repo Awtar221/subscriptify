@@ -11,6 +11,210 @@
   <link rel="stylesheet" href="../css/layout.css" />
   <link rel="stylesheet" href="../css/components.css" />
   <link rel="stylesheet" href="../css/modal.css" />
+  
+  <style>
+    /* Dropdown menu hover effect */
+    #dropdownMenu a:hover {
+      background: rgba(253, 180, 121, 0.1);
+    }
+    
+    #dropdownMenu hr {
+      margin: 4px 0;
+      border: none;
+      border-top: 1px solid var(--mc-500);
+    }
+
+    /* 三个点菜单按钮悬停效果 */
+    .status-menu-btn:hover {
+      background: #333333 !important;
+      border-color: #888888 !important;
+      transform: scale(1.05);
+      transition: all 0.2s ease;
+    }
+    
+    .status-menu-btn {
+      transition: all 0.2s ease;
+    }
+    
+    /* 弹出菜单项悬停效果 */
+    .status-popup-menu .menu-item:hover {
+      background: rgba(253, 180, 121, 0.1);
+    }
+
+    /* 自定义通知样式 */
+    .custom-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideInRight 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 280px;
+      max-width: 350px;
+    }
+    
+    .custom-toast.success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-left: 4px solid #34d399;
+    }
+    
+    .custom-toast.error {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border-left: 4px solid #f87171;
+    }
+    
+    .custom-toast i {
+      font-size: 20px;
+    }
+    
+    .custom-toast .toast-close {
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    .custom-toast .toast-close:hover {
+      opacity: 1;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    /* 删除确认对话框样式 */
+    .custom-dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      animation: fadeIn 0.2s ease;
+    }
+    
+    .custom-dialog {
+      background: var(--mc-700);
+      border: 1px solid var(--mc-500);
+      border-radius: 16px;
+      width: 400px;
+      max-width: 90%;
+      padding: 24px;
+      animation: scaleIn 0.2s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    .custom-dialog-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .custom-dialog-header i {
+      font-size: 28px;
+      color: #ef4444;
+    }
+    
+    .custom-dialog-header h3 {
+      font-size: 18px;
+      color: var(--mc-30);
+      margin: 0;
+    }
+    
+    .custom-dialog-body {
+      color: var(--mc-80);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .custom-dialog-body .subscription-name {
+      color: var(--mc-40);
+      font-weight: bold;
+    }
+    
+    .custom-dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    .custom-dialog-footer button {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .dialog-cancel {
+      background: transparent;
+      border: 1px solid var(--mc-500);
+      color: var(--mc-80);
+    }
+    
+    .dialog-cancel:hover {
+      background: rgba(253, 180, 121, 0.1);
+      border-color: var(--mc-80);
+    }
+    
+    .dialog-confirm {
+      background: #ef4444;
+      border: none;
+      color: white;
+    }
+    
+    .dialog-confirm:hover {
+      background: #dc2626;
+      transform: scale(1.02);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -52,38 +256,37 @@
 
   <main class="main-area">
     <header class="topbar">
-  <h1 class="page-title">My Subscriptions</h1>
-  <div class="topbar-actions">
-    <button class="btn-add" id="openModalBtn">
-      <i class="ti ti-plus"></i>
-      Add Subscription
-    </button>
-    
-    <!-- three point menu -->
-    <div class="menu-dropdown" style="position: relative;">
-      <button class="icon-btn" id="menuBtn" style="width: 36px; height: 36px; background: var(--mc-700); border: 1px solid var(--mc-500); border-radius: var(--radius-md);">
-        <i class="ti ti-dots-vertical"></i>
-      </button>
-      
-      <!-- 下拉菜单 -->
-      <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 45px; background: var(--mc-700); border: 1px solid var(--mc-500); border-radius: var(--radius-md); min-width: 160px; z-index: 100; overflow: hidden;">
-        <a href="#" id="exportDataBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--mc-40); text-decoration: none; font-size: 13px; transition: background 0.15s;">
-          <i class="ti ti-download"></i>
-          <span>Export Data</span>
-        </a>
-        <a href="#" id="importDataBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--mc-40); text-decoration: none; font-size: 13px; transition: background 0.15s;">
-          <i class="ti ti-upload"></i>
-          <span>Import Data</span>
-        </a>
-        <hr style="margin: 4px 0; border-color: var(--mc-500);">
-        <a href="#" id="clearAllBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; text-decoration: none; font-size: 13px; transition: background 0.15s;">
-          <i class="ti ti-trash"></i>
-          <span>Clear All Data</span>
-        </a>
+      <h1 class="page-title">My Subscriptions</h1>
+      <div class="topbar-actions">
+        <button class="btn-add" id="openModalBtn">
+          <i class="ti ti-plus"></i>
+          Add Subscription
+        </button>
+        
+        <!-- three dots menu -->
+        <div class="menu-dropdown" style="position: relative;">
+          <button class="icon-btn" id="menuBtn" style="width: 36px; height: 36px; background: var(--mc-700); border: 1px solid var(--mc-500); border-radius: var(--radius-md);">
+            <i class="ti ti-dots-vertical"></i>
+          </button>
+          
+          <div id="dropdownMenu" style="display: none; position: absolute; right: 0; top: 45px; background: var(--mc-700); border: 1px solid var(--mc-500); border-radius: var(--radius-md); min-width: 160px; z-index: 100; overflow: hidden;">
+            <a href="#" id="exportDataBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--mc-40); text-decoration: none; font-size: 13px;">
+              <i class="ti ti-download"></i>
+              <span>Export Data</span>
+            </a>
+            <a href="#" id="importDataBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--mc-40); text-decoration: none; font-size: 13px;">
+              <i class="ti ti-upload"></i>
+              <span>Import Data</span>
+            </a>
+            <hr style="margin: 4px 0; border-color: var(--mc-500);">
+            <a href="#" id="clearAllBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; text-decoration: none; font-size: 13px;">
+              <i class="ti ti-trash"></i>
+              <span>Clear All Data</span>
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</header>
+    </header>
 
     <div class="content">
       <div class="section-header">
@@ -102,147 +305,6 @@
       <div class="modal-title" id="modalTitle">Add Subscription</div>
       <button class="close-btn" id="closeModalBtn"><i class="ti ti-x"></i></button>
     </div>
-
-     <!-- ========== 1. CSS 样式放这里 ========== -->
-    <style>
-      /* Dropdown menu hover effect */
-      #dropdownMenu a:hover {
-        background: rgba(253, 180, 121, 0.1);
-      }
-      
-      #dropdownMenu hr {
-        margin: 4px 0;
-        border: none;
-        border-top: 1px solid var(--mc-500);
-      }
-
-      /* 三个点菜单按钮悬停效果 */
-  .status-menu-btn:hover {
-    background: rgba(253, 180, 121, 0.1) !important;
-    color: var(--mc-40) !important;
-  }
-  
-  /* 弹出菜单项悬停效果 */
-  .status-popup-menu .menu-item:hover {
-    background: rgba(253, 180, 121, 0.1);
-  }
-
-  .status-menu-btn:hover {
-  background: #333333 !important;
-  border-color: #666666 !important;
-  transform: scale(1.02);
-  transition: all 0.2s ease;
-}
-
-.status-menu-btn {
-  transition: all 0.2s ease;
-}
-
-.status-menu-btn:hover {
-  background: #333333 !important;
-  border-color: #888888 !important;
-  transform: scale(1.05);
-  transition: all 0.2s ease;
-}
-
-.status-menu-btn {
-  transition: all 0.2s ease;
-}
-    </style>
-
-    <!-- ========== 2. JavaScript 功能放这里 ========== -->
-    <script>
-      // Dropdown menu functionality
-      document.addEventListener('DOMContentLoaded', function() {
-        const menuBtn = document.getElementById('menuBtn');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        let isMenuOpen = false;
-        
-        // Toggle dropdown
-        if (menuBtn) {
-          menuBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            isMenuOpen = !isMenuOpen;
-            dropdownMenu.style.display = isMenuOpen ? 'block' : 'none';
-          });
-        }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-          if (!menuBtn || !menuBtn.contains(e.target)) {
-            dropdownMenu.style.display = 'none';
-            isMenuOpen = false;
-          }
-        });
-        
-        // Export Data
-        const exportBtn = document.getElementById('exportDataBtn');
-        if (exportBtn) {
-          exportBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const subscriptions = localStorage.getItem('subscriptions');
-            if (subscriptions) {
-              const blob = new Blob([subscriptions], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `subscriptions_backup_${new Date().toISOString().split('T')[0]}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-              alert('✅ Data exported successfully!');
-            } else {
-              alert('No data to export.');
-            }
-            dropdownMenu.style.display = 'none';
-            isMenuOpen = false;
-          });
-        }
-        
-        // Import Data
-        const importBtn = document.getElementById('importDataBtn');
-        if (importBtn) {
-          importBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'application/json';
-            input.onchange = function(event) {
-              const file = event.target.files[0];
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                try {
-                  const data = JSON.parse(e.target.result);
-                  localStorage.setItem('subscriptions', JSON.stringify(data));
-                  alert('✅ Data imported successfully! Refresh the page to see changes.');
-                  window.location.reload();
-                } catch (err) {
-                  alert('❌ Invalid file format. Please select a valid backup file.');
-                }
-              };
-              reader.readAsText(file);
-            };
-            input.click();
-            dropdownMenu.style.display = 'none';
-            isMenuOpen = false;
-          });
-        }
-        
-        // Clear All Data
-        const clearBtn = document.getElementById('clearAllBtn');
-        if (clearBtn) {
-          clearBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('⚠️ Are you sure you want to delete ALL subscriptions? This action cannot be undone!')) {
-              localStorage.removeItem('subscriptions');
-              alert('✅ All data cleared! Refresh the page to see changes.');
-              window.location.reload();
-            }
-            dropdownMenu.style.display = 'none';
-            isMenuOpen = false;
-          });
-        }
-      });
-    </script>
 
     <form id="subscriptionForm">
       <input type="hidden" id="editId" value="">
@@ -297,6 +359,106 @@
   </div>
 </div>
 
+<script>
+  // Dropdown menu functionality
+  (function() {
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    let isMenuOpen = false;
+    
+    if (menuBtn) {
+      menuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        isMenuOpen = !isMenuOpen;
+        dropdownMenu.style.display = isMenuOpen ? 'block' : 'none';
+      });
+    }
+    
+    document.addEventListener('click', function(e) {
+      if (!menuBtn || !menuBtn.contains(e.target)) {
+        dropdownMenu.style.display = 'none';
+        isMenuOpen = false;
+      }
+    });
+    
+    const exportBtn = document.getElementById('exportDataBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const subscriptions = localStorage.getItem('subscriptions');
+        if (subscriptions) {
+          const blob = new Blob([subscriptions], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `subscriptions_backup_${new Date().toISOString().split('T')[0]}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          if (window.subscriptionManager) {
+            window.subscriptionManager.showToast('Data exported successfully!', 'success');
+          } else {
+            alert('Data exported successfully!');
+          }
+        } else {
+          alert('No data to export.');
+        }
+        dropdownMenu.style.display = 'none';
+        isMenuOpen = false;
+      });
+    }
+    
+    const importBtn = document.getElementById('importDataBtn');
+    if (importBtn) {
+      importBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = function(event) {
+          const file = event.target.files[0];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const data = JSON.parse(e.target.result);
+              localStorage.setItem('subscriptions', JSON.stringify(data));
+              if (window.subscriptionManager) {
+                window.subscriptionManager.showToast('Data imported successfully! Refreshing...', 'success');
+              } else {
+                alert('Data imported successfully!');
+              }
+              setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+              alert('Invalid file format. Please select a valid backup file.');
+            }
+          };
+          reader.readAsText(file);
+        };
+        input.click();
+        dropdownMenu.style.display = 'none';
+        isMenuOpen = false;
+      });
+    }
+    
+    const clearBtn = document.getElementById('clearAllBtn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to delete ALL subscriptions? This action cannot be undone!')) {
+          localStorage.removeItem('subscriptions');
+          if (window.subscriptionManager) {
+            window.subscriptionManager.showToast('All data cleared! Refreshing...', 'warning');
+          } else {
+            alert('All data cleared!');
+          }
+          setTimeout(() => window.location.reload(), 1500);
+        }
+        dropdownMenu.style.display = 'none';
+        isMenuOpen = false;
+      });
+    }
+  })();
+</script>
+
 <script src="../js/simple_CRUD.js"></script>
 </body>
-</html>
+</html> 

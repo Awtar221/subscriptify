@@ -76,7 +76,7 @@ class SubscriptionManager {
     this.subscriptions.push(newSubscription);
     this.saveData();
     this.render();
-    alert('✅ Subscription added successfully!');
+    this.showToast('Subscription added successfully!', 'success');
   }
 
   updateSubscription(id, formData) {
@@ -93,17 +93,108 @@ class SubscriptionManager {
       };
       this.saveData();
       this.render();
-      alert('✅ Subscription updated successfully!');
+      this.showToast('Subscription updated successfully!', 'success');  // 修复：加上 this.
     }
   }
 
   deleteSubscription(id) {
-    if (confirm('⚠️ Are you sure you want to delete this subscription?')) {
-      this.subscriptions = this.subscriptions.filter(sub => sub.id !== id);
-      this.saveData();
-      this.render();
-      alert('✅ Subscription deleted successfully!');
-    }
+    const subscription = this.subscriptions.find(sub => sub.id === id);
+    if (!subscription) return;
+    
+    this.showConfirmDialog(
+      'Are you sure you want to delete',
+      subscription.name,
+      () => {
+        this.subscriptions = this.subscriptions.filter(sub => sub.id !== id);
+        this.saveData();
+        this.render();
+        this.showToast('Subscription deleted successfully!', 'success');
+      }
+    );
+  }
+
+  // ========== 自定义通知 ==========
+  showToast(message, type = 'success') {
+    const existingToast = document.querySelector('.custom-toast');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+    
+    let icon = '';
+    if (type === 'success') icon = 'ti ti-circle-check';
+    else if (type === 'error') icon = 'ti ti-alert-circle';
+    else if (type === 'warning') icon = 'ti ti-alert-triangle';
+    else icon = 'ti ti-info-circle';
+    
+    toast.innerHTML = `
+      <i class="${icon}"></i>
+      <div class="toast-content">${message}</div>
+      <i class="ti ti-x toast-close"></i>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    toast.querySelector('.toast-close').onclick = () => {
+      toast.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    };
+    
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }
+    }, 3000);
+  }
+
+  // ========== 自定义删除确认对话框 ==========
+  showConfirmDialog(message, subscriptionName, onConfirm) {
+    const existingDialog = document.querySelector('.custom-dialog-overlay');
+    if (existingDialog) existingDialog.remove();
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-dialog-overlay';
+    
+    overlay.innerHTML = `
+      <div class="custom-dialog">
+        <div class="custom-dialog-header">
+          <i class="ti ti-trash"></i>
+          <h3>Delete Subscription</h3>
+        </div>
+        <div class="custom-dialog-body">
+          ${message} <span class="subscription-name">"${subscriptionName}"</span> ?
+          <div style="margin-top: 8px; font-size: 12px; color: var(--mc-200);">This action cannot be undone.</div>
+        </div>
+        <div class="custom-dialog-footer">
+          <button class="dialog-cancel">Cancel</button>
+          <button class="dialog-confirm">Delete</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    overlay.querySelector('.dialog-cancel').onclick = () => {
+      overlay.remove();
+    };
+    
+    overlay.querySelector('.dialog-confirm').onclick = () => {
+      onConfirm();
+      overlay.remove();
+    };
+    
+    overlay.onclick = (e) => {
+      if (e.target === overlay) overlay.remove();
+    };
+    
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
   }
 
   getFilteredSubscriptions() {
@@ -140,57 +231,57 @@ class SubscriptionManager {
   }
 
   render() {
-  const container = document.getElementById('subscriptionsTable');
-  if (!container) return;
-  
-  const filteredSubs = this.getFilteredSubscriptions();
-  
-  if (filteredSubs.length === 0) {
-    container.innerHTML = `<div style="text-align: center; padding: 60px; color: var(--mc-200);">No subscription data</div>`;
-    return;
-  }
-  
-  let html = `<div class="table-head">
-    <div class="th">Service</div>
-    <div class="th">Cost / mo</div>
-    <div class="th">Renewal Date</div>
-    <div class="th">Status</div>
-    <div class="th"></div>
-  </div>`;
-  
-  for (let sub of filteredSubs) {
-    const statusClass = sub.status === 'active' ? 'badge-active' : 'badge-cancelled';
-    const statusText = sub.status === 'active' ? 'Active' : 'Cancelled';
-    const icon = this.getIcon(sub.category);
+    const container = document.getElementById('subscriptionsTable');
+    if (!container) return;
     
-    html += `<div class="table-row">
-      <div class="sub-name-wrap">
-        <div class="sub-icon"><i class="ti ${icon}"></i></div>
-        <div>
-          <div class="sub-name">${this.escapeHtml(sub.name)}</div>
-          <div class="sub-category">${sub.category}</div>
-        </div>
-      </div>
-      <div class="td">RM ${sub.cost.toFixed(2)}</div>
-      <div class="td">${this.formatDate(sub.renewalDate)}</div>
-      <div class="td" style="display: flex; align-items: center; justify-content: space-between;">
-        <span class="badge ${statusClass}">
-          <span class="badge-dot"></span>${statusText}
-        </span>
-        <button class="status-menu-btn" data-id="${sub.id}" style="background: #000000; border: 1px solid #555555; color: white; cursor: pointer; padding: 6px 12px; border-radius: 6px; margin-left: 10px;">
-          ⋮
-        </button>
-      </div>
-      <div class="row-actions">
-        <button class="icon-btn edit-btn" data-id="${sub.id}"><i class="ti ti-edit"></i></button>
-        <button class="icon-btn delete-btn" data-id="${sub.id}"><i class="ti ti-trash"></i></button>
-      </div>
+    const filteredSubs = this.getFilteredSubscriptions();
+    
+    if (filteredSubs.length === 0) {
+      container.innerHTML = `<div style="text-align: center; padding: 60px; color: var(--mc-200);">No subscription data</div>`;
+      return;
+    }
+    
+    let html = `<div class="table-head">
+      <div class="th">Service</div>
+      <div class="th">Cost / mo</div>
+      <div class="th">Renewal Date</div>
+      <div class="th">Status</div>
+      <div class="th"></div>
     </div>`;
+    
+    for (let sub of filteredSubs) {
+      const statusClass = sub.status === 'active' ? 'badge-active' : 'badge-cancelled';
+      const statusText = sub.status === 'active' ? 'Active' : 'Cancelled';
+      const icon = this.getIcon(sub.category);
+      
+      html += `<div class="table-row">
+        <div class="sub-name-wrap">
+          <div class="sub-icon"><i class="ti ${icon}"></i></div>
+          <div>
+            <div class="sub-name">${this.escapeHtml(sub.name)}</div>
+            <div class="sub-category">${sub.category}</div>
+          </div>
+        </div>
+        <div class="td">RM ${sub.cost.toFixed(2)}</div>
+        <div class="td">${this.formatDate(sub.renewalDate)}</div>
+        <div class="td" style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="badge ${statusClass}">
+            <span class="badge-dot"></span>${statusText}
+          </span>
+          <button class="status-menu-btn" data-id="${sub.id}" style="background: #000000; border: 1px solid #555555; color: white; cursor: pointer; padding: 6px 12px; border-radius: 6px; margin-left: 10px;">
+            ⋮
+          </button>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn edit-btn" data-id="${sub.id}"><i class="ti ti-edit"></i></button>
+          <button class="icon-btn delete-btn" data-id="${sub.id}"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`;
+    }
+    
+    container.innerHTML = html;
+    this.attachButtonEvents();
   }
-  
-  container.innerHTML = html;
-  this.attachButtonEvents();
-}
 
   getIcon(category) {
     const icons = {
@@ -332,10 +423,10 @@ class SubscriptionManager {
   }
 
   validateForm(data) {
-    if (!data.name) { alert('Please enter service name'); return false; }
-    if (!data.category) { alert('Please select a category'); return false; }
-    if (!data.cost || data.cost <= 0) { alert('Please enter a valid cost'); return false; }
-    if (!data.renewalDate) { alert('Please select a renewal date'); return false; }
+    if (!data.name) { this.showToast('Please enter service name', 'error'); return false; }
+    if (!data.category) { this.showToast('Please select a category', 'error'); return false; }
+    if (!data.cost || data.cost <= 0) { this.showToast('Please enter a valid cost', 'error'); return false; }
+    if (!data.renewalDate) { this.showToast('Please select a renewal date', 'error'); return false; }
     return true;
   }
 
