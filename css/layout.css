@@ -1,16 +1,16 @@
 /* ======================
    LAYOUT.CSS
-   App shell, sidebar, topbar, main area
+   App shell, sidebar, topbar, and main content area.
    ====================== */
 
-/* --- App shell --- */
+/* --- App shell: full-height flex row --- */
 .app-shell {
   display: flex;
   min-height: 100vh;
   overflow: hidden;
 }
 
-/* --- Sidebar --- */
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 220px;
   background: var(--mc-700);
@@ -25,6 +25,7 @@
   overflow-y: auto;
 }
 
+/* Logo block */
 .logo {
   padding: 0 24px 24px;
   border-bottom: 1px solid var(--mc-500);
@@ -47,11 +48,12 @@
   margin-top: 3px;
 }
 
-/* --- Nav sections --- */
+/* Nav sections group nav items with a label */
 .nav-section {
   margin-bottom: 8px;
 }
 
+/* Add a divider between nav sections */
 .nav-section + .nav-section {
   padding-top: 16px;
   margin-top: 8px;
@@ -67,6 +69,7 @@
   margin-bottom: 6px;
 }
 
+/* Individual nav link */
 .nav-item {
   display: flex;
   align-items: center;
@@ -83,6 +86,7 @@
   background: rgba(253, 180, 121, 0.06);
 }
 
+/* Active state: highlighted background + right-side accent border */
 .nav-item.active {
   background: rgba(253, 180, 121, 0.12);
   color: var(--mc-40);
@@ -95,7 +99,7 @@
   flex-shrink: 0;
 }
 
-/* --- Sidebar footer --- */
+/* --- Sidebar footer: user info pinned to bottom --- */
 .sidebar-footer {
   margin-top: auto;
   padding: 16px 24px 24px;
@@ -108,6 +112,7 @@
   gap: 10px;
 }
 
+/* Avatar circle with initials */
 .avatar {
   width: 32px;
   height: 32px;
@@ -147,7 +152,7 @@
   cursor: pointer;
 }
 
-/* --- Main area --- */
+/* ===== MAIN AREA ===== */
 .main-area {
   flex: 1;
   display: flex;
@@ -181,7 +186,7 @@
   gap: 12px;
 }
 
-/* --- Content --- */
+/* --- Scrollable content area --- */
 .content {
   flex: 1;
   padding: 24px 28px;
