@@ -9,11 +9,22 @@ document.addEventListener('DOMContentLoaded', function () {
   var stored = localStorage.getItem('subscriptions');
   var subs = stored ? JSON.parse(stored) : [];
   var active = subs.filter(function (s) { return s.status === 'active'; });
+  var renewingSoon = active.filter(isRenewingSoon);
 
   renderStats(subs, active);
   renderCategoryBreakdown(active);
-  renderStatusSplit(subs, active);
+  renderStatusSplit(subs, active, renewingSoon);
   renderTopCosts(active);
+
+  /** Active sub renewing within 7 days — same window as the dashboard stat card. */
+  function isRenewingSoon(s) {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var d = new Date(s.renewalDate);
+    d.setHours(0, 0, 0, 0);
+    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff <= 7;
+  }
 
   function renderStats(subs, active) {
     var total = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
@@ -50,24 +61,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  function renderStatusSplit(subs, active) {
+  function renderStatusSplit(subs, active, renewingSoon) {
     var el = document.getElementById('statusSplit');
     if (!el) return;
 
     var cancelled = subs.length - active.length;
     var total = subs.length || 1;
 
+    function row(label, count, fillClass) {
+      return (
+        '<div class="bar-row">' +
+          '<div class="bar-label">' + label + '</div>' +
+          '<div class="bar-track"><div class="bar-fill' + (fillClass ? ' ' + fillClass : '') + '" style="width:' + (count / total * 100).toFixed(1) + '%"></div></div>' +
+          '<div class="bar-value">' + count + '</div>' +
+        '</div>'
+      );
+    }
+
     el.innerHTML =
-      '<div class="bar-row">' +
-        '<div class="bar-label">Active</div>' +
-        '<div class="bar-track"><div class="bar-fill" style="width:' + (active.length / total * 100).toFixed(1) + '%"></div></div>' +
-        '<div class="bar-value">' + active.length + '</div>' +
-      '</div>' +
-      '<div class="bar-row">' +
-        '<div class="bar-label">Cancelled</div>' +
-        '<div class="bar-track"><div class="bar-fill bar-fill-muted" style="width:' + (cancelled / total * 100).toFixed(1) + '%"></div></div>' +
-        '<div class="bar-value">' + cancelled + '</div>' +
-      '</div>';
+      row('Active', active.length) +
+      row('Renewing Soon', renewingSoon.length, 'bar-fill-attention') +
+      row('Cancelled', cancelled, 'bar-fill-muted');
   }
 
   function renderTopCosts(active) {
@@ -80,15 +94,21 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    el.innerHTML = top.map(function (s) {
+    el.innerHTML = top.map(function (s, i) {
       return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + s.name + '</div>' +
-          '<div class="bar-track"></div>' +
-          '<div class="bar-value">RM ' + s.cost.toFixed(2) + '</div>' +
+        '<div class="rank-row">' +
+          '<div class="rank-num">' + (i + 1) + '</div>' +
+          '<div class="rank-name">' + escapeHtml(s.name) + '</div>' +
+          '<div class="rank-value">RM ' + s.cost.toFixed(2) + '</div>' +
         '</div>'
       );
     }).join('');
+  }
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   function setText(id, value) {

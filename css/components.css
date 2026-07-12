@@ -402,6 +402,49 @@
   background: var(--mc-200);
 }
 
+.bar-fill-attention {
+  background: var(--attention);
+}
+
+/* ===== TOP-COSTLIEST MINI LIST (no bars, ranked list) ===== */
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid color-mix(in oklch, var(--mc-500) 50%, transparent);
+}
+
+.rank-row:last-child {
+  border-bottom: none;
+}
+
+.rank-num {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--mc-500);
+  color: var(--mc-40);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.rank-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--mc-40);
+}
+
+.rank-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mc-200);
+}
+
 @keyframes barGrow {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
