@@ -19,7 +19,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Subscription Tracker</div>
+      <div class="logo-sub">Your Sub Sidekick</div>
     </div>
 
     <div class="nav-section">
@@ -28,14 +28,15 @@
         <i class="ti ti-layout-dashboard"></i>
         <span>Dashboard</span>
       </a>
-      <a href="subscriptions.html" class="nav-item active">
-        <i class="ti ti-list"></i>
-        <span>My Subscriptions</span>
-      </a>
       <a href="analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
-        <span>Analytics</span>
+        <span>Funny Numbers</span>
       </a>
+      <a href="subscriptions.html" class="nav-item active">
+        <i class="ti ti-list"></i>
+        <span>My Subs</span>
+      </a>
+      
     </div>
 
     <div class="sidebar-footer">
@@ -54,11 +55,11 @@
   <main class="main-area">
 
     <header class="topbar">
-      <h1 class="page-title">My Subscriptions</h1>
+      <h1 class="page-title">My Subs</h1>
       <div class="topbar-actions">
         <button class="btn-add" id="openModalBtn">
           <i class="ti ti-plus"></i>
-          Add Subscription
+          Add a Sub
         </button>
 
         <!-- Three-dot dropdown for export / import / clear -->
@@ -71,16 +72,16 @@
           <div class="dropdown-panel" id="dropdownPanel" role="menu">
             <a href="#" class="dropdown-item" id="exportDataBtn">
               <i class="ti ti-download"></i>
-              <span>Export Data</span>
+              <span>Back Up My Subs</span>
             </a>
             <a href="#" class="dropdown-item" id="importDataBtn">
               <i class="ti ti-upload"></i>
-              <span>Import Data</span>
+              <span>Restore From File</span>
             </a>
             <hr class="dropdown-divider" />
             <a href="#" class="dropdown-item danger" id="clearAllBtn">
               <i class="ti ti-trash"></i>
-              <span>Clear All Data</span>
+              <span>Nuke Everything</span>
             </a>
           </div>
         </div>
@@ -89,7 +90,7 @@
 
     <div class="content">
       <div class="section-header">
-        <div class="section-title">All Subscriptions</div>
+        <div class="section-title">The Full Lineup</div>
         <div class="filter-tabs" id="filterTabs">
           <button type="button" class="tab active" data-filter="all">All</button>
           <button type="button" class="tab" data-filter="active">Active</button>
@@ -108,7 +109,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Add Subscription</div>
+      <div class="modal-title" id="modalTitle">Add a Sub</div>
       <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
@@ -159,7 +160,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary" id="saveBtn">Add Subscription</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add It</button>
       </div>
     </form>
   </div>

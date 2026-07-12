@@ -51,7 +51,7 @@ function showMessage(container, message, type) {
 
     // Basic validation
     if (!username || !password) {
-      showMessage(msgDiv, '&#10060; Please enter username and password', 'error');
+      showMessage(msgDiv, '&#10060; Don\'t forget your username and password', 'error');
       return;
     }
 
@@ -66,7 +66,7 @@ function showMessage(container, message, type) {
       localStorage.setItem('subtrack_current_user', username);
       window.location.href = 'index.html';
     } else {
-      showMessage(msgDiv, '&#10060; Invalid username or password', 'error');
+      showMessage(msgDiv, '&#10060; That username/password combo doesn\'t ring a bell', 'error');
     }
   });
 })();
@@ -87,17 +87,17 @@ function showMessage(container, message, type) {
 
     // Validation checks
     if (!username || !password) {
-      showMessage(msgDiv, '&#10060; Username and password are required', 'error');
+      showMessage(msgDiv, '&#10060; Need a username and password to get going', 'error');
       return;
     }
 
     if (password !== confirm) {
-      showMessage(msgDiv, '&#10060; Passwords do not match', 'error');
+      showMessage(msgDiv, '&#10060; Those passwords don\'t match', 'error');
       return;
     }
 
     if (password.length < 3) {
-      showMessage(msgDiv, '&#10060; Password must be at least 3 characters', 'error');
+      showMessage(msgDiv, '&#10060; Password\'s a bit short — 3 characters minimum', 'error');
       return;
     }
 
@@ -105,7 +105,7 @@ function showMessage(container, message, type) {
 
     // Prevent duplicate usernames
     if (users.find(function (u) { return u.username === username; })) {
-      showMessage(msgDiv, '&#10060; Username already exists', 'error');
+      showMessage(msgDiv, '&#10060; That username\'s already taken', 'error');
       return;
     }
 
@@ -115,7 +115,7 @@ function showMessage(container, message, type) {
 
     showMessage(
       msgDiv,
-      '&#10003; Registration successful! <a href="login.html">Login now</a>',
+      '&#10003; You\'re in! <a href="login.html">Sign in to get started</a>',
       'success'
     );
   });

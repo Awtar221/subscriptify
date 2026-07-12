@@ -104,7 +104,7 @@ class SubscriptionManager {
     this.subscriptions.push(newSub);
     this.saveData();
     this.render();
-    this.showToast('Subscription added!', 'success');
+    this.showToast('Added! Welcome to the list.', 'success');
   }
 
   /** Update an existing subscription by id. */
@@ -123,7 +123,7 @@ class SubscriptionManager {
     };
     this.saveData();
     this.render();
-    this.showToast('Subscription updated!', 'success');
+    this.showToast('Updated! Looking good.', 'success');
   }
 
   /** Prompt for confirmation then delete a subscription by id. */
@@ -132,13 +132,13 @@ class SubscriptionManager {
     if (!sub) return;
 
     this.showConfirmDialog(
-      'Are you sure you want to delete',
+      'Ready to say goodbye to',
       sub.name,
       () => {
         this.subscriptions = this.subscriptions.filter(function (s) { return s.id !== id; });
         this.saveData();
         this.render();
-        this.showToast('Subscription deleted.', 'success');
+        this.showToast('Gone. Bye bye!', 'success');
       }
     );
   }
@@ -193,7 +193,7 @@ class SubscriptionManager {
     var list = this.getFilteredSubscriptions();
 
     if (list.length === 0) {
-      container.innerHTML = '<div class="empty-state">No subscriptions found.</div>';
+      container.innerHTML = '<div class="empty-state">Nothing here. Add a sub to get started!</div>';
       return;
     }
 
@@ -316,8 +316,8 @@ class SubscriptionManager {
     document.getElementById('sub-date').value    = sub.renewalDate;
     document.getElementById('sub-status').value  = sub.status;
     document.getElementById('sub-notes').value   = sub.notes || '';
-    document.getElementById('modalTitle').textContent = 'Edit Subscription';
-    document.getElementById('saveBtn').textContent    = 'Update Subscription';
+    document.getElementById('modalTitle').textContent = 'Edit This Sub';
+    document.getElementById('saveBtn').textContent    = 'Save Changes';
 
     this.openModal();
   }
@@ -333,9 +333,9 @@ class SubscriptionManager {
     if (statusEl) statusEl.value = 'active';
 
     var titleEl = document.getElementById('modalTitle');
-    if (titleEl) titleEl.textContent = 'Add Subscription';
+    if (titleEl) titleEl.textContent = 'Add a Sub';
     var saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.textContent = 'Add Subscription';
+    if (saveBtn) saveBtn.textContent = 'Add It';
   }
 
   /** Read all form values into a plain object. */
@@ -352,10 +352,10 @@ class SubscriptionManager {
 
   /** Return false and show a toast if any required field is missing/invalid. */
   validateForm(data) {
-    if (!data.name)                { this.showToast('Please enter a service name.', 'error'); return false; }
-    if (!data.category)            { this.showToast('Please select a category.', 'error');    return false; }
-    if (!data.cost || data.cost <= 0) { this.showToast('Please enter a valid cost.', 'error');  return false; }
-    if (!data.renewalDate)         { this.showToast('Please select a renewal date.', 'error'); return false; }
+    if (!data.name)                { this.showToast('Give it a name first!', 'error'); return false; }
+    if (!data.category)            { this.showToast('Pick a category.', 'error');    return false; }
+    if (!data.cost || data.cost <= 0) { this.showToast('That cost doesn\'t look right.', 'error');  return false; }
+    if (!data.renewalDate)         { this.showToast('When does this renew?', 'error'); return false; }
     return true;
   }
 
@@ -513,15 +513,15 @@ class SubscriptionManager {
       '<div class="custom-dialog">' +
         '<div class="custom-dialog-header">' +
           '<i class="ti ti-trash"></i>' +
-          '<h3>Delete Subscription</h3>' +
+          '<h3>Wait, Really?</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
           message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
-          '<span class="dialog-note">This action cannot be undone.</span>' +
+          '<span class="dialog-note">No undo button here — it\'s gone for good.</span>' +
         '</div>' +
         '<div class="custom-dialog-footer">' +
-          '<button class="dialog-cancel">Cancel</button>' +
-          '<button class="dialog-confirm">Delete</button>' +
+          '<button class="dialog-cancel">Never Mind</button>' +
+          '<button class="dialog-confirm">Yep, Delete It</button>' +
         '</div>' +
       '</div>';
 

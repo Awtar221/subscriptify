@@ -8,7 +8,7 @@
 /* ===== STAT CARDS ===== */
 .summary-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -360,6 +360,13 @@
   padding: 18px 20px;
   margin-bottom: 20px;
   box-shadow: 0 1px 2px rgba(43, 36, 28, 0.05);
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.analytics-panel:hover {
+  transform: translateY(-2px);
+  border-color: var(--mc-80);
+  box-shadow: 0 6px 16px rgba(43, 36, 28, 0.08);
 }
 
 .analytics-panel-title {
@@ -368,6 +375,11 @@
   color: var(--mc-80);
   letter-spacing: 0.4px;
   margin-bottom: 14px;
+}
+
+/* Section without a panel background — used when the content is its own card grid */
+.analytics-section {
+  margin-bottom: 20px;
 }
 
 .bar-row {
@@ -406,22 +418,33 @@
   background: var(--attention);
 }
 
-/* ===== TOP-COSTLIEST MINI LIST (no bars, ranked list) ===== */
+/* ===== TOP-COSTLIEST CARD GRID (no bars, no panel wrapper) ===== */
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
 .rank-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid color-mix(in oklch, var(--mc-500) 50%, transparent);
+  padding: 14px 16px;
+  background: var(--mc-700);
+  border: 1px solid var(--mc-500);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(43, 36, 28, 0.05);
+  transition: transform var(--transition-base), border-color var(--transition-base);
 }
 
-.rank-row:last-child {
-  border-bottom: none;
+.rank-row:hover {
+  transform: translateY(-2px);
+  border-color: var(--mc-80);
 }
 
 .rank-num {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -429,20 +452,25 @@
   border-radius: 50%;
   background: var(--mc-500);
   color: var(--mc-40);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .rank-name {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: var(--mc-40);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rank-value {
   font-size: 13px;
   font-weight: 500;
   color: var(--mc-200);
+  white-space: nowrap;
 }
 
 @keyframes barGrow {

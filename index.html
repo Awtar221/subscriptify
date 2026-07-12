@@ -19,7 +19,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Subscription Tracker</div>
+      <div class="logo-sub">Your Sub Sidekick</div>
     </div>
 
     <div class="nav-section">
@@ -28,14 +28,16 @@
         <i class="ti ti-layout-dashboard"></i>
         <span>Dashboard</span>
       </a>
-      <a href="pages/subscriptions.html" class="nav-item">
-        <i class="ti ti-list"></i>
-        <span>My Subscriptions</span>
-      </a>
       <a href="pages/analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
-        <span>Analytics</span>
+        <span>Funny Numbers</span>
       </a>
+      <a href="pages/subscriptions.html" class="nav-item">
+        <i class="ti ti-list"></i>
+        <span>My Subs</span>
+      </a>
+      
+      
     </div>
 
     <div class="nav-section">
@@ -87,7 +89,7 @@
         </div>
         <button class="btn-add" id="openModalBtn">
           <i class="ti ti-plus"></i>
-          Add Subscription
+          Add a Sub
         </button>
       </div>
     </header>
@@ -97,30 +99,30 @@
       <!-- Stat cards — values populated by simple_CRUD.js -->
       <div class="summary-row">
         <div class="stat-card">
-          <div class="stat-label">Total Monthly</div>
+          <div class="stat-label">Monthly Damage</div>
           <div class="stat-value" id="totalMonthly">RM 0</div>
-          <div class="stat-sub"><span id="activeCount">0</span> active subscriptions</div>
+          <div class="stat-sub">keeping <span id="activeCount">0</span> subs alive</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Active</div>
           <div class="stat-value" id="activeSubCount">0</div>
-          <div class="stat-sub">subscriptions</div>
+          <div class="stat-sub">and counting</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Renewing Soon</div>
           <div class="stat-value" id="renewingSoonCount" style="color: var(--attention);">0</div>
-          <div class="stat-sub">within 7 days</div>
+          <div class="stat-sub">in the next week</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Cancelled</div>
           <div class="stat-value" id="cancelledCount">0</div>
-          <div class="stat-sub">subscriptions</div>
+          <div class="stat-sub">shown the door</div>
         </div>
       </div>
 
       <!-- Filter tabs + table -->
       <div class="section-header">
-        <div class="section-title">All Subscriptions</div>
+        <div class="section-title">The Full Lineup</div>
         <div class="filter-tabs" id="filterTabs">
           <button type="button" class="tab active" data-filter="all">All</button>
           <button type="button" class="tab" data-filter="active">Active</button>
@@ -139,7 +141,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Add Subscription</div>
+      <div class="modal-title" id="modalTitle">Add a Sub</div>
       <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
@@ -191,7 +193,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary" id="saveBtn">Add Subscription</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add It</button>
       </div>
     </form>
   </div>

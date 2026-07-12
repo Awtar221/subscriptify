@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
   var renewingSoon = active.filter(isRenewingSoon);
 
   renderStats(subs, active);
+  renderUpcomingRenewals(active);
+  renderTopCosts(active);
   renderCategoryBreakdown(active);
   renderStatusSplit(subs, active, renewingSoon);
-  renderTopCosts(active);
 
   /** Active sub renewing within 7 days — same window as the dashboard stat card. */
   function isRenewingSoon(s) {
@@ -29,10 +30,43 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderStats(subs, active) {
     var total = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
     var avg = active.length ? total / active.length : 0;
+    var cancelled = subs.filter(function (s) { return s.status === 'cancelled'; });
+    var savings = cancelled.reduce(function (sum, s) { return sum + s.cost; }, 0);
+
     setText('totalMonthly', 'RM ' + total.toFixed(2));
     setText('avgCost', 'RM ' + avg.toFixed(2));
     setText('activeCount', active.length);
-    setText('cancelledCount', subs.length - active.length);
+    setText('cancelledCount', cancelled.length);
+    setText('potentialSavings', 'RM ' + savings.toFixed(2));
+  }
+
+  function renderUpcomingRenewals(active) {
+    var el = document.getElementById('upcomingRenewals');
+    if (!el) return;
+
+    var upcoming = active.slice().sort(function (a, b) {
+      return new Date(a.renewalDate) - new Date(b.renewalDate);
+    }).slice(0, 5);
+
+    if (upcoming.length === 0) {
+      el.innerHTML = '<div class="empty-state">Nothing renewing — you\'re all clear.</div>';
+      return;
+    }
+
+    el.innerHTML = upcoming.map(function (s) {
+      return (
+        '<div class="rank-row">' +
+          '<div class="rank-num"><i class="ti ti-calendar-event"></i></div>' +
+          '<div class="rank-name">' + escapeHtml(s.name) + '</div>' +
+          '<div class="rank-value">' + formatDate(s.renewalDate) + '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function formatDate(dateStr) {
+    var d = new Date(dateStr);
+    return d.getDate() + ' ' + d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear();
   }
 
   function renderCategoryBreakdown(active) {

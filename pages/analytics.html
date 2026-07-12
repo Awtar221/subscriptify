@@ -18,7 +18,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Subscription Tracker</div>
+      <div class="logo-sub">Your Sub Sidekick</div>
     </div>
 
     <div class="nav-section">
@@ -27,14 +27,15 @@
         <i class="ti ti-layout-dashboard"></i>
         <span>Dashboard</span>
       </a>
-      <a href="subscriptions.html" class="nav-item">
-        <i class="ti ti-list"></i>
-        <span>My Subscriptions</span>
-      </a>
       <a href="analytics.html" class="nav-item active">
         <i class="ti ti-chart-bar"></i>
-        <span>Analytics</span>
+        <span>Funny Numbers</span>
       </a>
+      <a href="subscriptions.html" class="nav-item">
+        <i class="ti ti-list"></i>
+        <span>My Subs</span>
+      </a>
+      
     </div>
 
     <div class="sidebar-footer">
@@ -52,7 +53,7 @@
   <!-- ===== MAIN ===== -->
   <main class="main-area">
     <header class="topbar">
-      <h1 class="page-title">Analytics</h1>
+      <h1 class="page-title">The Numbers</h1>
     </header>
 
     <div class="content">
@@ -60,39 +61,49 @@
       <!-- Stat cards — populated by analytics.js -->
       <div class="summary-row">
         <div class="stat-card">
-          <div class="stat-label">Total Monthly</div>
+          <div class="stat-label">Monthly Damage</div>
           <div class="stat-value" id="totalMonthly">RM 0</div>
-          <div class="stat-sub">across active subscriptions</div>
+          <div class="stat-sub">across your active subs</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Avg. Cost</div>
           <div class="stat-value" id="avgCost">RM 0</div>
-          <div class="stat-sub">per active subscription</div>
+          <div class="stat-sub">per sub, roughly</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Active</div>
           <div class="stat-value" id="activeCount">0</div>
-          <div class="stat-sub">subscriptions</div>
+          <div class="stat-sub">still going strong</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Cancelled</div>
           <div class="stat-value" id="cancelledCount">0</div>
-          <div class="stat-sub">subscriptions</div>
+          <div class="stat-sub">shown the door</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Savings</div>
+          <div class="stat-value" id="potentialSavings" style="color: var(--success);">RM 0</div>
+          <div class="stat-sub">thanks to the ones you dropped</div>
         </div>
       </div>
 
-      <div class="analytics-panel">
-        <div class="analytics-panel-title">Top 5 Costliest Active Subscriptions</div>
-        <div id="topCosts"></div>
+      <div class="analytics-section">
+        <div class="analytics-panel-title">What's Renewing Soon</div>
+        <div id="upcomingRenewals" class="rank-grid"></div>
+      </div>
+
+      <div class="analytics-section">
+        <div class="analytics-panel-title">Your Priciest Subs</div>
+        <div id="topCosts" class="rank-grid"></div>
       </div>
 
       <div class="analytics-panel">
-        <div class="analytics-panel-title">Spend by Category</div>
+        <div class="analytics-panel-title">Where the Money Goes</div>
         <div id="categoryBreakdown"></div>
       </div>
 
       <div class="analytics-panel">
-        <div class="analytics-panel-title">Active vs Renewing Soon vs Cancelled</div>
+        <div class="analytics-panel-title">The Breakdown</div>
         <div id="statusSplit"></div>
       </div>
 
