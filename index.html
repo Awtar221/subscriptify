@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/modal.css" />
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -59,16 +61,22 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="user-pill">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <div class="user-name"></div>
-          <div class="user-role">Free plan</div>
-        </div>
-        <!-- Logout button — wired up by session.js -->
-        <i class="ti ti-logout settings-icon" id="logoutBtn" title="Logout"></i>
-      </div>
+  <div class="user-pill">
+    <div class="avatar"></div>
+    <div class="user-info">
+      <div class="user-name" id="userEmailDisplay">User</div>
+      <div class="user-role">Free plan</div>
     </div>
+  </div>
+  <!-- Logout button moved outside user-pill -->
+  <div style="padding: 10px 16px; border-top: 1px solid #eee; margin-top: 8px;">
+    <a href="#" id="logoutBtn" style="display: flex; align-items: center; gap: 10px; color: #dc3545; text-decoration: none; padding: 8px 12px; border-radius: 6px; background: #f8f9fa;">
+      <i class="ti ti-logout"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</div>
+    
   </aside>
 
   <!-- ===== MAIN ===== -->
@@ -94,7 +102,7 @@
 
     <div class="content">
 
-      <!-- Stat cards — values populated by simple_CRUD.js -->
+      <!-- Stat cards -->
       <div class="summary-row">
         <div class="stat-card">
           <div class="stat-label">Total Monthly</div>
@@ -128,7 +136,7 @@
         </div>
       </div>
 
-      <!-- Table rendered dynamically by simple_CRUD.js -->
+      <!-- Table rendered dynamically -->
       <div id="subscriptionsTable"></div>
 
     </div>
@@ -144,7 +152,6 @@
     </div>
 
     <form id="subscriptionForm">
-      <!-- Hidden field stores the id when editing an existing record -->
       <input type="hidden" id="editId" value="" />
 
       <div class="form-field">
@@ -197,10 +204,10 @@
   </div>
 </div>
 
-<!-- session.js runs first: guards the page and sets user display -->
-<script src="js/session.js"></script>
-<!-- simple_CRUD.js handles all subscription logic and modal state -->
-<script src="js/simple_CRUD.js"></script>
+<!-- session.js: guards the page and sets user display -->
+<script type="module" src="js/session.js"></script>
+<!-- simple_CRUD.js: handles all subscription logic and modal state -->
+<script type="module" src="js/simple_CRUD.js"></script>
 
 </body>
 </html>

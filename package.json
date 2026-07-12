@@ -1,0 +1,24 @@
+{
+  "name": "subscriptify",
+  "version": "1.0.0",
+  "description": "Subscriptify is a subscription tracker web application developed as part of the BAI21113 Software Engineering assignment. The application supports user registration, login, and subscription management. Development follows Scrum with 2 sprints and uses GitHub for version control and collaboration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Awtar221/subscriptify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Awtar221/subscriptify/issues"
+  },
+  "homepage": "https://github.com/Awtar221/subscriptify#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.2"
+  }
+}

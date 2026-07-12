@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/auth.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -16,34 +17,36 @@
     <div class="auth-title">Create account</div>
     <div class="auth-sub">Start tracking your subscriptions</div>
 
-    <div class="form-group">
-      <label for="regUsername">Username</label>
-      <input type="text" id="regUsername" placeholder="e.g. alexchen" />
-    </div>
+    <!-- Error message area -->
+    <div id="error-message" style="display:none; background:#ff4444; color:white; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
 
-    <div class="form-group">
-      <label for="regPassword">Password</label>
-      <input type="password" id="regPassword" placeholder="At least 3 characters" />
-    </div>
+    <form id="register-form">
+      <div class="form-group">
+        <label for="regUsername">Email</label>
+        <input type="email" id="regUsername" placeholder="your@email.com" required />
+      </div>
 
-    <div class="form-group">
-      <label for="regConfirm">Confirm password</label>
-      <input type="password" id="regConfirm" placeholder="Enter password again" />
-    </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
+      </div>
 
-    <button class="btn-auth" id="registerBtn">Register</button>
+      <div class="form-group">
+        <label for="regConfirm">Confirm password</label>
+        <input type="password" id="regConfirm" placeholder="Confirm your password" required />
+      </div>
+
+      <button type="submit" class="btn-auth" id="registerBtn">Register</button>
+    </form>
 
     <div class="auth-footer">
       Already have an account? <a href="login.html">Sign in</a>
     </div>
-
-    <!-- Feedback message injected by auth.js -->
-    <div id="regMessage"></div>
   </div>
 </div>
 
-<!-- auth.js handles both login and register logic -->
-<script src="js/auth.js"></script>
+<!-- Use register.js for registration -->
+<script type="module" src="js/register.js"></script>
 
 </body>
 </html>
