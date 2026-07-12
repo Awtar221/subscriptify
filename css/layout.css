@@ -78,25 +78,56 @@
   color: var(--mc-80);
   font-size: 13.5px;
   font-weight: 400;
-  transition: background var(--transition-fast);
-  border-right: 2px solid transparent;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .nav-item:hover {
-  background: rgba(253, 180, 121, 0.06);
+  background: rgba(85, 134, 140, 0.06);
 }
 
-/* Active state: highlighted background + right-side accent border */
+/* Active state: filled background, accent icon, bold label — no side stripe */
 .nav-item.active {
-  background: rgba(253, 180, 121, 0.12);
+  background: rgba(85, 134, 140, 0.14);
   color: var(--mc-40);
-  border-right-color: var(--mc-50);
+  font-weight: 500;
+}
+
+.nav-item.active i {
+  color: var(--mc-50);
+  opacity: 1;
+}
+
+/* Filter links are semantic, not navigational — each active filter borrows its state colour
+   instead of the generic accent, so "Active"/"Cancelled"/"Renewing Soon" read at a glance */
+.filter-link[data-filter="active"].active {
+  background: color-mix(in oklch, var(--success) 12%, transparent);
+}
+.filter-link[data-filter="active"].active,
+.filter-link[data-filter="active"].active i {
+  color: var(--success);
+}
+
+.filter-link[data-filter="cancelled"].active {
+  background: color-mix(in oklch, var(--danger) 12%, transparent);
+}
+.filter-link[data-filter="cancelled"].active,
+.filter-link[data-filter="cancelled"].active i {
+  color: var(--danger);
+}
+
+.filter-link[data-filter="renewing-soon"].active {
+  background: color-mix(in oklch, var(--attention) 12%, transparent);
+}
+.filter-link[data-filter="renewing-soon"].active,
+.filter-link[data-filter="renewing-soon"].active i {
+  color: var(--attention);
 }
 
 .nav-item i {
   font-size: 17px;
   opacity: 0.85;
   flex-shrink: 0;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
 }
 
 /* --- Sidebar footer: user info pinned to bottom --- */

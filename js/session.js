@@ -32,9 +32,17 @@
   // Wire up logout — the icon/button must have id="logoutBtn"
   var logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', function () {
+    var doLogout = function () {
       localStorage.removeItem('subtrack_current_user');
       window.location.href = 'login.html';
+    };
+    logoutBtn.addEventListener('click', doLogout);
+    // logoutBtn is an <i> icon, not a native <button> — wire Enter/Space for keyboard users
+    logoutBtn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        doLogout();
+      }
     });
   }
 })();

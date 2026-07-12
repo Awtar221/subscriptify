@@ -7,17 +7,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  /* Brand colour palette */
-  --mc-800: #1d110f;
-  --mc-700: #2d1e17;
-  --mc-500: #5b3d2e;
-  --mc-200: #956749;
-  --mc-80:  #cf9263;
-  --mc-50:  #FDB479;
-  --mc-40:  #fcca9e;
-  --mc-30:  #fadcb6;
-  --mc-20:  #faeaca;
-  --mc-10:  #fcf7eb;
+  /* Brand colour palette — user-supplied (dry sage / apricot cream / tan / dark cyan / smoky rose), light theme */
+  --brand-sage:  #cacaaa;
+  --brand-cream: #eec584;
+  --brand-tan:   #c8ab83;
+  --brand-cyan:  #55868c;
+  --brand-rose:  #7f636e;
+
+  --mc-800: #f7f7f2;  /* bg — near-white, sage-tinted */
+  --mc-700: #efefe6;  /* surface (cards, sidebar, topbar) */
+  --mc-500: #c9ba96;  /* borders, dividers (tan/sage) */
+  --mc-200: #6b5f4f;  /* muted/secondary text — 5.8:1 on bg */
+  --mc-80:  #4a4033;  /* labels, icons — stronger secondary text */
+  --mc-50:  #3a5f64;  /* accent TEXT/icons (darkened dark-cyan) — 6.5:1 on bg */
+  --mc-40:  #2b241c;  /* emphasis text: stat values, active nav */
+  --mc-30:  #241d16;  /* headings: page/modal titles */
+  --mc-ink: #2b241c;  /* dark ink for text ON accent-filled buttons */
+  --accent: #55868c;        /* raw brand cyan — decorative/icon-chip/wash source only, not small text */
+  --accent-strong: #3f6469; /* accent button fill, light text 6.5:1 */
+  --accent-deeper: #334f53; /* button hover/pressed, light text 8.2:1 */
+
+  /* Semantic state colours — each of the 5 brand hues does exactly one job */
+  --success:   #526b30; /* dry-sage, deepened — "active" state — 5.2:1 on surface */
+  --warning:   #7a5a2f; /* tan, deepened — form warnings / borders — 5.9:1 on bg */
+  --danger:    #6b4f5a; /* smoky-rose, deepened — destructive actions — 6.3:1 on surface */
+  --attention: #8a5f1f; /* apricot-cream, deepened — "renewing soon" — 4.9:1 on surface */
 
   /* Typography */
   --font-display: 'Playfair Display', serif;
@@ -30,7 +44,17 @@
   --radius-xl: 16px;
 
   /* Transition */
-  --transition-fast: 0.15s ease;
+  --transition-fast: 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-base: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Global reset */
@@ -64,4 +88,11 @@ button {
 
 input, select, textarea {
   font-family: var(--font-body);
+}
+
+/* Keyboard-visible focus ring everywhere; invisible for mouse/touch (:focus-visible) */
+:focus-visible {
+  outline: 2px solid var(--mc-50);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }

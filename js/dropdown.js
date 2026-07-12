@@ -15,12 +15,14 @@
   /* Toggle dropdown open/closed */
   menuBtn.addEventListener('click', function (e) {
     e.stopPropagation();
-    dropdownPanel.classList.toggle('is-open');
+    var isOpen = dropdownPanel.classList.toggle('is-open');
+    menuBtn.setAttribute('aria-expanded', isOpen);
   });
 
   /* Close dropdown when clicking anywhere else */
   document.addEventListener('click', function () {
     dropdownPanel.classList.remove('is-open');
+    menuBtn.setAttribute('aria-expanded', 'false');
   });
 
   /* ---------- EXPORT ---------- */

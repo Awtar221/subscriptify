@@ -45,7 +45,7 @@
           <div class="user-name"></div>
           <div class="user-role">Free plan</div>
         </div>
-        <i class="ti ti-logout settings-icon" id="logoutBtn" title="Logout"></i>
+        <i class="ti ti-logout settings-icon" id="logoutBtn" role="button" tabindex="0" title="Logout" aria-label="Log out"></i>
       </div>
     </div>
   </aside>
@@ -63,12 +63,12 @@
 
         <!-- Three-dot dropdown for export / import / clear -->
         <div class="menu-dropdown">
-          <button class="icon-btn" id="menuBtn" style="width:36px;height:36px;background:var(--mc-700);border:1px solid var(--mc-500);border-radius:var(--radius-md);" title="More options">
+          <button class="icon-btn" id="menuBtn" style="width:36px;height:36px;background:var(--mc-700);border:1px solid var(--mc-500);border-radius:var(--radius-md);" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false">
             <i class="ti ti-dots-vertical"></i>
           </button>
 
           <!-- Dropdown panel — toggled by dropdown.js -->
-          <div class="dropdown-panel" id="dropdownPanel">
+          <div class="dropdown-panel" id="dropdownPanel" role="menu">
             <a href="#" class="dropdown-item" id="exportDataBtn">
               <i class="ti ti-download"></i>
               <span>Export Data</span>
@@ -91,9 +91,9 @@
       <div class="section-header">
         <div class="section-title">All Subscriptions</div>
         <div class="filter-tabs" id="filterTabs">
-          <div class="tab active" data-filter="all">All</div>
-          <div class="tab" data-filter="active">Active</div>
-          <div class="tab" data-filter="cancelled">Cancelled</div>
+          <button type="button" class="tab active" data-filter="all">All</button>
+          <button type="button" class="tab" data-filter="active">Active</button>
+          <button type="button" class="tab" data-filter="cancelled">Cancelled</button>
         </div>
       </div>
 
@@ -109,7 +109,7 @@
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">Add Subscription</div>
-      <button class="close-btn" id="closeModalBtn"><i class="ti ti-x"></i></button>
+      <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
     <form id="subscriptionForm">

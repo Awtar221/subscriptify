@@ -82,10 +82,10 @@ class SubscriptionManager {
     this.setText('renewingSoonCount', renewingSoon.length);
   }
 
-  /** Set innerHTML of an element by id (no-op if element not found). */
+  /** Set an element's text by id, animating numeric changes (no-op if element not found). */
   setText(id, value) {
     var el = document.getElementById(id);
-    if (el) el.innerHTML = value;
+    if (el) animateStatValue(el, value);
   }
 
   /* ===== CRUD OPERATIONS ===== */
@@ -217,13 +217,13 @@ class SubscriptionManager {
             '<span class="badge ' + badgeClass + '">' +
               '<span class="badge-dot"></span>' + statusLabel +
             '</span>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
+            '<button class="status-menu-btn" data-id="' + sub.id + '" aria-label="More actions for ' + this.escapeHtml(sub.name) + '">&#8942;</button>' +
           '</div>' +
           '<div class="row-actions">' +
-            '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit">' +
+            '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit" aria-label="Edit ' + this.escapeHtml(sub.name) + '">' +
               '<i class="ti ti-edit"></i>' +
             '</button>' +
-            '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete">' +
+            '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete" aria-label="Delete ' + this.escapeHtml(sub.name) + '">' +
               '<i class="ti ti-trash"></i>' +
             '</button>' +
           '</div>' +
@@ -474,10 +474,11 @@ class SubscriptionManager {
 
     var toast = document.createElement('div');
     toast.className = 'custom-toast ' + type;
+    toast.setAttribute('role', 'status');
     toast.innerHTML =
       '<i class="' + (iconMap[type] || 'ti ti-info-circle') + '"></i>' +
       '<div class="toast-content">' + message + '</div>' +
-      '<i class="ti ti-x toast-close"></i>';
+      '<i class="ti ti-x toast-close" role="button" tabindex="0" aria-label="Dismiss"></i>';
 
     document.body.appendChild(toast);
 
@@ -515,7 +516,7 @@ class SubscriptionManager {
           '<h3>Delete Subscription</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
-          message + ' <span class="subscription-name">"' + subscriptionName + '"</span>?' +
+          message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
           '<span class="dialog-note">This action cannot be undone.</span>' +
         '</div>' +
         '<div class="custom-dialog-footer">' +

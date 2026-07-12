@@ -93,6 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setText(id, value) {
     var e = document.getElementById(id);
-    if (e) e.textContent = value;
+    if (e) animateStatValue(e, value);
   }
 });
