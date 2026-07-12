@@ -56,16 +56,52 @@
     </header>
 
     <div class="content">
-      <!-- Placeholder — charts to be added in Iteration 2 -->
-      <div class="empty-state" style="padding-top: 80px;">
-        <i class="ti ti-chart-bar" style="font-size:40px;opacity:0.3;display:block;margin-bottom:12px;"></i>
-        <p>Coming Soon</p>
+
+      <!-- Stat cards — populated by analytics.js -->
+      <div class="summary-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Monthly</div>
+          <div class="stat-value" id="totalMonthly">RM 0</div>
+          <div class="stat-sub">across active subscriptions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Cost</div>
+          <div class="stat-value" id="avgCost">RM 0</div>
+          <div class="stat-sub">per active subscription</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active</div>
+          <div class="stat-value" id="activeCount">0</div>
+          <div class="stat-sub">subscriptions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cancelled</div>
+          <div class="stat-value" id="cancelledCount">0</div>
+          <div class="stat-sub">subscriptions</div>
+        </div>
       </div>
+
+      <div class="analytics-panel">
+        <div class="analytics-panel-title">Spend by Category</div>
+        <div id="categoryBreakdown"></div>
+      </div>
+
+      <div class="analytics-panel">
+        <div class="analytics-panel-title">Active vs Cancelled</div>
+        <div id="statusSplit"></div>
+      </div>
+
+      <div class="analytics-panel">
+        <div class="analytics-panel-title">Top 5 Costliest Active Subscriptions</div>
+        <div id="topCosts"></div>
+      </div>
+
     </div>
   </main>
 </div>
 
 <script src="../js/session.js"></script>
+<script src="../js/analytics.js"></script>
 
 </body>
 </html>

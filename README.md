@@ -10,10 +10,9 @@ Subscriptify is a subscription tracker web application developed as part of the 
 
 | Name | Role | Responsibilities |
 |------|------|------------------|
-| Kelvin | Product Owner & Developer | Backlog prioritisation, sprint scope decisions, UI shell, CSS system, codebase restructuring |
-| Wei Liang | Scrum Master & Developer | Sprint planning facilitation, Jira board management, authentication system, README |
-| Li Xian | Developer | Subscription CRUD system, localStorage data layer, form validation, bug fixes |
-
+| Kelvin Singh (BAI_2009F-2505002) | Product Owner & Developer | Backlog prioritisation, sprint scope decisions, UI shell, CSS system, codebase restructuring |
+| Wei Liang (BIT_B2201F-2505006) | Scrum Master & Developer | Sprint planning facilitation, Jira board management, authentication system, README |
+| Li Xian (BIT_B2201F-2505005) | Developer | Subscription CRUD system, localStorage data layer, form validation, bug fixes |
 ---
 
 ## How to Run the Code
@@ -79,14 +78,14 @@ Day-to-day task tracking and sprint management was done in Jira. Each sprint had
 
 | Iteration | Stories Addressed | Focus | Tag |
 |-----------|------------------|-------|-----|
-| Sprint 1 | US-01 to US-08 | Core foundation, minimum viable product | v0.1-iteration1 |
-| Sprint 2 | US-01 to US-08 | Refinement, bug fixes, code restructuring | v0.2-iteration2 |
+| Sprint 1 | US-01 to US-08 | Core foundation, minimum viable product | iteration1 |
+| Sprint 2 | US-01 to US-08 | Refinement, bug fixes, code restructuring | iteration2 |
 
 Sprint 2 works from the same eight user stories. No new stories were added. The team used Sprint 2 to address quality gaps identified in the Sprint 1 review.
 
 ### What Was Delivered in Each Sprint
 
-**Sprint 1 (v0.1-iteration1) - Core Foundation**
+**Sprint 1 (iteration1) - Core Foundation**
 
 - Base UI with sidebar navigation, stat cards, and subscription table (`index.html`, `css/layout.css`, `css/components.css`)
 - User registration with localStorage-based credential storage — `subtrack_users` key (`register.html`, `js/auth.js`)
@@ -95,12 +94,13 @@ Sprint 2 works from the same eight user stories. No new stories were added. The 
 - Filter subscriptions by active or cancelled status via tabs and sidebar links
 - Dashboard stat cards: total monthly cost, active count, renewing soon count, cancelled count
 - Subscriptions stored under `subscriptions` key in localStorage
-
-**Sprint 2 (v0.2-iteration2) - Refinement and Bug Fixes**
-
-- Improved form validation with field-level error toasts for each missing input (`validateForm` in `simple_CRUD.js`)
 - Codebase restructured: inline scripts extracted into `auth.js`, `session.js`, `dropdown.js`, `modal.js`
 - CSS split into five focused files: `base.css`, `layout.css`, `components.css`, `modal.css`, `auth.css`
+
+**Sprint 2 (iteration2) - Refinement and Bug Fixes**
+
+- Improved form validation with field-level error toasts for each missing input (`validateForm` in `simple_CRUD.js`)
+
 - Fixed inconsistent sidebar filter behaviour that left stale results after switching filters
 - Fixed duplicate modal footer in `index.html`
 - Fixed status context menu (`showStatusMenu`) rendering and cleanup on outside click
@@ -109,15 +109,16 @@ Sprint 2 works from the same eight user stories. No new stories were added. The 
 
 ### Feature Evolution Between Sprints
 
-| Feature | Sprint 1 (v0.1-iteration1) | Sprint 2 (v0.2-iteration2) |
+| Feature | Sprint 1 (iteration1) | Sprint 2 (iteration2) |
 |---------|----------------------------|----------------------------|
-| Registration | Basic form with localStorage persistence | Same flow with field-level validation toasts |
-| Login | Login with session redirect | Same flow with improved error feedback |
-| Subscription CRUD | Functional via modal, inline scripts | Same functionality, logic moved to dedicated JS files |
+| Registration | Basic form with localStorage persistence | Same flow, no change |
+| Login | Login with session redirect | Same flow, no change |
+| Subscription CRUD | Functional via modal form | Bug fixes: sidebar filter, modal footer, status context menu |
+| Form Validation | Basic required-field check | Field-level error toasts for each missing input |
 | Status Filter | Working but inconsistent on repeat use | Fixed; renders correctly on every filter change |
-| Stat Cards | Correct calculations | No logic change; layout cleaned up |
-| Three-dot menu | Inline in HTML | Extracted into `dropdown.js` |
-| Codebase | Mixed inline and external scripts, single CSS file | Modular JS files, CSS split into five files |
+| Stat Cards | Correct calculations | No change |
+| Three-dot menu | Extracted into `dropdown.js` | No change |
+| Codebase | Modular JS files, CSS split into five files | No change |
 
 ---
 
@@ -128,18 +129,18 @@ Sprint 2 works from the same eight user stories. No new stories were added. The 
 ```
 main (stable, production-ready — merged from dev at end of each sprint)
   │
-  └── dev (integration branch — all feature branches merge here first)
+  └── dev (integration branch, Kelvin — all feature branches merge here first)
         │
         ├──  user-reg   (Wei Liang — login, registration, session guard)
-        └── subscription-list (Li Xian & Kelvin — CRUD, UI, dashboard)
+        └── subscription-list (Li Xian — CRUD, UI, dashboard)
 ```
 
 The team used a four-branch model.
 
 - `main` holds stable, tagged code. Nothing merges directly into `main` except `dev` at the end of a sprint.
 - `dev` is the shared integration branch. Feature branches are merged into `dev` and tested together before `dev` is merged into `main`.
-- `feature/login-register` covers all authentication work: registration, login, session guard, and the auth pages.
-- `feature/subscription-list` covers the subscription CRUD, dashboard UI, stat cards, filters, and all related CSS and JS.
+- `login-register` covers all authentication work: registration, login, session guard, and the auth pages.
+- `subscription-list` covers the subscription CRUD, dashboard UI, stat cards, filters, and all related CSS and JS.
 
 This model kept in-progress work off `main` at all times and gave the team a stable integration point in `dev` to catch conflicts before the sprint review.
 
@@ -147,40 +148,40 @@ This model kept in-progress work off `main` at all times and gave the team a sta
 
 | Issue | Assigned To | Status |
 |-------|-------------|--------|
-| Implement registration page and auth logic | Wei Liang | Closed |
-| Create README documentation | Wei Liang | Closed |
-| Build dashboard UI and stat cards | Kelvin | Closed |
-| Setup GitHub repository and branching strategy | Kelvin | Closed |
-| Build subscription CRUD class and localStorage layer | Li Xian | Closed |
-| Implement form validation with field-level toasts | Li Xian | Closed |
+| Added log in and register | Wei Liang | Closed |
+| Added logo to login page | Wei Liang | Closed |
+| UI improvement needed | Kelvin | Open |
+| Filtering is in dashboard rather than subscription table | Kelvin | Open |
+| Added syncronisation between dashboard and subscription list | Li Xian | Closed |
+| Validation error | Li Xian | Closed |
 
 ### Pull Requests & Code Reviews
 
 Each team member submitted at least 2 pull requests with review comments.
 
 **Kelvin's PRs:**
-- PR #1: `feature/subscription-list` → `dev` (Dashboard UI, sidebar, stat cards, CSS system — Sprint 1)
-- PR #2: `feature/subscription-list` → `dev` (Codebase restructure: modular JS and split CSS — Sprint 2)
+- PR #1: `dev` → `main` (Dashboard UI, sidebar, stat cards, CSS system, login, registration, subscription list — Sprint 1)
+- PR #2: `dev` → `main` (README update, validation update, logo added — Sprint 2)
 
 **Wei Liang's PRs:**
-- PR #1: `feature/login-register` → `dev` (Login, registration, `auth.js`, `session.js`)
-- PR #2: `feature/login-register` → `dev` (Session guard fix and README update)
+- PR #1: `login-register` → `dev` (Login, registration, `auth.js`, `session.js`)
+- PR #2: `login-register` → `dev` (README update)
 
 **Li Xian's PRs:**
-- PR #1: `feature/subscription-list` → `dev` (SubscriptionManager class, localStorage CRUD, stat card logic)
-- PR #2: `feature/subscription-list` → `dev` (Form validation toasts, status context menu fix)
+- PR #1: `subscription-list` → `dev` (SubscriptionManager class, localStorage CRUD, stat card logic)
+- PR #2: `subscription-list` → `dev` (Form validation toasts, status context menu fix)
 
 ### Release Tags
 
 | Tag | Sprint | Description |
 |-----|--------|-------------|
-| v0.1-iteration1 | Sprint 1 | Core subscription tracker with full CRUD and authentication |
-| v0.2-iteration2 | Sprint 2 | Refined codebase with improved validation and bug fixes |
+| iteration1 | Sprint 1 | Core subscription tracker with full CRUD and authentication |
+| iteration2 | Sprint 2 | Refined codebase with improved validation and bug fixes, added image to login page |
 
 ### Evidence of Collaboration
 
 - Regular commits from all 3 team members across both sprints
-- Four-branch model: `main`, `dev`, `feature/login-register`, `feature/subscription-list`
+- Four-branch model: `main`, `dev`, `login-register`, `subscription-list`
 - All feature branches merged into `dev` first; `dev` merged into `main` at sprint end
 - Pull requests with review comments before every merge
 - GitHub Issues created per member
@@ -261,25 +262,4 @@ task-tracker-kwl/
 ```
 
 ---
-
-## Assignment Requirements Checklist
-
-| Requirement | Status |
-|-------------|--------|
-| Chosen agile methodology with justification | Scrum with 2 sprints |
-| Minimum 6 user stories in backlog | 8 user stories |
-| Division of work into 2 iterations | Sprint 1 (core) and Sprint 2 (refinement) |
-| Iterative and incremental development evidence | Feature evolution table above |
-| GitHub repository with README | Done |
-| Branching strategy (main + dev + feature branches) | main, dev, feature/login-register, feature/subscription-list |
-| At least 2 GitHub issues per member | Done |
-| Regular commits from each member | Done |
-| At least 2 pull requests per member with review comments | Done |
-| GitHub Projects or Issues board | GitHub Issues + Jira Scrum board |
-| Feature implementation for 2 iterations | Done |
-| Release tags | v0.1-iteration1, v0.2-iteration2 |
-| Explanation of functionality evolution | Feature Evolution table above |
-
----
-
 *Developed for BAI21113 Software Engineering Assignment | Faculty of Computing*
