@@ -9,6 +9,76 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/auth.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 45px;
+      box-sizing: border-box;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+    }
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .btn-auth {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-text {
+      display: inline;
+    }
+    .btn-text.hidden {
+      display: none;
+    }
+    .spinner-container {
+      display: none;
+    }
+    .spinner-container.active {
+      display: inline-block;
+    }
+    .password-strength {
+      margin-top: 5px;
+      height: 4px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-text {
+      font-size: 12px;
+      margin-top: 3px;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
 
@@ -28,15 +98,30 @@
 
       <div class="form-group">
         <label for="regPassword">Password</label>
-        <input type="password" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
+        <div class="password-wrapper">
+          <input type="password" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+        <div class="password-strength" id="strengthBar">
+          <div class="password-strength-bar" id="strengthFill"></div>
+        </div>
+        <div class="strength-text" id="strengthText">Enter a password</div>
       </div>
 
       <div class="form-group">
         <label for="regConfirm">Confirm password</label>
-        <input type="password" id="regConfirm" placeholder="Confirm your password" required />
+        <div class="password-wrapper">
+          <input type="password" id="regConfirm" placeholder="Confirm your password" required />
+          <span class="toggle-password" id="toggleConfirmPassword">👁️</span>
+        </div>
       </div>
 
-      <button type="submit" class="btn-auth" id="registerBtn">Register</button>
+      <button type="submit" class="btn-auth" id="registerBtn">
+        <span class="btn-text" id="registerText">Register</span>
+        <span class="spinner-container" id="registerSpinner">
+          <div class="loading-spinner"></div>
+        </span>
+      </button>
     </form>
 
     <div class="auth-footer">
