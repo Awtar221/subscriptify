@@ -51,23 +51,16 @@ export async function requireAuth() {
     // Get current user
     const user = await getCurrentUser()
     
-    // Populate avatar initials (first two characters of email, uppercased)
-    const avatarEl = document.querySelector('.avatar')
-    if (avatarEl && user) {
+    if (user) {
         const email = user.email || 'User'
-        avatarEl.textContent = email.substring(0, 2).toUpperCase()
-    }
 
-    // Populate display name with email
-    const userNameEl = document.getElementById('userEmailDisplay')
-    if (userNameEl && user) {
-        userNameEl.textContent = user.email || 'User'
-    }
+        // Avatar shows initials, other spots show the full email
+        const avatarEl = document.querySelector('.avatar')
+        if (avatarEl) avatarEl.textContent = email.substring(0, 2).toUpperCase()
 
-    // Also populate the old .user-name if it exists
-    const oldUserNameEl = document.querySelector('.user-name')
-    if (oldUserNameEl && user) {
-        oldUserNameEl.textContent = user.email || 'User'
+        document.querySelectorAll('#userEmailDisplay, .user-name').forEach((el) => {
+            el.textContent = email
+        })
     }
 
     // Wire up logout — the icon/button must have id="logoutBtn"

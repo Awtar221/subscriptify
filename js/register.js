@@ -1,41 +1,14 @@
 import { supabase } from './supabase.js'
+import { wirePasswordToggle } from './ui.js'
 
 const form = document.getElementById('register-form')
 const errorDiv = document.getElementById('error-message')
 const registerText = document.getElementById('registerText')
 const registerSpinner = document.getElementById('registerSpinner')
 
-// Toggle password visibility
-const togglePassword = document.getElementById('togglePassword')
 const passwordInput = document.getElementById('regPassword')
-
-if (togglePassword && passwordInput) {
-    togglePassword.addEventListener('click', function() {
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text'
-            togglePassword.textContent = '🙈'
-        } else {
-            passwordInput.type = 'password'
-            togglePassword.textContent = '👁️'
-        }
-    })
-}
-
-// Toggle confirm password visibility
-const toggleConfirm = document.getElementById('toggleConfirmPassword')
-const confirmInput = document.getElementById('regConfirm')
-
-if (toggleConfirm && confirmInput) {
-    toggleConfirm.addEventListener('click', function() {
-        if (confirmInput.type === 'password') {
-            confirmInput.type = 'text'
-            toggleConfirm.textContent = '🙈'
-        } else {
-            confirmInput.type = 'password'
-            toggleConfirm.textContent = '👁️'
-        }
-    })
-}
+wirePasswordToggle(document.getElementById('togglePassword'), passwordInput)
+wirePasswordToggle(document.getElementById('toggleConfirmPassword'), document.getElementById('regConfirm'))
 
 // Password strength indicator
 const strengthFill = document.getElementById('strengthFill')
