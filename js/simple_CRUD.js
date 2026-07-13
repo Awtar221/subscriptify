@@ -34,10 +34,18 @@ class SubscriptionManager {
     } else {
       // Demo seed data shown on first run
       this.subscriptions = [
-        { id: 1, name: 'Netflix',      category: 'Streaming', cost: 54.90,  renewalDate: '2025-06-01', status: 'active',    notes: '' },
-        { id: 2, name: 'Spotify',      category: 'Music',     cost: 17.90,  renewalDate: '2025-06-15', status: 'active',    notes: '' },
-        { id: 3, name: 'iCloud 200GB', category: 'Storage',   cost: 5.90,   renewalDate: '2025-06-22', status: 'cancelled', notes: '' },
-        { id: 4, name: 'Adobe CC',     category: 'Design',    cost: 109.00, renewalDate: '2025-06-30', status: 'active',    notes: '' }
+        { id: 1,  name: 'Netflix',        category: 'Streaming',    cost: 54.90,  renewalDate: '2025-06-01', status: 'active',    notes: '' },
+        { id: 2,  name: 'Spotify',        category: 'Music',        cost: 17.90,  renewalDate: '2025-06-15', status: 'active',    notes: '' },
+        { id: 3,  name: 'iCloud 200GB',   category: 'Storage',      cost: 5.90,   renewalDate: '2025-06-22', status: 'cancelled', notes: '' },
+        { id: 4,  name: 'Adobe CC',       category: 'Design',       cost: 109.00, renewalDate: '2025-06-30', status: 'active',    notes: '' },
+        { id: 5,  name: 'Disney+',        category: 'Streaming',    cost: 29.90,  renewalDate: '2025-07-03', status: 'active',    notes: '' },
+        { id: 6,  name: 'YouTube Premium',category: 'Streaming',    cost: 20.90,  renewalDate: '2025-07-08', status: 'cancelled', notes: '' },
+        { id: 7,  name: 'Notion',         category: 'Productivity', cost: 32.00,  renewalDate: '2025-07-05', status: 'active',    notes: '' },
+        { id: 8,  name: 'Microsoft 365',  category: 'Productivity', cost: 25.90,  renewalDate: '2025-07-12', status: 'active',    notes: '' },
+        { id: 9,  name: 'Google One',     category: 'Storage',      cost: 9.90,   renewalDate: '2025-07-01', status: 'active',    notes: '' },
+        { id: 10, name: 'Apple Music',    category: 'Music',        cost: 15.90,  renewalDate: '2025-07-20', status: 'cancelled', notes: '' },
+        { id: 11, name: 'Canva Pro',      category: 'Design',       cost: 22.00,  renewalDate: '2025-07-02', status: 'active',    notes: '' },
+        { id: 12, name: 'PS Plus',        category: 'Other',        cost: 39.90,  renewalDate: '2025-07-18', status: 'active',    notes: '' }
       ];
       this.saveData();
     }
