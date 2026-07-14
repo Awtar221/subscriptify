@@ -213,13 +213,7 @@ var rows = list.map((sub) => {
             '</span>' +
             '<button class="status-menu-btn" data-id="' + sub.id + '" aria-label="More actions for ' + this.escapeHtml(sub.name) + '">&#8942;</button>' +
           '</div>' +
-          '<div class="row-actions">' +
-            '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit" aria-label="Edit ' + this.escapeHtml(sub.name) + '">' +
-              '<i class="ti ti-edit"></i>' +
-            '</button>' +
-            '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete" aria-label="Delete ' + this.escapeHtml(sub.name) + '">' +
-              '<i class="ti ti-trash"></i>' +
-            '</button>' +
+          '<div class="td row-actions">' + // 增加 td 类
             '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
           '</div>' +
         '</div>'
@@ -242,51 +236,43 @@ container.innerHTML =
 
   /** Attach click handlers to edit, delete, and three-dot buttons after render. */
   attachRowEvents() {
-    document.querySelectorAll('.edit-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id)); };
-    });
-
-    document.querySelectorAll('.delete-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.deleteSubscription(parseInt(btn.dataset.id)); };
-    });
 
     document.querySelectorAll('.status-menu-btn').forEach((btn) => {
       btn.onclick = (e) => { e.stopPropagation(); this.showStatusMenu(btn, parseInt(btn.dataset.id)); };
     });
   }
+  
 
-  /* ===== CONTEXT MENU (three-dot) ===== */
+  
 
-  /** Show a small floating menu near the clicked button. */
   showStatusMenu(triggerEl, id) {
-    // Remove any existing menu first
     var existing = document.querySelector('.status-popup-menu');
     if (existing) existing.remove();
 
     var rect = triggerEl.getBoundingClientRect();
     var menu = document.createElement('div');
     menu.className = 'status-popup-menu';
-    menu.style.top  = (rect.bottom + 5) + 'px';
-    menu.style.left = rect.left + 'px';
-
-    menu.innerHTML =
-      '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
-      '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
-
+    
     document.body.appendChild(menu);
+    menu.innerHTML =
+        '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
+        '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
 
-    menu.querySelector('[data-action="edit"]').onclick   = () => { this.openEditModal(id); menu.remove(); };
+    var menuWidth = menu.offsetWidth;
+    
+    menu.style.top = (rect.bottom + 5) + 'px';
+    menu.style.left = (rect.right - menuWidth) + 'px';
+
+    menu.querySelector('[data-action="edit"]').onclick = () => { this.openEditModal(id); menu.remove(); };
     menu.querySelector('[data-action="delete"]').onclick = () => { this.deleteSubscription(id); menu.remove(); };
 
-    // Close menu when clicking elsewhere
     setTimeout(function () {
-      document.addEventListener('click', function handler() {
-        menu.remove();
-        document.removeEventListener('click', handler);
-      });
+        document.addEventListener('click', function handler() {
+            menu.remove();
+            document.removeEventListener('click', handler);
+        });
     }, 0);
-  }
-
+}
   /* ===== MODAL ===== */
 
   openModal() {
@@ -571,4 +557,5 @@ container.innerHTML =
 document.addEventListener('DOMContentLoaded', function () {
   window.subscriptionManager = new SubscriptionManager();
 });
+
 
