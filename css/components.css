@@ -224,26 +224,6 @@
   justify-content: flex-end;
 }
 
-.icon-btn {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--mc-200);
-  font-size: 15px;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.icon-btn:hover {
-  background: rgba(253, 180, 121, 0.10);
-  color: var(--mc-40);
-  border-color: var(--mc-500);
-}
-
 /* 搜索框容器样式 */
 .search-box {
     display: flex;
