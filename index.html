@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/modal.css" />
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -178,14 +177,10 @@
   </div>
 </div>
 
-<div id="subscriptionsTable"></div>
-
-<!-- session.js runs first: guards the page and sets user display -->
-<script src="js/session.js"></script>
-<!-- simple_CRUD.js handles all subscription logic and modal state -->
-<script src="js/simple_CRUD.js"></script>
-
-
+<!-- session.js: guards the page and sets user display -->
+<script type="module" src="js/session.js"></script>
+<!-- simple_CRUD.js: handles all subscription logic and modal state -->
+<script type="module" src="js/simple_CRUD.js"></script>
 
 </body>
 </html>
