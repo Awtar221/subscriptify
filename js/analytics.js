@@ -9,19 +9,64 @@ document.addEventListener('DOMContentLoaded', function () {
   var stored = localStorage.getItem('subscriptions');
   var subs = stored ? JSON.parse(stored) : [];
   var active = subs.filter(function (s) { return s.status === 'active'; });
+  var renewingSoon = active.filter(isRenewingSoon);
 
   renderStats(subs, active);
-  renderCategoryBreakdown(active);
-  renderStatusSplit(subs, active);
+  renderUpcomingRenewals(active);
   renderTopCosts(active);
+  renderCategoryBreakdown(active);
+  renderStatusSplit(subs, active, renewingSoon);
+
+  /** Active sub renewing within 7 days — same window as the dashboard stat card. */
+  function isRenewingSoon(s) {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var d = new Date(s.renewalDate);
+    d.setHours(0, 0, 0, 0);
+    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff <= 7;
+  }
 
   function renderStats(subs, active) {
     var total = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
     var avg = active.length ? total / active.length : 0;
+    var cancelled = subs.filter(function (s) { return s.status === 'cancelled'; });
+    var savings = cancelled.reduce(function (sum, s) { return sum + s.cost; }, 0);
+
     setText('totalMonthly', 'RM ' + total.toFixed(2));
     setText('avgCost', 'RM ' + avg.toFixed(2));
     setText('activeCount', active.length);
-    setText('cancelledCount', subs.length - active.length);
+    setText('cancelledCount', cancelled.length);
+    setText('potentialSavings', 'RM ' + savings.toFixed(2));
+  }
+
+  function renderUpcomingRenewals(active) {
+    var el = document.getElementById('upcomingRenewals');
+    if (!el) return;
+
+    var upcoming = active.slice().sort(function (a, b) {
+      return new Date(a.renewalDate) - new Date(b.renewalDate);
+    }).slice(0, 5);
+
+    if (upcoming.length === 0) {
+      el.innerHTML = '<div class="empty-state">Nothing renewing — you\'re all clear.</div>';
+      return;
+    }
+
+    el.innerHTML = upcoming.map(function (s) {
+      return (
+        '<div class="rank-row">' +
+          '<div class="rank-num"><i class="ti ti-calendar-event"></i></div>' +
+          '<div class="rank-name">' + escapeHtml(s.name) + '</div>' +
+          '<div class="rank-value">' + formatDate(s.renewalDate) + '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function formatDate(dateStr) {
+    var d = new Date(dateStr);
+    return d.getDate() + ' ' + d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear();
   }
 
   function renderCategoryBreakdown(active) {
@@ -50,24 +95,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  function renderStatusSplit(subs, active) {
+  function renderStatusSplit(subs, active, renewingSoon) {
     var el = document.getElementById('statusSplit');
     if (!el) return;
 
     var cancelled = subs.length - active.length;
     var total = subs.length || 1;
 
+    function row(label, count, fillClass) {
+      return (
+        '<div class="bar-row">' +
+          '<div class="bar-label">' + label + '</div>' +
+          '<div class="bar-track"><div class="bar-fill' + (fillClass ? ' ' + fillClass : '') + '" style="width:' + (count / total * 100).toFixed(1) + '%"></div></div>' +
+          '<div class="bar-value">' + count + '</div>' +
+        '</div>'
+      );
+    }
+
     el.innerHTML =
-      '<div class="bar-row">' +
-        '<div class="bar-label">Active</div>' +
-        '<div class="bar-track"><div class="bar-fill" style="width:' + (active.length / total * 100).toFixed(1) + '%"></div></div>' +
-        '<div class="bar-value">' + active.length + '</div>' +
-      '</div>' +
-      '<div class="bar-row">' +
-        '<div class="bar-label">Cancelled</div>' +
-        '<div class="bar-track"><div class="bar-fill bar-fill-muted" style="width:' + (cancelled / total * 100).toFixed(1) + '%"></div></div>' +
-        '<div class="bar-value">' + cancelled + '</div>' +
-      '</div>';
+      row('Active', active.length) +
+      row('Renewing Soon', renewingSoon.length, 'bar-fill-attention') +
+      row('Cancelled', cancelled, 'bar-fill-muted');
   }
 
   function renderTopCosts(active) {
@@ -80,19 +128,25 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    el.innerHTML = top.map(function (s) {
+    el.innerHTML = top.map(function (s, i) {
       return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + s.name + '</div>' +
-          '<div class="bar-track"></div>' +
-          '<div class="bar-value">RM ' + s.cost.toFixed(2) + '</div>' +
+        '<div class="rank-row">' +
+          '<div class="rank-num">' + (i + 1) + '</div>' +
+          '<div class="rank-name">' + escapeHtml(s.name) + '</div>' +
+          '<div class="rank-value">RM ' + s.cost.toFixed(2) + '</div>' +
         '</div>'
       );
     }).join('');
   }
 
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function setText(id, value) {
     var e = document.getElementById(id);
-    if (e) e.textContent = value;
+    if (e) animateStatValue(e, value);
   }
 });

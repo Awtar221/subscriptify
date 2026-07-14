@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subtrack – Register</title>
+  <title>Subtrack – Sign Up</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
@@ -84,8 +84,8 @@
 
 <div class="app-shell">
   <div class="auth-card">
-    <div class="auth-title">Create account</div>
-    <div class="auth-sub">Start tracking your subscriptions</div>
+    <div class="auth-title">Let's Get You Set Up</div>
+    <div class="auth-sub">Time to wrangle those subs</div>
 
     <!-- Error message area -->
     <div id="error-message" style="display:none; background:#ff4444; color:white; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
@@ -108,24 +108,10 @@
         <div class="strength-text" id="strengthText">Enter a password</div>
       </div>
 
-      <div class="form-group">
-        <label for="regConfirm">Confirm password</label>
-        <div class="password-wrapper">
-          <input type="password" id="regConfirm" placeholder="Confirm your password" required />
-          <span class="toggle-password" id="toggleConfirmPassword">👁️</span>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-auth" id="registerBtn">
-        <span class="btn-text" id="registerText">Register</span>
-        <span class="spinner-container" id="registerSpinner">
-          <div class="loading-spinner"></div>
-        </span>
-      </button>
-    </form>
+    <button class="btn-auth" id="registerBtn">Sign Me Up</button>
 
     <div class="auth-footer">
-      Already have an account? <a href="login.html">Sign in</a>
+      Already one of us? <a href="login.html">Sign in</a>
     </div>
   </div>
 </div>
