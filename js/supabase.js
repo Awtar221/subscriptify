@@ -1,7 +1,22 @@
-const supabaseUrl = 'https://stdqfevaqvqajtsrxina.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0ZHFmZXZhcXZxYWp0c3J4aW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4NzAzMjksImV4cCI6MjA5OTQ0NjMyOX0.rjBQZQn-zozpY75THyij2eb_5AH88dcN77iDU1DLwLo'
+// window.SUPABASE_CONFIG is set by config.js, loaded as a classic <script> before this module on every page.
+const supabaseUrl = window.SUPABASE_CONFIG.url
+const supabaseAnonKey = window.SUPABASE_CONFIG.anonKey
 
-// Use window.supabase from CDN
-const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+// "Remember me" unchecked at login -> use sessionStorage so the session dies with the tab/browser
+// instead of localStorage, which survives restarts. Flag itself is not sensitive, always in localStorage.
+function getAuthStorage() {
+    return localStorage.getItem('subtrack_remember') === 'false' ? window.sessionStorage : window.localStorage
+}
 
-export { supabase }
+// Factory so login.js can build a fresh client right after setting the remember-me flag,
+// since a client's storage is fixed at creation time (a singleton could not pick it up).
+function createSupabaseClient() {
+    return window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { storage: getAuthStorage() }
+    })
+}
+
+// Shared singleton for pages that just need to read/act on an existing session.
+const supabase = createSupabaseClient()
+
+export { supabase, createSupabaseClient }

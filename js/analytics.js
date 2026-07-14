@@ -6,8 +6,7 @@
    ====================== */
 
 document.addEventListener('DOMContentLoaded', function () {
-  var stored = localStorage.getItem('subscriptions');
-  var subs = stored ? JSON.parse(stored) : [];
+  var subs = ensureSubscriptionsSeeded();
   var active = subs.filter(function (s) { return s.status === 'active'; });
   var renewingSoon = active.filter(isRenewingSoon);
 
@@ -21,7 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function isRenewingSoon(s) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
-    var d = new Date(s.renewalDate);
+    var d = parseRenewalDate(s.renewalDate);
+    if (isNaN(d.getTime())) return false;
     d.setHours(0, 0, 0, 0);
     var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
     return diff >= 0 && diff <= 7;
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el) return;
 
     var upcoming = active.slice().sort(function (a, b) {
-      return new Date(a.renewalDate) - new Date(b.renewalDate);
+      return parseRenewalDate(a.renewalDate) - parseRenewalDate(b.renewalDate);
     }).slice(0, 5);
 
     if (upcoming.length === 0) {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function formatDate(dateStr) {
-    var d = new Date(dateStr);
+    var d = parseRenewalDate(dateStr);
     return d.getDate() + ' ' + d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear();
   }
 

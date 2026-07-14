@@ -28,14 +28,7 @@ class SubscriptionManager {
 
   /** Load subscriptions from localStorage; seed demo data if empty. */
   loadData() {
-    var stored = localStorage.getItem('subscriptions');
-    if (stored) {
-      this.subscriptions = JSON.parse(stored);
-    } else {
-      // Demo seed data shown on first run
-      this.subscriptions = [];
-      this.saveData();
-    }
+    this.subscriptions = ensureSubscriptionsSeeded();
   }
 
   /** Persist in-memory list to localStorage and refresh the stats row. */
@@ -57,24 +50,9 @@ var today = new Date();
 today.setHours(0, 0, 0, 0);
 
 var renewingSoon = active.filter(function (s) {
-   
-    var parts = s.renewalDate.split(/[/-]/); 
-    var d;
-    
-    if (parts.length === 3) {
-        
-        if (parts[0].length === 4) {
-            d = new Date(parts[0], parts[1] - 1, parts[2]); 
-        } else {
-            d = new Date(parts[2], parts[1] - 1, parts[0]); 
-        }
-    } else {
-        d = new Date(s.renewalDate); 
-    }
-
+    var d = parseRenewalDate(s.renewalDate);
+    if (isNaN(d.getTime())) return false;
     d.setHours(0, 0, 0, 0);
-    
-    if (isNaN(d.getTime())) return false; 
 
     var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
     return diff >= 0 && diff <= 7;
@@ -164,7 +142,8 @@ var renewingSoon = active.filter(function (s) {
       today.setHours(0, 0, 0, 0);
       result = result.filter(function (s) {
         if (s.status !== 'active') return false;
-        var d    = new Date(s.renewalDate);
+        var d = parseRenewalDate(s.renewalDate);
+        if (isNaN(d.getTime())) return false;
         d.setHours(0, 0, 0, 0);
         var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
         return diff >= 0 && diff <= 7;
@@ -574,7 +553,7 @@ container.innerHTML =
 
   /** Format a YYYY-MM-DD string to "1 Jun 2025". */
   formatDate(dateStr) {
-    var d = new Date(dateStr);
+    var d = parseRenewalDate(dateStr);
     return d.getDate() + ' ' +
            d.toLocaleString('default', { month: 'short' }) + ' ' +
            d.getFullYear();

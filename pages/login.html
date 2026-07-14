@@ -6,8 +6,8 @@
   <title>Subtrack – Login</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     .password-wrapper {
@@ -80,7 +80,7 @@
   <div class="auth-card">
 
     <div class="auth-logo">
-      <img src="logo.jpeg" alt="Subtrack logo" />
+      <img src="../logo.jpeg" alt="Subtrack logo" />
     </div>
 
     <div class="auth-title">Welcome back!</div>
@@ -95,7 +95,23 @@
         <input type="email" id="loginUsername" placeholder="your@email.com" required />
       </div>
 
-    <button class="btn-auth" id="loginBtn">Let's Go</button>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" placeholder="Your password" required />
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+      </div>
+
+      <label class="remember-me">
+        <input type="checkbox" id="rememberMe" checked />
+        Remember me
+      </label>
+
+    <button class="btn-auth" id="loginBtn">
+      <span class="btn-text" id="loginText">Let's Go</span>
+      <span class="spinner-container" id="loginSpinner"><span class="loading-spinner" style="display:inline-block;"></span></span>
+    </button>
 
     <div class="auth-footer">
       New here? <a href="register.html">Join the club</a>
@@ -103,9 +119,9 @@
   </div>
 </div>
 
-<script src="js/config.js"></script>
+<script src="../js/config.js"></script>
 <!-- Use login.js for login -->
-<script type="module" src="js/login.js"></script>
+<script type="module" src="../js/login.js"></script>
 
 </body>
 </html>
