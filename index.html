@@ -38,26 +38,6 @@
       </a>
     </div>
 
-    <div class="nav-section">
-      <div class="nav-label">Filters</div>
-      <a href="#" class="nav-item filter-link" data-filter="all">
-        <i class="ti ti-list"></i>
-        <span>All</span>
-      </a>
-      <a href="#" class="nav-item filter-link" data-filter="active">
-        <i class="ti ti-circle-check"></i>
-        <span>Active</span>
-      </a>
-      <a href="#" class="nav-item filter-link" data-filter="cancelled">
-        <i class="ti ti-circle-x"></i>
-        <span>Cancelled</span>
-      </a>
-      <a href="#" class="nav-item filter-link" data-filter="renewing-soon">
-        <i class="ti ti-clock"></i>
-        <span>Renewing Soon</span>
-      </a>
-    </div>
-
     <div class="sidebar-footer">
       <div class="user-pill">
         <div class="avatar"></div>
@@ -118,22 +98,6 @@
         </div>
       </div>
 
-      <!-- Filter tabs + table -->
-      <div class="section-header">
-        <div class="section-title">All Subscriptions</div>
-        <div class="filter-tabs" id="filterTabs">
-          <div class="tab active" data-filter="all">All</div>
-          <div class="tab" data-filter="active">Active</div>
-          <div class="tab" data-filter="cancelled">Cancelled</div>
-        </div>
-      </div>
-
-      <!-- Table rendered dynamically by simple_CRUD.js -->
-      <div id="subscriptionsTable"></div>
-
-    </div>
-  </main>
-</div>
 
 <!-- ===== ADD / EDIT MODAL ===== -->
 <div class="modal-overlay" id="modalOverlay">
@@ -196,6 +160,8 @@
     </form>
   </div>
 </div>
+
+<div id="subscriptionsTable"></div>
 
 <!-- session.js runs first: guards the page and sets user display -->
 <script src="js/session.js"></script>
