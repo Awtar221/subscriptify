@@ -12,24 +12,28 @@
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 220px;
+  width: 253px;
   background: var(--mc-700);
   border-right: 1px solid var(--mc-500);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  padding: 28px 0 0;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
 }
 
-/* Logo block */
+/* Logo block — fixed height shared with .topbar so both bottom borders align */
 .logo {
-  padding: 0 24px 24px;
+  height: var(--header-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 28px;
   border-bottom: 1px solid var(--mc-500);
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 }
 
 .logo-text {
@@ -50,13 +54,13 @@
 
 /* Nav sections group nav items with a label */
 .nav-section {
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 /* Add a divider between nav sections */
 .nav-section + .nav-section {
-  padding-top: 16px;
-  margin-top: 8px;
+  padding-top: 18px;
+  margin-top: 9px;
   border-top: 1px solid var(--mc-500);
 }
 
@@ -65,16 +69,16 @@
   letter-spacing: 1.8px;
   text-transform: uppercase;
   color: var(--mc-200);
-  padding: 0 24px;
-  margin-bottom: 6px;
+  padding: 0 28px;
+  margin-bottom: 7px;
 }
 
 /* Individual nav link */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 24px;
+  gap: 12px;
+  padding: 12px 28px;
   color: var(--mc-80);
   font-size: var(--text-base);
   font-weight: 400;
@@ -107,23 +111,65 @@
 /* --- Sidebar footer: user info pinned to bottom --- */
 .sidebar-footer {
   margin-top: auto;
-  padding: 16px 24px 24px;
+  padding: 14px 19px 21px;
   border-top: 1px solid var(--mc-500);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
+/* Spacing lives inside the clipped wrapper so the collapsed state has no dead gap */
+.logout-reveal-inner .logout-btn {
+  margin-top: 9px;
+}
+
+/* Clickable user row — expands the logout action below it */
 .user-pill {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  width: 100%;
+  padding: 7px 9px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.user-pill:hover {
+  background: rgba(85, 134, 140, 0.08);
+}
+
+.user-chevron {
+  font-size: var(--text-md);
+  color: var(--mc-200);
+  flex-shrink: 0;
+  transition: transform var(--transition-base);
+}
+
+.sidebar-footer.is-open .user-chevron {
+  transform: rotate(180deg);
+}
+
+/* Collapsed by default; grid-rows 0fr -> 1fr animates height without layout hacks */
+.logout-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-base);
+}
+
+.logout-reveal-inner {
+  overflow: hidden;
+}
+
+.sidebar-footer.is-open .logout-reveal {
+  grid-template-rows: 1fr;
 }
 
 /* Avatar circle with initials */
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 37px;
+  height: 37px;
   border-radius: 50%;
   background: var(--mc-500);
   display: flex;
@@ -149,18 +195,18 @@
   text-overflow: ellipsis;
 }
 
-.user-role {
-  font-size: var(--text-xs);
-  color: var(--mc-200);
+.avatar i {
+  font-size: var(--text-md);
+  color: var(--mc-80);
 }
 
 /* Full-width, clearly labeled logout control (icon-only was too easy to miss) */
 .logout-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border-radius: var(--radius-md);
   background: transparent;
   border: 1px solid var(--mc-500);
@@ -190,15 +236,16 @@
   min-width: 0;
 }
 
-/* --- Topbar --- */
+/* --- Topbar — same fixed height as the sidebar logo block on every page --- */
 .topbar {
+  height: var(--header-h);
   background: var(--mc-700);
   border-bottom: 1px solid var(--mc-500);
-  padding: 18px 28px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   flex-shrink: 0;
 }
 
@@ -213,13 +260,13 @@
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* --- Scrollable content area --- */
 .content {
   flex: 1;
-  padding: 24px 28px;
+  padding: 28px 32px;
   overflow-y: auto;
   background: var(--mc-800);
 }

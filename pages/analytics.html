@@ -10,12 +10,11 @@
   <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/layout.css" />
   <link rel="stylesheet" href="../css/components.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -46,18 +45,22 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="user-pill">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <div class="user-name"></div>
-          <div class="user-role">Free plan</div>
+      <!-- Click to reveal the logout action — wired up by session.js -->
+      <button class="user-pill" id="userPill" type="button" aria-expanded="false" aria-controls="logoutReveal">
+        <span class="avatar"><i class="ti ti-user"></i></span>
+        <span class="user-info">
+          <span class="user-name"></span>
+        </span>
+        <i class="ti ti-chevron-up user-chevron"></i>
+      </button>
+      <div class="logout-reveal" id="logoutReveal">
+        <div class="logout-reveal-inner">
+          <button class="logout-btn" id="logoutBtn" type="button">
+            <i class="ti ti-logout"></i>
+            <span>Log out</span>
+          </button>
         </div>
       </div>
-      <!-- Logout button — wired up by session.js -->
-      <button class="logout-btn" id="logoutBtn" type="button">
-        <i class="ti ti-logout"></i>
-        <span>Log out</span>
-      </button>
     </div>
   </aside>
 
@@ -98,35 +101,45 @@
         </div>
       </div>
 
-      <div class="analytics-section">
-        <div class="analytics-panel-title">Renewing Soon</div>
-        <div id="upcomingRenewals" class="rank-grid"></div>
+      <!-- The analytical core first: the two breakdown charts -->
+      <div class="panel-pair">
+        <div class="analytics-panel">
+          <div class="analytics-panel-title">Spend by Category</div>
+          <div id="categoryBreakdown"></div>
+        </div>
+
+        <div class="analytics-panel">
+          <div class="analytics-panel-title">Status Breakdown</div>
+          <div id="statusSplit"></div>
+        </div>
       </div>
 
-      <div class="analytics-section">
-        <div class="analytics-panel-title">Highest Cost</div>
-        <div id="topCosts" class="rank-grid"></div>
-      </div>
+      <!-- Supporting lists: vertical, scannable, side by side -->
+      <div class="panel-pair">
+        <div class="analytics-panel">
+          <div class="analytics-panel-title">Renewing Soon</div>
+          <div id="upcomingRenewals" class="rank-list"></div>
+        </div>
 
-      <div class="analytics-panel">
-        <div class="analytics-panel-title">Spend by Category</div>
-        <div id="categoryBreakdown"></div>
-      </div>
-
-      <div class="analytics-panel">
-        <div class="analytics-panel-title">Status Breakdown</div>
-        <div id="statusSplit"></div>
+        <div class="analytics-panel">
+          <div class="analytics-panel-title">Highest Cost</div>
+          <div id="topCosts" class="rank-list"></div>
+        </div>
       </div>
 
     </div>
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/session.js"></script>
 <script src="../js/shared-data.js"></script>
 <script src="../js/animate-value.js"></script>
+<script src="../node_modules/animejs/dist/bundles/anime.umd.min.js"></script>
+<!-- dashboard.js provides the shared renderDonutChart helper -->
+<script src="../js/dashboard.js"></script>
 <script src="../js/analytics.js"></script>
 
 </body>

@@ -10,13 +10,12 @@
   <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/layout.css" />
   <link rel="stylesheet" href="../css/components.css" />
   <link rel="stylesheet" href="../css/modal.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -46,18 +45,22 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="user-pill">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <div class="user-name"></div>
-          <div class="user-role">Free plan</div>
+      <!-- Click to reveal the logout action — wired up by session.js -->
+      <button class="user-pill" id="userPill" type="button" aria-expanded="false" aria-controls="logoutReveal">
+        <span class="avatar"><i class="ti ti-user"></i></span>
+        <span class="user-info">
+          <span class="user-name"></span>
+        </span>
+        <i class="ti ti-chevron-up user-chevron"></i>
+      </button>
+      <div class="logout-reveal" id="logoutReveal">
+        <div class="logout-reveal-inner">
+          <button class="logout-btn" id="logoutBtn" type="button">
+            <i class="ti ti-logout"></i>
+            <span>Log out</span>
+          </button>
         </div>
       </div>
-      <!-- Logout button — wired up by session.js -->
-      <button class="logout-btn" id="logoutBtn" type="button">
-        <i class="ti ti-logout"></i>
-        <span>Log out</span>
-      </button>
     </div>
   </aside>
 
@@ -181,10 +184,12 @@
      1. session.js   — redirect if not logged in, show user info
      2. simple_CRUD.js — subscription logic
      3. dropdown.js  — three-dot menu (needs subscriptionManager from step 2)  -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/session.js"></script>
 <script src="../js/shared-data.js"></script>
+<script src="../node_modules/animejs/dist/bundles/anime.umd.min.js"></script>
 <script src="../js/simple_CRUD.js"></script>
 <script src="../js/dropdown.js"></script>
 

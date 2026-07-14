@@ -40,6 +40,16 @@ document.querySelectorAll('#logoutBtn').forEach((btn) => {
     })
 })
 
+// User pill toggles the collapsed logout action beneath it.
+var userPill = document.getElementById('userPill')
+if (userPill) {
+    userPill.addEventListener('click', () => {
+        var footer = userPill.closest('.sidebar-footer')
+        var open = footer.classList.toggle('is-open')
+        userPill.setAttribute('aria-expanded', open)
+    })
+}
+
 // The page starts hidden (see the inline `style="visibility:hidden"` on <html>) so an
 // unauthenticated visitor never sees a flash of dashboard content before this redirects them.
 // Wrapped in an async IIFE since top-level `await` isn't valid in a classic (non-module) script.

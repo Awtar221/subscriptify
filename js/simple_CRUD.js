@@ -185,7 +185,17 @@ var renewingSoon = active.filter(function (s) {
     var container = document.getElementById('subscriptionsTable');
     if (!container) return;
 
-    var list = this.getFilteredSubscriptions();
+    // Dashboard variant: fixed "top 5 most expensive active" list, no filters.
+    var isTop5 = container.dataset.view === 'top5';
+    var list = isTop5
+      ? this.subscriptions
+          .filter(function (s) { return s.status === 'active'; })
+          .sort(function (a, b) { return b.cost - a.cost; })
+          .slice(0, 5)
+      : this.getFilteredSubscriptions();
+
+    // Keep the dashboard side panels (donut, renewals) in sync with every re-render.
+    if (typeof renderDashboardExtras === 'function') renderDashboardExtras(this.subscriptions);
 
     if (list.length === 0) {
       container.innerHTML = '<div class="empty-state">No subscriptions yet. Add one to get started.</div>';
@@ -221,9 +231,6 @@ var rows = list.map((sub) => {
             '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete" aria-label="Delete ' + this.escapeHtml(sub.name) + '">' +
               '<i class="ti ti-trash"></i>' +
             '</button>' +
-            '<button class="icon-btn status-menu-btn" data-id="' + sub.id + '" title="More actions" aria-label="More actions for ' + this.escapeHtml(sub.name) + '" aria-haspopup="menu">' +
-              '<i class="ti ti-dots-vertical"></i>' +
-            '</button>' +
           '</div>' +
         '</div>'
       );
@@ -236,82 +243,28 @@ container.innerHTML =
     '<div class="th">Cost / mo</div>' +
     '<div class="th">Renewal Date</div>' +
     '<div class="th">Status</div>' +
-    '<div class="th" style="justify-content: flex-end;">Actions</div>' + // 这里加个样式靠右对齐
+    '<div class="th" style="justify-content: flex-end;">Actions</div>' +
   '</div>' +
   rows.join('');
 
     this.attachRowEvents();
   }
 
-  /** Attach click handlers to edit, delete, and three-dot buttons after render. */
+  /** Attach click handlers to edit and delete buttons after render. */
   attachRowEvents() {
-
-    document.querySelectorAll('.status-menu-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.showStatusMenu(btn, parseInt(btn.dataset.id)); };
-    });
-  }
-
-  /* ===== CONTEXT MENU (three-dot) ===== */
-
-  /** Show a small floating menu near the clicked button, with Edit/Delete actions. */
-  showStatusMenu(triggerEl, id) {
-    var existing = document.querySelector('.status-popup-menu');
-    if (existing) existing.remove();
-
-    var rect = triggerEl.getBoundingClientRect();
-    var menu = document.createElement('div');
-    menu.className = 'status-popup-menu';
-    menu.setAttribute('role', 'menu');
-    menu.style.top  = (rect.bottom + 5) + 'px';
-    menu.style.left = Math.max(8, rect.right - 140) + 'px';
-
-    
-    document.body.appendChild(menu);
-    menu.innerHTML =
-      '<div class="menu-item" role="menuitem" tabindex="0" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
-      '<div class="menu-item danger" role="menuitem" tabindex="0" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
-        '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
-        '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
-
-    document.body.appendChild(menu);
-
-    var editItem = menu.querySelector('[data-action="edit"]');
-    var deleteItem = menu.querySelector('[data-action="delete"]');
-
-    editItem.onclick = () => { this.openEditModal(id); menu.remove(); };
-    deleteItem.onclick = () => { this.deleteSubscription(id); menu.remove(); };
-    var menuWidth = menu.offsetWidth;
-    
-    menu.style.top = (rect.bottom + 5) + 'px';
-    menu.style.left = (rect.right - menuWidth) + 'px';
-
-    menu.querySelector('[data-action="edit"]').onclick = () => { this.openEditModal(id); menu.remove(); };
-    menu.querySelector('[data-action="delete"]').onclick = () => { this.deleteSubscription(id); menu.remove(); };
-
-    menu.querySelectorAll('.menu-item').forEach((item) => {
-      item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
-      });
+    document.querySelectorAll('.edit-btn').forEach((btn) => {
+      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id)); };
     });
 
-    editItem.focus();
-
-    // Close on outside click or Escape
-    setTimeout(function () {
-        document.addEventListener('click', function handler() {
-            menu.remove();
-            document.removeEventListener('click', handler);
-        });
-    }, 0);
-    var escHandler = function (e) {
-      if (e.key === 'Escape') { menu.remove(); document.removeEventListener('keydown', escHandler); triggerEl.focus(); }
-    };
-    document.addEventListener('keydown', escHandler);
+    document.querySelectorAll('.delete-btn').forEach((btn) => {
+      btn.onclick = (e) => { e.stopPropagation(); this.deleteSubscription(parseInt(btn.dataset.id)); };
+    });
   }
 
   /* ===== MODAL ===== */
 
   openModal() {
+    this.flushPendingReset();
     var overlay = document.getElementById('modalOverlay');
     if (overlay) overlay.classList.add('is-open');
   }
@@ -319,11 +272,27 @@ container.innerHTML =
   closeModal() {
     var overlay = document.getElementById('modalOverlay');
     if (overlay) overlay.classList.remove('is-open');
-    this.resetForm();
+    // Defer the reset until the overlay's 0.2s fade-out finishes, otherwise the
+    // title/button flip back to "Add Subscription" while the modal is still visible.
+    var self = this;
+    this._resetTimer = setTimeout(function () {
+      self._resetTimer = null;
+      self.resetForm();
+    }, 250);
+  }
+
+  /** Run a still-pending deferred reset now (called before reopening the modal). */
+  flushPendingReset() {
+    if (this._resetTimer) {
+      clearTimeout(this._resetTimer);
+      this._resetTimer = null;
+      this.resetForm();
+    }
   }
 
   /** Pre-fill the modal form for editing an existing subscription. */
   openEditModal(id) {
+    this.flushPendingReset();
     var sub = this.subscriptions.find(function (s) { return s.id === id; });
     if (!sub) return;
 
@@ -480,21 +449,37 @@ container.innerHTML =
       '<div class="toast-content">' + message + '</div>' +
       '<i class="ti ti-x toast-close" role="button" tabindex="0" aria-label="Dismiss"></i>';
 
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     document.body.appendChild(toast);
 
-    // Manual close
-    toast.querySelector('.toast-close').onclick = function () {
-      toast.style.animation = 'slideOutRight 0.3s ease';
-      setTimeout(function () { toast.remove(); }, 300);
-    };
+    var dismissed = false;
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      if (reduceMotion || typeof anime === 'undefined') { toast.remove(); return; }
+      anime.animate(toast, {
+        translateX: [0, 24],
+        opacity: [1, 0],
+        duration: 200,
+        ease: 'inQuad',
+        onComplete: function () { toast.remove(); }
+      });
+    }
 
-    // Auto-dismiss after 3 seconds
-    setTimeout(function () {
-      if (toast.parentNode) {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(function () { toast.remove(); }, 300);
-      }
-    }, 3000);
+    if (reduceMotion || typeof anime === 'undefined') {
+      toast.style.opacity = 1;
+    } else {
+      anime.animate(toast, {
+        translateX: [24, 0],
+        opacity: [0, 1],
+        duration: 280,
+        ease: 'outQuint'
+      });
+    }
+
+    toast.querySelector('.toast-close').onclick = dismiss;
+    setTimeout(dismiss, 3000);
   }
 
   /**
@@ -527,13 +512,31 @@ container.innerHTML =
 
     document.body.appendChild(overlay);
 
-    overlay.querySelector('.dialog-cancel').onclick  = function () { overlay.remove(); };
-    overlay.querySelector('.dialog-confirm').onclick = function () { onConfirm(); overlay.remove(); };
-    overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
+    var dialog = overlay.querySelector('.custom-dialog');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduceMotion && typeof anime !== 'undefined') {
+      anime.animate(overlay, { opacity: [0, 1], duration: 180, ease: 'outQuad' });
+      anime.animate(dialog, { scale: [0.94, 1], opacity: [0, 1], duration: 220, ease: 'outQuint' });
+    }
+
+    var closed = false;
+    function close() {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener('keydown', escHandler);
+      if (reduceMotion || typeof anime === 'undefined') { overlay.remove(); return; }
+      anime.animate(overlay, { opacity: [1, 0], duration: 150, ease: 'inQuad', onComplete: function () { overlay.remove(); } });
+      anime.animate(dialog, { scale: [1, 0.96], opacity: [1, 0], duration: 150, ease: 'inQuad' });
+    }
+
+    overlay.querySelector('.dialog-cancel').onclick  = close;
+    overlay.querySelector('.dialog-confirm').onclick = function () { onConfirm(); close(); };
+    overlay.onclick = function (e) { if (e.target === overlay) close(); };
 
     // Close on Escape
     var escHandler = function (e) {
-      if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
+      if (e.key === 'Escape') close();
     };
     document.addEventListener('keydown', escHandler);
   }

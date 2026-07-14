@@ -11,13 +11,12 @@
   <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/modal.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -49,18 +48,22 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="user-pill">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <div class="user-name"></div>
-          <div class="user-role">Free plan</div>
+      <!-- Click to reveal the logout action — wired up by session.js -->
+      <button class="user-pill" id="userPill" type="button" aria-expanded="false" aria-controls="logoutReveal">
+        <span class="avatar"><i class="ti ti-user"></i></span>
+        <span class="user-info">
+          <span class="user-name"></span>
+        </span>
+        <i class="ti ti-chevron-up user-chevron"></i>
+      </button>
+      <div class="logout-reveal" id="logoutReveal">
+        <div class="logout-reveal-inner">
+          <button class="logout-btn" id="logoutBtn" type="button">
+            <i class="ti ti-logout"></i>
+            <span>Log out</span>
+          </button>
         </div>
       </div>
-      <!-- Logout button — wired up by session.js -->
-      <button class="logout-btn" id="logoutBtn" type="button">
-        <i class="ti ti-logout"></i>
-        <span>Log out</span>
-      </button>
     </div>
   </aside>
 
@@ -69,12 +72,6 @@
 
     <header class="topbar">
       <h1 class="page-title">Dashboard</h1>
-      <div class="topbar-actions">
-        <button class="btn-add" id="openModalBtn">
-          <i class="ti ti-plus"></i>
-          Add Subscription
-        </button>
-      </div>
     </header>
 
     <div class="content">
@@ -103,18 +100,29 @@
         </div>
       </div>
 
-      <!-- Filter tabs + table -->
-      <div class="section-header">
-        <div class="section-title">All Subscriptions</div>
-        <div class="filter-tabs" id="filterTabs">
-          <button type="button" class="tab active" data-filter="all">All</button>
-          <button type="button" class="tab" data-filter="active">Active</button>
-          <button type="button" class="tab" data-filter="cancelled">Cancelled</button>
-        </div>
-      </div>
+      <!-- Main dashboard grid: costliest subscriptions + spend breakdown side panels -->
+      <div class="dashboard-grid">
 
-      <!-- Table rendered dynamically -->
-      <div id="subscriptionsTable"></div>
+        <section class="dashboard-main">
+          <div class="section-header">
+            <div class="section-title">Top 5 Most Expensive</div>
+          </div>
+          <!-- Table rendered dynamically (top-5 view) -->
+          <div id="subscriptionsTable" data-view="top5"></div>
+        </section>
+
+        <aside class="dashboard-side">
+          <div class="analytics-panel">
+            <div class="analytics-panel-title">Spend by Category</div>
+            <div id="categoryDonut" class="donut-wrap"></div>
+          </div>
+          <div class="analytics-panel">
+            <div class="analytics-panel-title">Renewing Soon</div>
+            <div id="upcomingList"></div>
+          </div>
+        </aside>
+
+      </div>
 
     </div>
   </main>
@@ -182,11 +190,15 @@
 </div>
 
 <!-- Load order matters: config -> supabase client -> session guard -> everything else -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/session.js"></script>
 <script src="js/animate-value.js"></script>
 <script src="js/shared-data.js"></script>
+<script src="node_modules/animejs/dist/bundles/anime.umd.min.js"></script>
+<!-- dashboard.js defines renderDashboardExtras (donut + renewals) used by simple_CRUD's render -->
+<script src="js/dashboard.js"></script>
 <!-- simple_CRUD.js handles all subscription logic and modal state -->
 <script src="js/simple_CRUD.js"></script>
 

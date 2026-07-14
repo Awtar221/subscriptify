@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Awtar221/subscriptify#readme",
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.2"
+    "@supabase/supabase-js": "^2.110.2",
+    "animejs": "^4.5.0"
   }
 }

@@ -76,46 +76,42 @@ document.addEventListener('DOMContentLoaded', function () {
     var totals = {};
     active.forEach(function (s) { totals[s.category] = (totals[s.category] || 0) + s.cost; });
     var grandTotal = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
-
     var categories = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
-    if (categories.length === 0) {
-      el.innerHTML = '<div class="empty-state">No active subscriptions.</div>';
-      return;
-    }
 
-    el.innerHTML = categories.map(function (cat) {
-      var pct = grandTotal ? (totals[cat] / grandTotal * 100) : 0;
-      return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + cat + '</div>' +
-          '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-          '<div class="bar-value">RM ' + totals[cat].toFixed(2) + '</div>' +
-        '</div>'
-      );
-    }).join('');
+    renderDonutChart(el, categories.map(function (cat) {
+      return { label: cat, value: totals[cat], display: 'RM ' + totals[cat].toFixed(2) };
+    }), {
+      centerValue: 'RM ' + grandTotal.toFixed(2),
+      centerSub: 'per month',
+      ariaLabel: 'Monthly spend split by category',
+      animate: true
+    });
   }
 
   function renderStatusSplit(subs, active, renewingSoon) {
     var el = document.getElementById('statusSplit');
     if (!el) return;
 
+    // Partition (no overlap): renewing-soon subs counted once, not also as "active".
     var cancelled = subs.length - active.length;
-    var total = subs.length || 1;
+    var activeNotSoon = active.length - renewingSoon.length;
 
-    function row(label, count, fillClass) {
-      return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + label + '</div>' +
-          '<div class="bar-track"><div class="bar-fill' + (fillClass ? ' ' + fillClass : '') + '" style="width:' + (count / total * 100).toFixed(1) + '%"></div></div>' +
-          '<div class="bar-value">' + count + '</div>' +
-        '</div>'
-      );
-    }
+    // Filter zero slices here (not in the helper) so each status keeps its semantic color.
+    var rows = [
+      { label: 'Active',        value: activeNotSoon,       token: '--success' },
+      { label: 'Renewing Soon', value: renewingSoon.length, token: '--attention' },
+      { label: 'Cancelled',     value: cancelled,           token: '--mc-200' }
+    ].filter(function (r) { return r.value > 0; });
 
-    el.innerHTML =
-      row('Active', active.length) +
-      row('Renewing Soon', renewingSoon.length, 'bar-fill-attention') +
-      row('Cancelled', cancelled, 'bar-fill-muted');
+    renderDonutChart(el, rows.map(function (r) {
+      return { label: r.label, value: r.value, display: String(r.value) };
+    }), {
+      centerValue: String(subs.length),
+      centerSub: 'subscriptions',
+      ariaLabel: 'Subscription status breakdown',
+      tokens: rows.map(function (r) { return r.token; }),
+      animate: true
+    });
   }
 
   function renderTopCosts(active) {

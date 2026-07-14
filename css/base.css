@@ -50,6 +50,10 @@
   --text-3xl: 2.25rem;    /* 36px — stat values */
   --text-4xl: 3.25rem;    /* 52px — the one spotlighted stat per page */
 
+  /* Shared header height — topbar and sidebar logo block share this so their
+     bottom borders align into one continuous line on every page. */
+  --header-h: 92px;
+
   /* Border radius scale */
   --radius-sm: 7px;
   --radius-md: 9px;
@@ -106,6 +110,14 @@ button {
 
 input, select, textarea {
   font-family: var(--font-body);
+}
+
+/* Hide scrollbars everywhere — scrolling still works via wheel/touch/keys */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
 }
 
 /* Keyboard-visible focus ring everywhere; invisible for mouse/touch (:focus-visible) */

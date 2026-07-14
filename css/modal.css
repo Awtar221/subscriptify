@@ -31,9 +31,9 @@
   background: var(--mc-700);
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-xl);
-  width: 460px;
+  width: 529px;
   max-width: calc(100vw - 40px);
-  padding: 28px;
+  padding: 32px;
   box-shadow: var(--shadow-lg);
 
   /* Slide-up entrance animation */
@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .modal-title {
@@ -61,8 +61,8 @@
 }
 
 .close-btn {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,8 +83,8 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 7px;
+  margin-bottom: 18px;
 }
 
 .field-label {
@@ -99,7 +99,7 @@
   background: var(--mc-800);
   border: 2px solid var(--mc-500);
   border-radius: var(--radius-md);
-  padding: 9px 12px;
+  padding: 10px 14px;
   font-size: var(--text-base);
   color: var(--mc-40);
   outline: none;
@@ -127,22 +127,22 @@
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* --- Modal footer: action buttons --- */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 24px;
-  padding-top: 20px;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 23px;
   border-top: 1px solid var(--mc-500);
 }
 
 /* Ghost/secondary button */
 .btn-secondary {
-  padding: 9px 18px;
+  padding: 10px 21px;
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: 400;
@@ -159,7 +159,7 @@
 
 /* Filled primary button */
 .btn-primary {
-  padding: 9px 18px;
+  padding: 10px 21px;
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: 500;
