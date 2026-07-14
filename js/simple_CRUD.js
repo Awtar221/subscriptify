@@ -245,13 +245,6 @@ container.innerHTML =
 
   /** Attach click handlers to edit, delete, and three-dot buttons after render. */
   attachRowEvents() {
-    document.querySelectorAll('.edit-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id)); };
-    });
-
-    document.querySelectorAll('.delete-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.deleteSubscription(parseInt(btn.dataset.id)); };
-    });
 
     document.querySelectorAll('.status-menu-btn').forEach((btn) => {
       btn.onclick = (e) => { e.stopPropagation(); this.showStatusMenu(btn, parseInt(btn.dataset.id)); };
@@ -272,9 +265,13 @@ container.innerHTML =
     menu.style.top  = (rect.bottom + 5) + 'px';
     menu.style.left = Math.max(8, rect.right - 140) + 'px';
 
+    
+    document.body.appendChild(menu);
     menu.innerHTML =
       '<div class="menu-item" role="menuitem" tabindex="0" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
       '<div class="menu-item danger" role="menuitem" tabindex="0" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
+        '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
+        '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
 
     document.body.appendChild(menu);
 
@@ -283,6 +280,13 @@ container.innerHTML =
 
     editItem.onclick = () => { this.openEditModal(id); menu.remove(); };
     deleteItem.onclick = () => { this.deleteSubscription(id); menu.remove(); };
+    var menuWidth = menu.offsetWidth;
+    
+    menu.style.top = (rect.bottom + 5) + 'px';
+    menu.style.left = (rect.right - menuWidth) + 'px';
+
+    menu.querySelector('[data-action="edit"]').onclick = () => { this.openEditModal(id); menu.remove(); };
+    menu.querySelector('[data-action="delete"]').onclick = () => { this.deleteSubscription(id); menu.remove(); };
 
     menu.querySelectorAll('.menu-item').forEach((item) => {
       item.addEventListener('keydown', (e) => {
@@ -294,10 +298,10 @@ container.innerHTML =
 
     // Close on outside click or Escape
     setTimeout(function () {
-      document.addEventListener('click', function handler() {
-        menu.remove();
-        document.removeEventListener('click', handler);
-      });
+        document.addEventListener('click', function handler() {
+            menu.remove();
+            document.removeEventListener('click', handler);
+        });
     }, 0);
     var escHandler = function (e) {
       if (e.key === 'Escape') { menu.remove(); document.removeEventListener('keydown', escHandler); triggerEl.focus(); }
@@ -569,4 +573,5 @@ container.innerHTML =
 document.addEventListener('DOMContentLoaded', function () {
   window.subscriptionManager = new SubscriptionManager();
 });
+
 
