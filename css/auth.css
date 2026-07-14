@@ -21,6 +21,13 @@
   width: 100%;
   max-width: 400px;
   margin: 20px;
+  box-shadow: 0 12px 32px rgba(43, 36, 28, 0.10);
+  animation: authCardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .auth-title {
@@ -65,10 +72,14 @@
   border-color: var(--mc-80);
 }
 
+.form-group input::placeholder {
+  color: var(--mc-200);
+}
+
 /* Full-width submit button */
 .btn-auth {
   width: 100%;
-  background: var(--mc-50);
+  background: var(--accent-strong);
   color: var(--mc-800);
   border: none;
   border-radius: var(--radius-md);
@@ -81,7 +92,7 @@
 }
 
 .btn-auth:hover {
-  background: var(--mc-40);
+  background: var(--accent-deeper);
 }
 
 /* Link row at bottom of form */
@@ -99,13 +110,13 @@
 
 /* Inline feedback messages */
 .error-msg {
-  color: #e06c75;
+  color: var(--danger);
   font-size: 12px;
   margin-top: 8px;
 }
 
 .success-msg {
-  color: #98c379;
+  color: var(--success);
   font-size: 12px;
   margin-top: 8px;
 }

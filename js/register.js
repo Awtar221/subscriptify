@@ -74,6 +74,7 @@ form.addEventListener('submit', async (e) => {
     registerText.classList.add('hidden')
     registerSpinner.classList.add('active')
     errorDiv.style.display = 'none'
+    removeSuccess()
     
     try {
         const { data, error } = await supabase.auth.signUp({
@@ -83,8 +84,11 @@ form.addEventListener('submit', async (e) => {
         
         if (error) throw error
         
-        alert('Registration successful! Please login.')
-        window.location.href = 'login.html'
+        // Show success message on page
+        showSuccess('Registration successful! Please login.')
+        setTimeout(() => {
+            window.location.href = 'login.html'
+        }, 2000)
         
     } catch (error) {
         showError(error.message)
@@ -101,4 +105,22 @@ function showError(message) {
     setTimeout(() => {
         errorDiv.style.display = 'none'
     }, 5000)
+}
+
+function showSuccess(message) {
+    const successDiv = document.createElement('div')
+    successDiv.id = 'success-message'
+    successDiv.style.cssText = 'background:#4CAF50; color:white; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;'
+    successDiv.textContent = message
+    
+    // Remove old success message if exists
+    removeSuccess()
+    
+    // Insert after error message
+    errorDiv.parentNode.insertBefore(successDiv, errorDiv.nextSibling)
+}
+
+function removeSuccess() {
+    const oldSuccess = document.getElementById('success-message')
+    if (oldSuccess) oldSuccess.remove()
 }

@@ -18,7 +18,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Subscription Tracker</div>
+      <div class="logo-sub">Your Sub Sidekick</div>
     </div>
 
     <div class="nav-section">
@@ -27,14 +27,15 @@
         <i class="ti ti-layout-dashboard"></i>
         <span>Dashboard</span>
       </a>
-      <a href="subscriptions.html" class="nav-item active">
-        <i class="ti ti-list"></i>
-        <span>My Subscriptions</span>
-      </a>
       <a href="analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
-        <span>Analytics</span>
+        <span>Funny Numbers</span>
       </a>
+      <a href="subscriptions.html" class="nav-item active">
+        <i class="ti ti-list"></i>
+        <span>My Subs</span>
+      </a>
+      
     </div>
 
     <div class="sidebar-footer">
@@ -44,7 +45,7 @@
           <div class="user-name"></div>
           <div class="user-role">Free plan</div>
         </div>
-        <i class="ti ti-logout settings-icon" id="logoutBtn" title="Logout"></i>
+        <i class="ti ti-logout settings-icon" id="logoutBtn" role="button" tabindex="0" title="Logout" aria-label="Log out"></i>
       </div>
     </div>
   </aside>
@@ -52,31 +53,32 @@
   <main class="main-area">
 
     <header class="topbar">
-      <h1 class="page-title">My Subscriptions</h1>
+      <h1 class="page-title">My Subs</h1>
       <div class="topbar-actions">
         <button class="btn-add" id="openModalBtn">
           <i class="ti ti-plus"></i>
-          Add Subscription
+          Add a Sub
         </button>
 
         <div class="menu-dropdown">
-          <button class="icon-btn" id="menuBtn" style="width:36px;height:36px;background:var(--mc-700);border:1px solid var(--mc-500);border-radius:var(--radius-md);" title="More options">
+          <button class="icon-btn" id="menuBtn" style="width:36px;height:36px;background:var(--mc-700);border:1px solid var(--mc-500);border-radius:var(--radius-md);" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false">
             <i class="ti ti-dots-vertical"></i>
           </button>
 
-          <div class="dropdown-panel" id="dropdownPanel">
+          <!-- Dropdown panel — toggled by dropdown.js -->
+          <div class="dropdown-panel" id="dropdownPanel" role="menu">
             <a href="#" class="dropdown-item" id="exportDataBtn">
               <i class="ti ti-download"></i>
-              <span>Export Data</span>
+              <span>Back Up My Subs</span>
             </a>
             <a href="#" class="dropdown-item" id="importDataBtn">
               <i class="ti ti-upload"></i>
-              <span>Import Data</span>
+              <span>Restore From File</span>
             </a>
             <hr class="dropdown-divider" />
             <a href="#" class="dropdown-item danger" id="clearAllBtn">
               <i class="ti ti-trash"></i>
-              <span>Clear All Data</span>
+              <span>Nuke Everything</span>
             </a>
           </div>
         </div>
@@ -84,6 +86,14 @@
     </header>
 
     <div class="content">
+      <div class="section-header">
+        <div class="section-title">The Full Lineup</div>
+        <div class="filter-tabs" id="filterTabs">
+          <button type="button" class="tab active" data-filter="all">All</button>
+          <button type="button" class="tab" data-filter="active">Active</button>
+          <button type="button" class="tab" data-filter="cancelled">Cancelled</button>
+        </div>
+      </div>
 
 <<div class="actions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div class="filter-tabs" id="filterTabs">
@@ -108,8 +118,8 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Add Subscription</div>
-      <button class="close-btn" id="closeModalBtn"><i class="ti ti-x"></i></button>
+      <div class="modal-title" id="modalTitle">Add a Sub</div>
+      <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
     <form id="subscriptionForm">
@@ -159,7 +169,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary" id="saveBtn">Add Subscription</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add It</button>
       </div>
     </form>
   </div>
