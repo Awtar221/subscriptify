@@ -33,12 +33,7 @@ class SubscriptionManager {
       this.subscriptions = JSON.parse(stored);
     } else {
       // Demo seed data shown on first run
-      this.subscriptions = [
-        { id: 1, name: 'Netflix',      category: 'Streaming', cost: 54.90,  renewalDate: '2025-06-01', status: 'active',    notes: '' },
-        { id: 2, name: 'Spotify',      category: 'Music',     cost: 17.90,  renewalDate: '2025-06-15', status: 'active',    notes: '' },
-        { id: 3, name: 'iCloud 200GB', category: 'Storage',   cost: 5.90,   renewalDate: '2025-06-22', status: 'cancelled', notes: '' },
-        { id: 4, name: 'Adobe CC',     category: 'Design',    cost: 109.00, renewalDate: '2025-06-30', status: 'active',    notes: '' }
-      ];
+      this.subscriptions = [];
       this.saveData();
     }
   }
@@ -57,15 +52,33 @@ class SubscriptionManager {
     var cancelled = this.subscriptions.filter(function (s) { return s.status === 'cancelled'; });
     var total     = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
 
-    // Count active subs renewing within 7 days from today
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var renewingSoon = active.filter(function (s) {
-      var d    = new Date(s.renewalDate);
-      d.setHours(0, 0, 0, 0);
-      var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-      return diff >= 0 && diff <= 7;
-    });
+// Count active subs renewing within 7 days from today
+var today = new Date();
+today.setHours(0, 0, 0, 0);
+
+var renewingSoon = active.filter(function (s) {
+   
+    var parts = s.renewalDate.split(/[/-]/); 
+    var d;
+    
+    if (parts.length === 3) {
+        
+        if (parts[0].length === 4) {
+            d = new Date(parts[0], parts[1] - 1, parts[2]); 
+        } else {
+            d = new Date(parts[2], parts[1] - 1, parts[0]); 
+        }
+    } else {
+        d = new Date(s.renewalDate); 
+    }
+
+    d.setHours(0, 0, 0, 0);
+    
+    if (isNaN(d.getTime())) return false; 
+
+    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff <= 7;
+});
 
     this.setText('totalMonthly',     'RM ' + total.toFixed(2));
     this.setText('activeCount',      active.length);
@@ -168,8 +181,17 @@ class SubscriptionManager {
     }
 
     // Sort ascending by renewal date
+    var priorityOrder = {
+        'Design': 1,
+        'Productivity': 2,
+        'Streaming': 3,
+        'Other': 4
+    };
+
     result.sort(function (a, b) {
-      return new Date(a.renewalDate) - new Date(b.renewalDate);
+        var pA = priorityOrder[a.category] || 99;
+        var pB = priorityOrder[b.category] || 99;
+        return pA - pB;
     });
 
     return result;
@@ -177,7 +199,7 @@ class SubscriptionManager {
 
   /* ===== RENDERING ===== */
 
-  /** Re-render the subscription table from the filtered list. */
+/** Re-render the subscription table from the filtered list. */
   render() {
     var container = document.getElementById('subscriptionsTable');
     if (!container) return;
@@ -189,14 +211,15 @@ class SubscriptionManager {
       return;
     }
 
-    var rows = list.map((sub) => {
+
+var rows = list.map((sub) => {
       var badgeClass  = sub.status === 'active' ? 'badge-active' : 'badge-cancelled';
       var statusLabel = sub.status === 'active' ? 'Active' : 'Cancelled';
       var icon        = this.getCategoryIcon(sub.category);
 
       return (
         '<div class="table-row">' +
-          '<div class="sub-name-wrap">' +
+          '<div class="td sub-name-wrap">' + // 增加 td 类
             '<div class="sub-icon"><i class="ti ' + icon + '"></i></div>' +
             '<div>' +
               '<div class="sub-name">' + this.escapeHtml(sub.name) + '</div>' +
@@ -205,33 +228,34 @@ class SubscriptionManager {
           '</div>' +
           '<div class="td">RM ' + sub.cost.toFixed(2) + '</div>' +
           '<div class="td">' + this.formatDate(sub.renewalDate) + '</div>' +
-          '<div class="td" style="display:flex;align-items:center;">' +
+          '<div class="td">' +
             '<span class="badge ' + badgeClass + '">' +
               '<span class="badge-dot"></span>' + statusLabel +
             '</span>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
           '</div>' +
-          '<div class="row-actions">' +
+          '<div class="td row-actions">' + // 增加 td 类
             '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit">' +
               '<i class="ti ti-edit"></i>' +
             '</button>' +
             '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete">' +
               '<i class="ti ti-trash"></i>' +
             '</button>' +
+            '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
           '</div>' +
         '</div>'
       );
     });
 
-    container.innerHTML =
-      '<div class="table-head">' +
-        '<div class="th">Service</div>' +
-        '<div class="th">Cost / mo</div>' +
-        '<div class="th">Renewal Date</div>' +
-        '<div class="th">Status</div>' +
-        '<div class="th"></div>' +
-      '</div>' +
-      rows.join('');
+
+container.innerHTML =
+  '<div class="table-head">' +
+    '<div class="th">Service</div>' +
+    '<div class="th">Cost / mo</div>' +
+    '<div class="th">Renewal Date</div>' +
+    '<div class="th">Status</div>' +
+    '<div class="th" style="justify-content: flex-end;">Actions</div>' + // 这里加个样式靠右对齐
+  '</div>' +
+  rows.join('');
 
     this.attachRowEvents();
   }
@@ -414,13 +438,15 @@ class SubscriptionManager {
     var tabs = document.querySelectorAll('#filterTabs .tab');
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
+       
         tabs.forEach(function (t) { t.classList.remove('active'); });
+        
         tab.classList.add('active');
+        
         this.currentFilter = tab.dataset.filter;
         this.render();
       });
     });
-
     // Sidebar filter links — sync with tabs
     var filterLinks = document.querySelectorAll('.filter-link');
     filterLinks.forEach((link) => {
@@ -564,3 +590,4 @@ class SubscriptionManager {
 document.addEventListener('DOMContentLoaded', function () {
   window.subscriptionManager = new SubscriptionManager();
 });
+
