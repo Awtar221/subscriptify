@@ -15,7 +15,6 @@
 
 <div class="app-shell">
 
-  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
@@ -50,7 +49,6 @@
     </div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
   <main class="main-area">
 
     <header class="topbar">
@@ -61,13 +59,11 @@
           Add Subscription
         </button>
 
-        <!-- Three-dot dropdown for export / import / clear -->
         <div class="menu-dropdown">
           <button class="icon-btn" id="menuBtn" style="width:36px;height:36px;background:var(--mc-700);border:1px solid var(--mc-500);border-radius:var(--radius-md);" title="More options">
             <i class="ti ti-dots-vertical"></i>
           </button>
 
-          <!-- Dropdown panel — toggled by dropdown.js -->
           <div class="dropdown-panel" id="dropdownPanel">
             <a href="#" class="dropdown-item" id="exportDataBtn">
               <i class="ti ti-download"></i>
@@ -88,23 +84,27 @@
     </header>
 
     <div class="content">
-      <div class="section-header">
-        <div class="section-title">All Subscriptions</div>
-        <div class="filter-tabs" id="filterTabs">
-          <div class="tab active" data-filter="all">All</div>
-          <div class="tab" data-filter="active">Active</div>
-          <div class="tab" data-filter="cancelled">Cancelled</div>
-        </div>
-      </div>
 
-      <!-- Table rendered dynamically by simple_CRUD.js -->
+<<div class="actions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="filter-tabs" id="filterTabs">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="active">Active</button>
+        <button class="tab" data-filter="cancelled">Cancelled</button>
+        <button class="tab" data-filter="renewing-soon">Renewing Soon</button>
+    </div>
+
+    <div class="search-container">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search subscriptions...">
+    </div>
+</div>
+
       <div id="subscriptionsTable"></div>
     </div>
 
   </main>
 </div>
 
-<!-- ===== ADD / EDIT MODAL ===== -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
@@ -173,6 +173,7 @@
 <script src="../js/session.js"></script>
 <script src="../js/simple_CRUD.js"></script>
 <script src="../js/dropdown.js"></script>
+
 
 </body>
 </html>
