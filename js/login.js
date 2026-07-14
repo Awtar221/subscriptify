@@ -22,18 +22,18 @@ form.addEventListener('submit', async (e) => {
     // Show loading
     loginText.classList.add('hidden')
     loginSpinner.classList.add('active')
-    errorDiv.style.display = 'none'
+    errorDiv.classList.remove('is-visible')
 
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
         })
-        
+
         if (error) throw error
-        
+
         window.location.href = '../index.html'
-        
+
     } catch (error) {
         showError('Invalid email or password. Please try again.')
     } finally {
@@ -45,8 +45,8 @@ form.addEventListener('submit', async (e) => {
 
 function showError(message) {
     errorDiv.textContent = message
-    errorDiv.style.display = 'block'
+    errorDiv.classList.add('is-visible')
     setTimeout(() => {
-        errorDiv.style.display = 'none'
+        errorDiv.classList.remove('is-visible')
     }, 5000)
 }
