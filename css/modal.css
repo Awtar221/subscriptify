@@ -34,6 +34,7 @@
   width: 460px;
   max-width: calc(100vw - 40px);
   padding: 28px;
+  box-shadow: 0 20px 40px rgba(43, 36, 28, 0.16);
 
   /* Slide-up entrance animation */
   transform: translateY(12px);
@@ -74,7 +75,7 @@
 }
 
 .close-btn:hover {
-  background: rgba(253, 180, 121, 0.10);
+  background: rgba(85, 134, 140, 0.10);
   color: var(--mc-40);
 }
 
@@ -108,12 +109,12 @@
 }
 
 .field-input::placeholder {
-  color: var(--mc-500);
+  color: var(--mc-200);
 }
 
 .field-input:focus {
   border-color: var(--mc-80);
-  box-shadow: 0 0 0 2px rgba(253, 180, 121, 0.2);
+  box-shadow: 0 0 0 2px rgba(85, 134, 140, 0.2);
 }
 
 /* Style native select options to match dark theme */
@@ -152,7 +153,7 @@
 }
 
 .btn-secondary:hover {
-  background: rgba(253, 180, 121, 0.07);
+  background: rgba(85, 134, 140, 0.07);
   border-color: var(--mc-80);
 }
 
@@ -162,12 +163,12 @@
   border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
-  background: var(--mc-50);
+  background: var(--accent-strong);
   border: none;
   color: var(--mc-800);
   transition: background var(--transition-fast);
 }
 
 .btn-primary:hover {
-  background: var(--mc-40);
+  background: var(--accent-deeper);
 }

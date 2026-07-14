@@ -28,14 +28,7 @@ class SubscriptionManager {
 
   /** Load subscriptions from localStorage; seed demo data if empty. */
   loadData() {
-    var stored = localStorage.getItem('subscriptions');
-    if (stored) {
-      this.subscriptions = JSON.parse(stored);
-    } else {
-      // Demo seed data shown on first run
-      this.subscriptions = [];
-      this.saveData();
-    }
+    this.subscriptions = ensureSubscriptionsSeeded();
   }
 
   /** Persist in-memory list to localStorage and refresh the stats row. */
@@ -57,24 +50,9 @@ var today = new Date();
 today.setHours(0, 0, 0, 0);
 
 var renewingSoon = active.filter(function (s) {
-   
-    var parts = s.renewalDate.split(/[/-]/); 
-    var d;
-    
-    if (parts.length === 3) {
-        
-        if (parts[0].length === 4) {
-            d = new Date(parts[0], parts[1] - 1, parts[2]); 
-        } else {
-            d = new Date(parts[2], parts[1] - 1, parts[0]); 
-        }
-    } else {
-        d = new Date(s.renewalDate); 
-    }
-
+    var d = parseRenewalDate(s.renewalDate);
+    if (isNaN(d.getTime())) return false;
     d.setHours(0, 0, 0, 0);
-    
-    if (isNaN(d.getTime())) return false; 
 
     var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
     return diff >= 0 && diff <= 7;
@@ -87,10 +65,10 @@ var renewingSoon = active.filter(function (s) {
     this.setText('renewingSoonCount', renewingSoon.length);
   }
 
-  /** Set innerHTML of an element by id (no-op if element not found). */
+  /** Set an element's text by id, animating numeric changes (no-op if element not found). */
   setText(id, value) {
     var el = document.getElementById(id);
-    if (el) el.innerHTML = value;
+    if (el) animateStatValue(el, value);
   }
 
   /* ===== CRUD OPERATIONS ===== */
@@ -109,7 +87,7 @@ var renewingSoon = active.filter(function (s) {
     this.subscriptions.push(newSub);
     this.saveData();
     this.render();
-    this.showToast('Subscription added!', 'success');
+    this.showToast('Added! Welcome to the list.', 'success');
   }
 
   /** Update an existing subscription by id. */
@@ -128,7 +106,7 @@ var renewingSoon = active.filter(function (s) {
     };
     this.saveData();
     this.render();
-    this.showToast('Subscription updated!', 'success');
+    this.showToast('Updated! Looking good.', 'success');
   }
 
   /** Prompt for confirmation then delete a subscription by id. */
@@ -137,13 +115,13 @@ var renewingSoon = active.filter(function (s) {
     if (!sub) return;
 
     this.showConfirmDialog(
-      'Are you sure you want to delete',
+      'Ready to say goodbye to',
       sub.name,
       () => {
         this.subscriptions = this.subscriptions.filter(function (s) { return s.id !== id; });
         this.saveData();
         this.render();
-        this.showToast('Subscription deleted.', 'success');
+        this.showToast('Gone. Bye bye!', 'success');
       }
     );
   }
@@ -164,7 +142,8 @@ var renewingSoon = active.filter(function (s) {
       today.setHours(0, 0, 0, 0);
       result = result.filter(function (s) {
         if (s.status !== 'active') return false;
-        var d    = new Date(s.renewalDate);
+        var d = parseRenewalDate(s.renewalDate);
+        if (isNaN(d.getTime())) return false;
         d.setHours(0, 0, 0, 0);
         var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
         return diff >= 0 && diff <= 7;
@@ -207,7 +186,7 @@ var renewingSoon = active.filter(function (s) {
     var list = this.getFilteredSubscriptions();
 
     if (list.length === 0) {
-      container.innerHTML = '<div class="empty-state">No subscriptions found.</div>';
+      container.innerHTML = '<div class="empty-state">Nothing here. Add a sub to get started!</div>';
       return;
     }
 
@@ -232,6 +211,7 @@ var rows = list.map((sub) => {
             '<span class="badge ' + badgeClass + '">' +
               '<span class="badge-dot"></span>' + statusLabel +
             '</span>' +
+            '<button class="status-menu-btn" data-id="' + sub.id + '" aria-label="More actions for ' + this.escapeHtml(sub.name) + '">&#8942;</button>' +
           '</div>' +
           '<div class="td row-actions">' + // 增加 td 类
             '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
@@ -318,8 +298,8 @@ container.innerHTML =
     document.getElementById('sub-date').value    = sub.renewalDate;
     document.getElementById('sub-status').value  = sub.status;
     document.getElementById('sub-notes').value   = sub.notes || '';
-    document.getElementById('modalTitle').textContent = 'Edit Subscription';
-    document.getElementById('saveBtn').textContent    = 'Update Subscription';
+    document.getElementById('modalTitle').textContent = 'Edit This Sub';
+    document.getElementById('saveBtn').textContent    = 'Save Changes';
 
     this.openModal();
   }
@@ -335,9 +315,9 @@ container.innerHTML =
     if (statusEl) statusEl.value = 'active';
 
     var titleEl = document.getElementById('modalTitle');
-    if (titleEl) titleEl.textContent = 'Add Subscription';
+    if (titleEl) titleEl.textContent = 'Add a Sub';
     var saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.textContent = 'Add Subscription';
+    if (saveBtn) saveBtn.textContent = 'Add It';
   }
 
   /** Read all form values into a plain object. */
@@ -354,10 +334,10 @@ container.innerHTML =
 
   /** Return false and show a toast if any required field is missing/invalid. */
   validateForm(data) {
-    if (!data.name)                { this.showToast('Please enter a service name.', 'error'); return false; }
-    if (!data.category)            { this.showToast('Please select a category.', 'error');    return false; }
-    if (!data.cost || data.cost <= 0) { this.showToast('Please enter a valid cost.', 'error');  return false; }
-    if (!data.renewalDate)         { this.showToast('Please select a renewal date.', 'error'); return false; }
+    if (!data.name)                { this.showToast('Give it a name first!', 'error'); return false; }
+    if (!data.category)            { this.showToast('Pick a category.', 'error');    return false; }
+    if (!data.cost || data.cost <= 0) { this.showToast('That cost doesn\'t look right.', 'error');  return false; }
+    if (!data.renewalDate)         { this.showToast('When does this renew?', 'error'); return false; }
     return true;
   }
 
@@ -478,10 +458,11 @@ container.innerHTML =
 
     var toast = document.createElement('div');
     toast.className = 'custom-toast ' + type;
+    toast.setAttribute('role', 'status');
     toast.innerHTML =
       '<i class="' + (iconMap[type] || 'ti ti-info-circle') + '"></i>' +
       '<div class="toast-content">' + message + '</div>' +
-      '<i class="ti ti-x toast-close"></i>';
+      '<i class="ti ti-x toast-close" role="button" tabindex="0" aria-label="Dismiss"></i>';
 
     document.body.appendChild(toast);
 
@@ -516,15 +497,15 @@ container.innerHTML =
       '<div class="custom-dialog">' +
         '<div class="custom-dialog-header">' +
           '<i class="ti ti-trash"></i>' +
-          '<h3>Delete Subscription</h3>' +
+          '<h3>Wait, Really?</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
-          message + ' <span class="subscription-name">"' + subscriptionName + '"</span>?' +
-          '<span class="dialog-note">This action cannot be undone.</span>' +
+          message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
+          '<span class="dialog-note">No undo button here — it\'s gone for good.</span>' +
         '</div>' +
         '<div class="custom-dialog-footer">' +
-          '<button class="dialog-cancel">Cancel</button>' +
-          '<button class="dialog-confirm">Delete</button>' +
+          '<button class="dialog-cancel">Never Mind</button>' +
+          '<button class="dialog-confirm">Yep, Delete It</button>' +
         '</div>' +
       '</div>';
 
@@ -558,7 +539,7 @@ container.innerHTML =
 
   /** Format a YYYY-MM-DD string to "1 Jun 2025". */
   formatDate(dateStr) {
-    var d = new Date(dateStr);
+    var d = parseRenewalDate(dateStr);
     return d.getDate() + ' ' +
            d.toLocaleString('default', { month: 'short' }) + ' ' +
            d.getFullYear();

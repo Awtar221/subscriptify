@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js'
+import { createSupabaseClient } from './supabase.js'
 import { wirePasswordToggle } from './ui.js'
 
 const form = document.getElementById('login-form')
@@ -13,6 +13,11 @@ form.addEventListener('submit', async (e) => {
     
     const email = document.getElementById('loginUsername').value
     const password = document.getElementById('loginPassword').value
+    const rememberMe = document.getElementById('rememberMe').checked
+
+    // Must be set before creating the client, since a client's storage is fixed at creation time.
+    localStorage.setItem('subtrack_remember', rememberMe ? 'true' : 'false')
+    const supabase = createSupabaseClient()
 
     // Show loading
     loginText.classList.add('hidden')
@@ -27,7 +32,7 @@ form.addEventListener('submit', async (e) => {
         
         if (error) throw error
         
-        window.location.href = 'index.html'
+        window.location.href = '../index.html'
         
     } catch (error) {
         showError('Invalid email or password. Please try again.')

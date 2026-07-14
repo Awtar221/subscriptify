@@ -1,6 +1,7 @@
 .impeccable/
-.env
-node_modules/
-js/config.js
+.vscode./
 PRODUCT.md
+DESIGN.md
 TODO.md
+js/config.js
+node_modules/

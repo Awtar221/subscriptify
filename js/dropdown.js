@@ -15,12 +15,14 @@
   /* Toggle dropdown open/closed */
   menuBtn.addEventListener('click', function (e) {
     e.stopPropagation();
-    dropdownPanel.classList.toggle('is-open');
+    var isOpen = dropdownPanel.classList.toggle('is-open');
+    menuBtn.setAttribute('aria-expanded', isOpen);
   });
 
   /* Close dropdown when clicking anywhere else */
   document.addEventListener('click', function () {
     dropdownPanel.classList.remove('is-open');
+    menuBtn.setAttribute('aria-expanded', 'false');
   });
 
   /* ---------- EXPORT ---------- */
@@ -33,7 +35,7 @@
       var data = localStorage.getItem('subscriptions');
       if (!data) {
         if (window.subscriptionManager) {
-          window.subscriptionManager.showToast('No data to export.', 'warning');
+          window.subscriptionManager.showToast('Nothing to back up yet.', 'warning');
         }
         return;
       }
@@ -50,7 +52,7 @@
       URL.revokeObjectURL(url);
 
       if (window.subscriptionManager) {
-        window.subscriptionManager.showToast('Data exported successfully!', 'success');
+        window.subscriptionManager.showToast('Backed up! Grab your file.', 'success');
       }
     });
   }
@@ -77,11 +79,11 @@
             localStorage.setItem('subscriptions', JSON.stringify(parsed));
 
             if (window.subscriptionManager) {
-              window.subscriptionManager.showToast('Data imported! Refreshing...', 'success');
+              window.subscriptionManager.showToast('Restored! Reloading...', 'success');
             }
             setTimeout(function () { window.location.reload(); }, 1500);
           } catch (err) {
-            alert('Invalid file. Please select a valid backup JSON file.');
+            alert('That file doesn\'t look like a valid backup — try another one.');
           }
         };
 
@@ -102,11 +104,11 @@
       // Use the custom confirm dialog if available, otherwise native confirm
       if (window.subscriptionManager) {
         window.subscriptionManager.showConfirmDialog(
-          'This will permanently delete all subscriptions.',
+          'This nukes every single sub. No exceptions —',
           'ALL DATA',
           function () {
             localStorage.removeItem('subscriptions');
-            window.subscriptionManager.showToast('All data cleared!', 'warning');
+            window.subscriptionManager.showToast('Clean slate! All gone.', 'warning');
             setTimeout(function () { window.location.reload(); }, 1500);
           }
         );
