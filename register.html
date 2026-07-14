@@ -8,6 +8,77 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/auth.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 45px;
+      box-sizing: border-box;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+    }
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .btn-auth {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-text {
+      display: inline;
+    }
+    .btn-text.hidden {
+      display: none;
+    }
+    .spinner-container {
+      display: none;
+    }
+    .spinner-container.active {
+      display: inline-block;
+    }
+    .password-strength {
+      margin-top: 5px;
+      height: 4px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-text {
+      font-size: 12px;
+      margin-top: 3px;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
 
@@ -16,34 +87,52 @@
     <div class="auth-title">Create account</div>
     <div class="auth-sub">Start tracking your subscriptions</div>
 
-    <div class="form-group">
-      <label for="regUsername">Username</label>
-      <input type="text" id="regUsername" placeholder="e.g. alexchen" />
-    </div>
+    <!-- Error message area -->
+    <div id="error-message" style="display:none; background:#ff4444; color:white; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
 
-    <div class="form-group">
-      <label for="regPassword">Password</label>
-      <input type="password" id="regPassword" placeholder="At least 3 characters" />
-    </div>
+    <form id="register-form">
+      <div class="form-group">
+        <label for="regUsername">Email</label>
+        <input type="email" id="regUsername" placeholder="your@email.com" required />
+      </div>
 
-    <div class="form-group">
-      <label for="regConfirm">Confirm password</label>
-      <input type="password" id="regConfirm" placeholder="Enter password again" />
-    </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+        <div class="password-strength" id="strengthBar">
+          <div class="password-strength-bar" id="strengthFill"></div>
+        </div>
+        <div class="strength-text" id="strengthText">Enter a password</div>
+      </div>
 
-    <button class="btn-auth" id="registerBtn">Register</button>
+      <div class="form-group">
+        <label for="regConfirm">Confirm password</label>
+        <div class="password-wrapper">
+          <input type="password" id="regConfirm" placeholder="Confirm your password" required />
+          <span class="toggle-password" id="toggleConfirmPassword">👁️</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-auth" id="registerBtn">
+        <span class="btn-text" id="registerText">Register</span>
+        <span class="spinner-container" id="registerSpinner">
+          <div class="loading-spinner"></div>
+        </span>
+      </button>
+    </form>
 
     <div class="auth-footer">
       Already have an account? <a href="login.html">Sign in</a>
     </div>
-
-    <!-- Feedback message injected by auth.js -->
-    <div id="regMessage"></div>
   </div>
 </div>
 
-<!-- auth.js handles both login and register logic -->
-<script src="js/auth.js"></script>
+<script src="js/config.js"></script>
+<!-- Use register.js for registration -->
+<script type="module" src="js/register.js"></script>
 
 </body>
 </html>
