@@ -244,31 +244,28 @@
   border-color: var(--mc-500);
 }
 
-/* ===== SEARCH BOX ===== */
+/* 搜索框容器样式 */
 .search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--mc-800);
-  border: 1px solid var(--mc-500);
-  border-radius: var(--radius-md);
-  padding: 7px 14px;
-  width: 210px;
+    display: flex;
+    align-items: center;
+    background: var(--bg-card); /* 或者你原本的背景色 */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 250px; /* 控制搜索框宽度 */
 }
 
 .search-box i {
-  font-size: 15px;
-  color: var(--mc-200);
-  flex-shrink: 0;
+    color: var(--text-muted);
 }
 
 .search-box input {
-  background: transparent;
-  border: none;
-  color: var(--mc-40);
-  outline: none;
-  width: 100%;
-  font-size: 13px;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    outline: none;
+    width: 100%;
+    margin-left: 8px;
 }
 
 /* ===== VIEW TOGGLE ===== */
@@ -444,3 +441,41 @@
   to   { transform: translateX(100%); opacity: 0; }
 }
 
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #2a2522;
+    border: 1px solid #443c38;
+    border-radius: 10px;
+    padding: 12px 16px;
+    width: 320px; 
+    transition: all 0.3s ease;
+}
+
+
+.search-container:focus-within {
+    border-color: #ff8c42; 
+    box-shadow: 0 0 8px rgba(255, 140, 66, 0.2);
+}
+
+
+.search-icon {
+    color: #a89a92;
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+
+.search-container input {
+    background: transparent;
+    border: none;
+    color: #e0dcd9;
+    font-size: 15px; 
+    width: 100%;
+    outline: none;
+}
+
+.search-container input::placeholder {
+    color: #7a726d;
+}

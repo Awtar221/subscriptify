@@ -84,16 +84,19 @@
     </header>
 
     <div class="content">
-<div class="section-header" style="display: flex; align-items: center; justify-content: flex-start; gap: 20px;">
-    
 
-<div class="filter-tabs" id="filterTabs">
-    <button class="tab active" data-filter="all">All</button>
-    <button class="tab" data-filter="active">Active</button>
-    <button class="tab" data-filter="cancelled">Cancelled</button>
-    <button class="tab" data-filter="renewing-soon">Renewing Soon</button>
-</div>
+<<div class="actions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="filter-tabs" id="filterTabs">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="active">Active</button>
+        <button class="tab" data-filter="cancelled">Cancelled</button>
+        <button class="tab" data-filter="renewing-soon">Renewing Soon</button>
+    </div>
 
+    <div class="search-container">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search subscriptions...">
+    </div>
 </div>
 
       <div id="subscriptionsTable"></div>
@@ -165,6 +168,7 @@
 <script src="../js/session.js"></script>
 <script src="../js/simple_CRUD.js"></script>
 <script src="../js/dropdown.js"></script>
+
 
 </body>
 </html>
