@@ -1,27 +1,99 @@
 /* ======================
    AUTH.CSS
    Styles for login.html and register.html only.
-   Centers the auth card and hides the sidebar layout.
+   Split layout: a dark brand panel + the form, instead of a generic centered card.
    ====================== */
 
-/* Center the card in full viewport */
-.app-shell {
+.auth-shell {
   display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
 }
 
-/* Auth card: the white-ish panel holding the form */
+/* Left brand panel — reversed contrast (dark ink bg) so login/register read as a
+   deliberate arrival moment, not the same surface as the rest of the app. Hidden
+   on narrow viewports where there's no room for it without crowding the form. */
+.auth-visual {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding: 64px;
+  background: var(--mc-40);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-visual::before {
+  content: '';
+  position: absolute;
+  inset: -20% -20% auto auto;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--accent) 35%, transparent);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.auth-visual-brand {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
+  color: var(--mc-800);
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+.auth-visual-tagline {
+  max-width: 34ch;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--mc-800) 78%, transparent);
+  position: relative;
+}
+
+.auth-visual-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+  position: relative;
+}
+
+.auth-visual-point {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--text-sm);
+  color: color-mix(in oklch, var(--mc-800) 85%, transparent);
+}
+
+.auth-visual-point i {
+  font-size: var(--text-md);
+  color: var(--brand-cream);
+  flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+  .auth-visual { display: none; }
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--mc-800);
+  min-width: 0;
+}
+
+/* Auth card: the panel holding the form */
 .auth-card {
-  background: var(--mc-700);
-  border: 1px solid var(--mc-500);
-  border-radius: var(--radius-xl);
-  padding: 32px;
   width: 100%;
   max-width: 400px;
   margin: 20px;
-  box-shadow: 0 12px 32px rgba(43, 36, 28, 0.10);
   animation: authCardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
@@ -32,13 +104,15 @@
 
 .auth-title {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--mc-30);
   margin-bottom: 8px;
 }
 
 .auth-sub {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--mc-200);
   margin-bottom: 24px;
 }
@@ -50,7 +124,7 @@
 
 .form-group label {
   display: block;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--mc-80);
   margin-bottom: 6px;
@@ -62,7 +136,7 @@
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-md);
   padding: 10px 14px;
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--mc-40);
   outline: none;
   transition: border-color var(--transition-fast);
@@ -89,15 +163,19 @@
   border: none;
   border-radius: var(--radius-md);
   padding: 10px;
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
   margin-top: 8px;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-auth:hover {
   background: var(--accent-deeper);
+}
+
+.btn-auth:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-auth:disabled {
@@ -147,7 +225,7 @@
   transform: translateY(-50%);
   display: flex;
   color: var(--mc-200);
-  font-size: 16px;
+  font-size: var(--text-md);
   cursor: pointer;
   transition: color var(--transition-fast);
 }
@@ -161,7 +239,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--mc-80);
   cursor: pointer;
 }
@@ -193,7 +271,7 @@
 }
 
 .strength-text {
-  font-size: 11px;
+  font-size: var(--text-xs);
   margin-top: 4px;
   color: var(--mc-200);
 }
@@ -203,7 +281,7 @@
   display: none;
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-sm);
   margin-bottom: 16px;
   text-align: center;
 }
@@ -228,7 +306,7 @@
 .auth-footer {
   text-align: center;
   margin-top: 20px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--mc-200);
 }
 
@@ -240,13 +318,13 @@
 /* Inline feedback messages */
 .error-msg {
   color: var(--danger);
-  font-size: 12px;
+  font-size: var(--text-sm);
   margin-top: 8px;
 }
 
 .success-msg {
   color: var(--success);
-  font-size: 12px;
+  font-size: var(--text-sm);
   margin-top: 8px;
 }
 

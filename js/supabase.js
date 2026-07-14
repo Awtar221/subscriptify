@@ -1,6 +1,9 @@
 // window.SUPABASE_CONFIG is set by config.js, loaded as a classic <script> before this module on every page.
-const supabaseUrl = window.SUPABASE_CONFIG.url
-const supabaseAnonKey = window.SUPABASE_CONFIG.anonKey
+// `var` (not const/let): these are top-level in a classic script sharing the page's global scope,
+// so a dev-server live-reload that re-runs scripts without a full navigation won't throw a
+// "already declared" SyntaxError and brick the page.
+var supabaseUrl = window.SUPABASE_CONFIG.url
+var supabaseAnonKey = window.SUPABASE_CONFIG.anonKey
 
 // "Remember me" unchecked at login -> use sessionStorage so the session dies with the tab/browser
 // instead of localStorage, which survives restarts. Flag itself is not sensitive, always in localStorage.
@@ -17,6 +20,9 @@ function createSupabaseClient() {
 }
 
 // Shared singleton for pages that just need to read/act on an existing session.
-const supabase = createSupabaseClient()
-
-export { supabase, createSupabaseClient }
+// Plain classic script (not type="module") so it works even when opened via file://
+// without a local server — module scripts are blocked by CORS in that case.
+// NAMED supabaseClient, NOT supabase: a top-level `var supabase = ...` would alias
+// `window.supabase`, clobbering the Supabase CDN library object (which has `.createClient`)
+// with our client instance and breaking every later call to createSupabaseClient().
+var supabaseClient = createSupabaseClient()

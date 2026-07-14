@@ -35,7 +35,7 @@
       var data = localStorage.getItem('subscriptions');
       if (!data) {
         if (window.subscriptionManager) {
-          window.subscriptionManager.showToast('Nothing to back up yet.', 'warning');
+          window.subscriptionManager.showToast('Nothing to export yet.', 'warning');
         }
         return;
       }
@@ -52,7 +52,7 @@
       URL.revokeObjectURL(url);
 
       if (window.subscriptionManager) {
-        window.subscriptionManager.showToast('Backed up! Grab your file.', 'success');
+        window.subscriptionManager.showToast('Data exported.', 'success');
       }
     });
   }
@@ -79,11 +79,11 @@
             localStorage.setItem('subscriptions', JSON.stringify(parsed));
 
             if (window.subscriptionManager) {
-              window.subscriptionManager.showToast('Restored! Reloading...', 'success');
+              window.subscriptionManager.showToast('Data imported. Reloading...', 'success');
             }
             setTimeout(function () { window.location.reload(); }, 1500);
           } catch (err) {
-            alert('That file doesn\'t look like a valid backup — try another one.');
+            alert('That file isn\'t a valid backup. Try another one.');
           }
         };
 
@@ -104,11 +104,11 @@
       // Use the custom confirm dialog if available, otherwise native confirm
       if (window.subscriptionManager) {
         window.subscriptionManager.showConfirmDialog(
-          'This nukes every single sub. No exceptions —',
-          'ALL DATA',
+          'This deletes every subscription in',
+          'Subtrack',
           function () {
             localStorage.removeItem('subscriptions');
-            window.subscriptionManager.showToast('Clean slate! All gone.', 'warning');
+            window.subscriptionManager.showToast('All data cleared.', 'warning');
             setTimeout(function () { window.location.reload(); }, 1500);
           }
         );

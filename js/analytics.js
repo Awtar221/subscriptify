@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }).slice(0, 5);
 
     if (upcoming.length === 0) {
-      el.innerHTML = '<div class="empty-state">Nothing renewing — you\'re all clear.</div>';
+      el.innerHTML = '<div class="empty-state">Nothing renewing soon.</div>';
       return;
     }
 

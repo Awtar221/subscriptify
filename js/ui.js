@@ -1,5 +1,6 @@
 // Wire a show/hide eye icon to toggle an input's password visibility.
-export function wirePasswordToggle(toggleBtn, input) {
+// Plain classic script — see supabase.js for why this isn't type="module".
+function wirePasswordToggle(toggleBtn, input) {
     if (!toggleBtn || !input) return
     function toggle() {
         const showing = input.type === 'text'

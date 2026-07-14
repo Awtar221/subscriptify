@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Hidden until session.js confirms an authenticated session — see index.html for why. -->
+<html lang="en" style="visibility:hidden">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – My Subscriptions</title>
+  <!-- Safety net: if session.js fails to run at all (e.g. module scripts blocked when opened via
+       file:// instead of a server), don't leave the page permanently blank. -->
+  <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/layout.css" />
   <link rel="stylesheet" href="../css/components.css" />
   <link rel="stylesheet" href="../css/modal.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -20,7 +25,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Your Sub Sidekick</div>
+      <div class="logo-sub">Subscription Tracker</div>
     </div>
 
     <div class="nav-section">
@@ -31,7 +36,7 @@
       </a>
       <a href="analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
-        <span>Funny Numbers</span>
+        <span>Analytics</span>
       </a>
       <a href="subscriptions.html" class="nav-item active">
         <i class="ti ti-list"></i>
@@ -47,19 +52,23 @@
           <div class="user-name"></div>
           <div class="user-role">Free plan</div>
         </div>
-        <i class="ti ti-logout settings-icon" id="logoutBtn" role="button" tabindex="0" title="Logout" aria-label="Log out"></i>
       </div>
+      <!-- Logout button — wired up by session.js -->
+      <button class="logout-btn" id="logoutBtn" type="button">
+        <i class="ti ti-logout"></i>
+        <span>Log out</span>
+      </button>
     </div>
   </aside>
 
   <main class="main-area">
 
     <header class="topbar">
-      <h1 class="page-title">My Subs</h1>
+      <h1 class="page-title">My Subscriptions</h1>
       <div class="topbar-actions">
         <button class="btn-add" id="openModalBtn">
           <i class="ti ti-plus"></i>
-          Add a Sub
+          Add Subscription
         </button>
 
         <div class="menu-dropdown">
@@ -71,16 +80,16 @@
           <div class="dropdown-panel" id="dropdownPanel" role="menu">
             <a href="#" class="dropdown-item" id="exportDataBtn">
               <i class="ti ti-download"></i>
-              <span>Back Up My Subs</span>
+              <span>Export Data</span>
             </a>
             <a href="#" class="dropdown-item" id="importDataBtn">
               <i class="ti ti-upload"></i>
-              <span>Restore From File</span>
+              <span>Import Data</span>
             </a>
             <hr class="dropdown-divider" />
             <a href="#" class="dropdown-item danger" id="clearAllBtn">
               <i class="ti ti-trash"></i>
-              <span>Nuke Everything</span>
+              <span>Clear All Data</span>
             </a>
           </div>
         </div>
@@ -89,7 +98,7 @@
 
     <div class="content">
       <div class="section-header">
-        <div class="section-title">The Full Lineup</div>
+        <div class="section-title">All Subscriptions</div>
         <div class="filter-tabs" id="filterTabs">
           <button type="button" class="tab active" data-filter="all">All</button>
           <button type="button" class="tab" data-filter="active">Active</button>
@@ -111,7 +120,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Add a Sub</div>
+      <div class="modal-title" id="modalTitle">Add Subscription</div>
       <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
@@ -120,7 +129,7 @@
 
       <div class="form-field">
         <label class="field-label" for="sub-name">Service name</label>
-        <input class="field-input" id="sub-name" type="text" placeholder="e.g. Netflix, Spotify..." required />
+        <input class="field-input" id="sub-name" type="text" placeholder="e.g. Netflix, Spotify..." required maxlength="60" />
       </div>
 
       <div class="form-field">
@@ -139,7 +148,7 @@
       <div class="field-row">
         <div class="form-field">
           <label class="field-label" for="sub-cost">Monthly cost (RM)</label>
-          <input class="field-input" id="sub-cost" type="number" step="0.01" placeholder="0.00" required />
+          <input class="field-input" id="sub-cost" type="number" step="0.01" min="0.01" max="999999.99" placeholder="0.00" required />
         </div>
         <div class="form-field">
           <label class="field-label" for="sub-date">Renewal date</label>
@@ -157,12 +166,12 @@
 
       <div class="form-field">
         <label class="field-label" for="sub-notes">Notes (optional)</label>
-        <input class="field-input" id="sub-notes" type="text" placeholder="Any notes..." />
+        <input class="field-input" id="sub-notes" type="text" placeholder="Any notes..." maxlength="200" />
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary" id="saveBtn">Add It</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add Subscription</button>
       </div>
     </form>
   </div>
@@ -173,7 +182,8 @@
      2. simple_CRUD.js — subscription logic
      3. dropdown.js  — three-dot menu (needs subscriptionManager from step 2)  -->
 <script src="../js/config.js"></script>
-<script type="module" src="../js/session.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/session.js"></script>
 <script src="../js/shared-data.js"></script>
 <script src="../js/simple_CRUD.js"></script>
 <script src="../js/dropdown.js"></script>

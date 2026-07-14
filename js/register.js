@@ -1,18 +1,17 @@
-import { supabase } from './supabase.js'
-import { wirePasswordToggle } from './ui.js'
+// Plain classic script — see supabase.js for why this isn't type="module".
+// Loaded after config.js, supabase.js, and ui.js. `var`, not const — see supabase.js.
+var form = document.getElementById('register-form')
+var errorDiv = document.getElementById('error-message')
+var registerText = document.getElementById('registerText')
+var registerSpinner = document.getElementById('registerSpinner')
 
-const form = document.getElementById('register-form')
-const errorDiv = document.getElementById('error-message')
-const registerText = document.getElementById('registerText')
-const registerSpinner = document.getElementById('registerSpinner')
-
-const passwordInput = document.getElementById('regPassword')
+var passwordInput = document.getElementById('regPassword')
 wirePasswordToggle(document.getElementById('togglePassword'), passwordInput)
 wirePasswordToggle(document.getElementById('toggleConfirmPassword'), document.getElementById('regConfirm'))
 
 // Password strength indicator
-const strengthFill = document.getElementById('strengthFill')
-const strengthText = document.getElementById('strengthText')
+var strengthFill = document.getElementById('strengthFill')
+var strengthText = document.getElementById('strengthText')
 
 passwordInput.addEventListener('input', function() {
     const password = this.value
@@ -77,7 +76,7 @@ form.addEventListener('submit', async (e) => {
     removeSuccess()
 
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password
         })

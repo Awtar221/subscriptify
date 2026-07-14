@@ -34,7 +34,7 @@
   width: 460px;
   max-width: calc(100vw - 40px);
   padding: 28px;
-  box-shadow: 0 20px 40px rgba(43, 36, 28, 0.16);
+  box-shadow: var(--shadow-lg);
 
   /* Slide-up entrance animation */
   transform: translateY(12px);
@@ -55,8 +55,8 @@
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 400;
+  font-size: var(--text-lg);
+  font-weight: 600;
   color: var(--mc-30);
 }
 
@@ -70,7 +70,7 @@
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-sm);
   color: var(--mc-200);
-  font-size: 16px;
+  font-size: var(--text-md);
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--mc-80);
   letter-spacing: 0.4px;
@@ -100,7 +100,7 @@
   border: 2px solid var(--mc-500);
   border-radius: var(--radius-md);
   padding: 9px 12px;
-  font-size: 13.5px;
+  font-size: var(--text-base);
   color: var(--mc-40);
   outline: none;
   width: 100%;
@@ -144,12 +144,12 @@
 .btn-secondary {
   padding: 9px 18px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 400;
   background: transparent;
   border: 1px solid var(--mc-500);
   color: var(--mc-80);
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -161,14 +161,19 @@
 .btn-primary {
   padding: 9px 18px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   background: var(--accent-strong);
   border: none;
   color: var(--mc-800);
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-primary:hover {
   background: var(--accent-deeper);
+}
+
+.btn-secondary:active,
+.btn-primary:active {
+  transform: scale(0.97);
 }

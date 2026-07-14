@@ -1,10 +1,9 @@
-import { createSupabaseClient } from './supabase.js'
-import { wirePasswordToggle } from './ui.js'
-
-const form = document.getElementById('login-form')
-const errorDiv = document.getElementById('error-message')
-const loginText = document.getElementById('loginText')
-const loginSpinner = document.getElementById('loginSpinner')
+// Plain classic script — see supabase.js for why this isn't type="module".
+// Loaded after config.js, supabase.js, and ui.js. `var`, not const — see supabase.js.
+var form = document.getElementById('login-form')
+var errorDiv = document.getElementById('error-message')
+var loginText = document.getElementById('loginText')
+var loginSpinner = document.getElementById('loginSpinner')
 
 wirePasswordToggle(document.getElementById('togglePassword'), document.getElementById('loginPassword'))
 
@@ -17,7 +16,7 @@ form.addEventListener('submit', async (e) => {
 
     // Must be set before creating the client, since a client's storage is fixed at creation time.
     localStorage.setItem('subtrack_remember', rememberMe ? 'true' : 'false')
-    const supabase = createSupabaseClient()
+    const freshSupabaseClient = createSupabaseClient()
 
     // Show loading
     loginText.classList.add('hidden')
@@ -25,7 +24,7 @@ form.addEventListener('submit', async (e) => {
     errorDiv.classList.remove('is-visible')
 
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await freshSupabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         })

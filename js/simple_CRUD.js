@@ -7,7 +7,9 @@
    Loaded by: index.html, pages/subscriptions.html
    ====================== */
 
-class SubscriptionManager {
+// `var X = class {}` not `class X {}` — a top-level class declaration is a lexical binding
+// like let/const and throws "already declared" if this script re-runs via live-reload.
+var SubscriptionManager = class {
   constructor() {
     this.subscriptions = [];   // In-memory list (synced with localStorage)
     this.currentFilter = 'all'; // Active filter: 'all' | 'active' | 'cancelled' | 'renewing-soon'
@@ -87,7 +89,7 @@ var renewingSoon = active.filter(function (s) {
     this.subscriptions.push(newSub);
     this.saveData();
     this.render();
-    this.showToast('Added! Welcome to the list.', 'success');
+    this.showToast('Subscription added.', 'success');
   }
 
   /** Update an existing subscription by id. */
@@ -106,7 +108,7 @@ var renewingSoon = active.filter(function (s) {
     };
     this.saveData();
     this.render();
-    this.showToast('Updated! Looking good.', 'success');
+    this.showToast('Subscription updated.', 'success');
   }
 
   /** Prompt for confirmation then delete a subscription by id. */
@@ -115,13 +117,13 @@ var renewingSoon = active.filter(function (s) {
     if (!sub) return;
 
     this.showConfirmDialog(
-      'Ready to say goodbye to',
+      'Delete',
       sub.name,
       () => {
         this.subscriptions = this.subscriptions.filter(function (s) { return s.id !== id; });
         this.saveData();
         this.render();
-        this.showToast('Gone. Bye bye!', 'success');
+        this.showToast('Subscription deleted.', 'success');
       }
     );
   }
@@ -186,7 +188,7 @@ var renewingSoon = active.filter(function (s) {
     var list = this.getFilteredSubscriptions();
 
     if (list.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nothing here. Add a sub to get started!</div>';
+      container.innerHTML = '<div class="empty-state">No subscriptions yet. Add one to get started.</div>';
       return;
     }
 
@@ -198,20 +200,19 @@ var rows = list.map((sub) => {
 
       return (
         '<div class="table-row">' +
-          '<div class="td sub-name-wrap">' + // 增加 td 类
+          '<div class="td sub-name-wrap">' +
             '<div class="sub-icon"><i class="ti ' + icon + '"></i></div>' +
-            '<div>' +
-              '<div class="sub-name">' + this.escapeHtml(sub.name) + '</div>' +
+            '<div class="sub-name-text">' +
+              '<div class="sub-name" title="' + this.escapeHtml(sub.name) + '">' + this.escapeHtml(sub.name) + '</div>' +
               '<div class="sub-category">' + sub.category + '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="td">RM ' + sub.cost.toFixed(2) + '</div>' +
+          '<div class="td td-cost">RM ' + sub.cost.toFixed(2) + '</div>' +
           '<div class="td">' + this.formatDate(sub.renewalDate) + '</div>' +
           '<div class="td">' +
             '<span class="badge ' + badgeClass + '">' +
               '<span class="badge-dot"></span>' + statusLabel +
             '</span>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '" aria-label="More actions for ' + this.escapeHtml(sub.name) + '">&#8942;</button>' +
           '</div>' +
           '<div class="row-actions">' +
             '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit" aria-label="Edit ' + this.escapeHtml(sub.name) + '">' +
@@ -220,7 +221,9 @@ var rows = list.map((sub) => {
             '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete" aria-label="Delete ' + this.escapeHtml(sub.name) + '">' +
               '<i class="ti ti-trash"></i>' +
             '</button>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
+            '<button class="icon-btn status-menu-btn" data-id="' + sub.id + '" title="More actions" aria-label="More actions for ' + this.escapeHtml(sub.name) + '" aria-haspopup="menu">' +
+              '<i class="ti ti-dots-vertical"></i>' +
+            '</button>' +
           '</div>' +
         '</div>'
       );
@@ -257,34 +260,49 @@ container.innerHTML =
 
   /* ===== CONTEXT MENU (three-dot) ===== */
 
-  /** Show a small floating menu near the clicked button. */
+  /** Show a small floating menu near the clicked button, with Edit/Delete actions. */
   showStatusMenu(triggerEl, id) {
-    // Remove any existing menu first
     var existing = document.querySelector('.status-popup-menu');
     if (existing) existing.remove();
 
     var rect = triggerEl.getBoundingClientRect();
     var menu = document.createElement('div');
     menu.className = 'status-popup-menu';
+    menu.setAttribute('role', 'menu');
     menu.style.top  = (rect.bottom + 5) + 'px';
-    menu.style.left = rect.left + 'px';
+    menu.style.left = Math.max(8, rect.right - 140) + 'px';
 
     menu.innerHTML =
-      '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
-      '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
+      '<div class="menu-item" role="menuitem" tabindex="0" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
+      '<div class="menu-item danger" role="menuitem" tabindex="0" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
 
     document.body.appendChild(menu);
 
-    menu.querySelector('[data-action="edit"]').onclick   = () => { this.openEditModal(id); menu.remove(); };
-    menu.querySelector('[data-action="delete"]').onclick = () => { this.deleteSubscription(id); menu.remove(); };
+    var editItem = menu.querySelector('[data-action="edit"]');
+    var deleteItem = menu.querySelector('[data-action="delete"]');
 
-    // Close menu when clicking elsewhere
+    editItem.onclick = () => { this.openEditModal(id); menu.remove(); };
+    deleteItem.onclick = () => { this.deleteSubscription(id); menu.remove(); };
+
+    menu.querySelectorAll('.menu-item').forEach((item) => {
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
+      });
+    });
+
+    editItem.focus();
+
+    // Close on outside click or Escape
     setTimeout(function () {
       document.addEventListener('click', function handler() {
         menu.remove();
         document.removeEventListener('click', handler);
       });
     }, 0);
+    var escHandler = function (e) {
+      if (e.key === 'Escape') { menu.remove(); document.removeEventListener('keydown', escHandler); triggerEl.focus(); }
+    };
+    document.addEventListener('keydown', escHandler);
   }
 
   /* ===== MODAL ===== */
@@ -312,7 +330,7 @@ container.innerHTML =
     document.getElementById('sub-date').value    = sub.renewalDate;
     document.getElementById('sub-status').value  = sub.status;
     document.getElementById('sub-notes').value   = sub.notes || '';
-    document.getElementById('modalTitle').textContent = 'Edit This Sub';
+    document.getElementById('modalTitle').textContent = 'Edit Subscription';
     document.getElementById('saveBtn').textContent    = 'Save Changes';
 
     this.openModal();
@@ -329,9 +347,9 @@ container.innerHTML =
     if (statusEl) statusEl.value = 'active';
 
     var titleEl = document.getElementById('modalTitle');
-    if (titleEl) titleEl.textContent = 'Add a Sub';
+    if (titleEl) titleEl.textContent = 'Add Subscription';
     var saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.textContent = 'Add It';
+    if (saveBtn) saveBtn.textContent = 'Add Subscription';
   }
 
   /** Read all form values into a plain object. */
@@ -348,10 +366,10 @@ container.innerHTML =
 
   /** Return false and show a toast if any required field is missing/invalid. */
   validateForm(data) {
-    if (!data.name)                { this.showToast('Give it a name first!', 'error'); return false; }
-    if (!data.category)            { this.showToast('Pick a category.', 'error');    return false; }
-    if (!data.cost || data.cost <= 0) { this.showToast('That cost doesn\'t look right.', 'error');  return false; }
-    if (!data.renewalDate)         { this.showToast('When does this renew?', 'error'); return false; }
+    if (!data.name)                { this.showToast('Enter a service name.', 'error'); return false; }
+    if (!data.category)            { this.showToast('Select a category.', 'error');    return false; }
+    if (!data.cost || data.cost <= 0 || data.cost > 999999.99) { this.showToast('Enter a valid monthly cost.', 'error');  return false; }
+    if (!data.renewalDate)         { this.showToast('Enter a renewal date.', 'error'); return false; }
     return true;
   }
 
@@ -428,14 +446,6 @@ container.innerHTML =
       });
     });
 
-    // View toggle (list / grid) — UI only for now
-    var viewBtns = document.querySelectorAll('.vbtn');
-    viewBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        viewBtns.forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-      });
-    });
   }
 
   /* ===== UI HELPERS ===== */
@@ -499,15 +509,15 @@ container.innerHTML =
       '<div class="custom-dialog">' +
         '<div class="custom-dialog-header">' +
           '<i class="ti ti-trash"></i>' +
-          '<h3>Wait, Really?</h3>' +
+          '<h3>Delete subscription?</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
           message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
-          '<span class="dialog-note">No undo button here — it\'s gone for good.</span>' +
+          '<span class="dialog-note">This can\'t be undone.</span>' +
         '</div>' +
         '<div class="custom-dialog-footer">' +
-          '<button class="dialog-cancel">Never Mind</button>' +
-          '<button class="dialog-confirm">Yep, Delete It</button>' +
+          '<button class="dialog-cancel">Cancel</button>' +
+          '<button class="dialog-confirm">Delete</button>' +
         '</div>' +
       '</div>';
 

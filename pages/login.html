@@ -7,22 +7,33 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/auth.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
-<div class="app-shell">
+<div class="auth-shell">
+  <aside class="auth-visual">
+    <div class="auth-visual-brand">Subtrack</div>
+    <p class="auth-visual-tagline">Every subscription in one place — what you pay, when it renews, and what's quietly draining your account.</p>
+    <div class="auth-visual-points">
+      <div class="auth-visual-point"><i class="ti ti-chart-bar"></i><span>See total monthly spend at a glance</span></div>
+      <div class="auth-visual-point"><i class="ti ti-bell"></i><span>Catch renewals before they charge you</span></div>
+      <div class="auth-visual-point"><i class="ti ti-scissors"></i><span>Spot what you should probably cancel</span></div>
+    </div>
+  </aside>
+
+  <div class="auth-form-panel">
   <div class="auth-card">
 
     <div class="auth-logo">
       <img src="../logo.jpeg" alt="Subtrack logo" />
     </div>
 
-    <div class="auth-title">Welcome back!</div>
-    <div class="auth-sub">Your subs missed you</div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to manage your subscriptions.</div>
 
     <!-- Error message area -->
     <div id="error-message" class="auth-banner error" role="alert"></div>
@@ -47,19 +58,22 @@
       </label>
 
     <button class="btn-auth" id="loginBtn" type="submit">
-      <span class="btn-text" id="loginText">Let's Go</span>
+      <span class="btn-text" id="loginText">Sign In</span>
       <span class="spinner-container" id="loginSpinner"><span class="loading-spinner"></span></span>
     </button>
 
     <div class="auth-footer">
-      New here? <a href="register.html">Join the club</a>
+      New here? <a href="register.html">Create an account</a>
     </div>
+  </div>
   </div>
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/ui.js"></script>
 <!-- Use login.js for login -->
-<script type="module" src="../js/login.js"></script>
+<script src="../js/login.js"></script>
 
 </body>
 </html>

@@ -7,17 +7,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/auth.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
-<div class="app-shell">
+<div class="auth-shell">
+  <aside class="auth-visual">
+    <div class="auth-visual-brand">Subtrack</div>
+    <p class="auth-visual-tagline">Every subscription in one place — what you pay, when it renews, and what's quietly draining your account.</p>
+    <div class="auth-visual-points">
+      <div class="auth-visual-point"><i class="ti ti-chart-bar"></i><span>See total monthly spend at a glance</span></div>
+      <div class="auth-visual-point"><i class="ti ti-bell"></i><span>Catch renewals before they charge you</span></div>
+      <div class="auth-visual-point"><i class="ti ti-scissors"></i><span>Spot what you should probably cancel</span></div>
+    </div>
+  </aside>
+
+  <div class="auth-form-panel">
   <div class="auth-card">
-    <div class="auth-title">Let's Get You Set Up</div>
-    <div class="auth-sub">Time to wrangle those subs</div>
+    <div class="auth-title">Create your account</div>
+    <div class="auth-sub">Track your subscriptions in one place.</div>
 
     <!-- Error message area -->
     <div id="error-message" class="auth-banner error" role="alert"></div>
@@ -49,19 +60,22 @@
       </div>
 
     <button class="btn-auth" id="registerBtn" type="submit">
-      <span class="btn-text" id="registerText">Sign Me Up</span>
+      <span class="btn-text" id="registerText">Create Account</span>
       <span class="spinner-container" id="registerSpinner"><span class="loading-spinner"></span></span>
     </button>
 
     <div class="auth-footer">
-      Already one of us? <a href="login.html">Sign in</a>
+      Already have an account? <a href="login.html">Sign in</a>
     </div>
+  </div>
   </div>
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/ui.js"></script>
 <!-- Use register.js for registration -->
-<script type="module" src="../js/register.js"></script>
+<script src="../js/register.js"></script>
 
 </body>
 </html>
