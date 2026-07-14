@@ -97,32 +97,6 @@
   opacity: 1;
 }
 
-/* Filter links are semantic, not navigational — each active filter borrows its state colour
-   instead of the generic accent, so "Active"/"Cancelled"/"Renewing Soon" read at a glance */
-.filter-link[data-filter="active"].active {
-  background: color-mix(in oklch, var(--success) 12%, transparent);
-}
-.filter-link[data-filter="active"].active,
-.filter-link[data-filter="active"].active i {
-  color: var(--success);
-}
-
-.filter-link[data-filter="cancelled"].active {
-  background: color-mix(in oklch, var(--danger) 12%, transparent);
-}
-.filter-link[data-filter="cancelled"].active,
-.filter-link[data-filter="cancelled"].active i {
-  color: var(--danger);
-}
-
-.filter-link[data-filter="renewing-soon"].active {
-  background: color-mix(in oklch, var(--attention) 12%, transparent);
-}
-.filter-link[data-filter="renewing-soon"].active,
-.filter-link[data-filter="renewing-soon"].active i {
-  color: var(--attention);
-}
-
 .nav-item i {
   font-size: 17px;
   opacity: 0.85;

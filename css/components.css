@@ -1,6 +1,7 @@
 /* ======================
    COMPONENTS.CSS
-   (原始完整备份 - 已修复布局对齐)
+   Stat cards, tables, badges, dropdowns, toasts, and dialogs
+   shared across dashboard/subscriptions/analytics pages.
    ====================== */
 
 /* ===== STAT CARDS ===== */
@@ -106,16 +107,6 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(43, 36, 28, 0.05);
-}
-
-.subscription-row {
-  background: #1e1e1e;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  border: 1px solid #333;
-  display: flex;
-  align-items: center;
 }
 
 .table-head {
@@ -276,26 +267,41 @@
 
 /* ===== SEARCH BOX ===== */
 .search-box {
-    display: flex;
-    align-items: center;
-    background: var(--bg-card); /* 或者你原本的背景色 */
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 8px 12px;
-    width: 250px; /* 控制搜索框宽度 */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  background: var(--mc-800);
+  border: 1px solid var(--mc-500);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  width: 220px;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-box:focus-within {
+  border-color: var(--mc-80);
+  box-shadow: 0 0 0 2px rgba(85, 134, 140, 0.2);
 }
 
 .search-box i {
-    color: var(--text-muted);
+  color: var(--mc-200);
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .search-box input {
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    outline: none;
-    width: 100%;
-    margin-left: 8px;
+  background: transparent;
+  border: none;
+  color: var(--mc-40);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+}
+
+.search-box input::placeholder {
+  color: var(--mc-200);
 }
 
 /* ===== VIEW TOGGLE ===== */
@@ -727,43 +733,4 @@
 @keyframes slideOutRight {
   from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(100%); opacity: 0; }
-}
-
-
-.search-container {
-    display: flex;
-    align-items: center;
-    background-color: #2a2522;
-    border: 1px solid #443c38;
-    border-radius: 10px;
-    padding: 12px 16px;
-    width: 320px; 
-    transition: all 0.3s ease;
-}
-
-
-.search-container:focus-within {
-    border-color: #ff8c42; 
-    box-shadow: 0 0 8px rgba(255, 140, 66, 0.2);
-}
-
-
-.search-icon {
-    color: #a89a92;
-    margin-right: 10px;
-    font-size: 18px;
-}
-
-
-.search-container input {
-    background: transparent;
-    border: none;
-    color: #e0dcd9;
-    font-size: 15px; 
-    width: 100%;
-    outline: none;
-}
-
-.search-container input::placeholder {
-    color: #7a726d;
 }

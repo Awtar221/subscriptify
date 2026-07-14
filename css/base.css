@@ -4,7 +4,8 @@
    Imported by every page in the project.
    ====================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+/* Font loaded via <link rel="preconnect"/stylesheet> in each page's <head>, not @import here —
+   @import blocks CSS parsing on the font request; a <link> lets the browser fetch it in parallel. */
 
 :root {
   /* Brand colour palette — user-supplied (dry sage / apricot cream / tan / dark cyan / smoky rose), light theme */

@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – My Subscriptions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
@@ -47,12 +49,6 @@
         </div>
         <i class="ti ti-logout settings-icon" id="logoutBtn" role="button" tabindex="0" title="Logout" aria-label="Log out"></i>
       </div>
-    </div>
-    <div style="padding: 10px 16px; border-top: 1px solid #eee; margin-top: 8px;">
-      <a href="#" id="logoutBtn" style="display: flex; align-items: center; gap: 10px; color: #dc3545; text-decoration: none; padding: 8px 12px; border-radius: 6px; background: #f8f9fa;">
-        <i class="ti ti-logout"></i>
-        <span>Logout</span>
-      </a>
     </div>
   </aside>
 
@@ -98,22 +94,13 @@
           <button type="button" class="tab active" data-filter="all">All</button>
           <button type="button" class="tab" data-filter="active">Active</button>
           <button type="button" class="tab" data-filter="cancelled">Cancelled</button>
+          <button type="button" class="tab" data-filter="renewing-soon">Renewing Soon</button>
+        </div>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" id="searchInput" placeholder="Search subscriptions..." />
         </div>
       </div>
-
-<<div class="actions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div class="filter-tabs" id="filterTabs">
-        <button class="tab active" data-filter="all">All</button>
-        <button class="tab" data-filter="active">Active</button>
-        <button class="tab" data-filter="cancelled">Cancelled</button>
-        <button class="tab" data-filter="renewing-soon">Renewing Soon</button>
-    </div>
-
-    <div class="search-container">
-        <i class="ti ti-search search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Search subscriptions...">
-    </div>
-</div>
 
       <div id="subscriptionsTable"></div>
     </div>

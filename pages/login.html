@@ -4,75 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/auth.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <style>
-    .password-wrapper {
-      position: relative;
-    }
-    .password-wrapper input {
-      width: 100%;
-      padding-right: 45px;
-      box-sizing: border-box;
-    }
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      bottom: 10px;
-      cursor: pointer;
-      font-size: 18px;
-      user-select: none;
-    }
-    .remember-me {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      color: #555;
-    }
-    .remember-me input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-    }
-    .loading-spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #4CAF50;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .btn-auth {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .btn-text {
-      display: inline;
-    }
-    .btn-text.hidden {
-      display: none;
-    }
-    .spinner-container {
-      display: none;
-    }
-    .spinner-container.active {
-      display: inline-block;
-    }
-  </style>
 </head>
 <body>
 
@@ -87,19 +25,19 @@
     <div class="auth-sub">Your subs missed you</div>
 
     <!-- Error message area -->
-    <div id="error-message" style="display:none; background:#ff4444; color:white; padding:10px; border-radius:6px; margin-bottom:15px; text-align:center;"></div>
+    <div id="error-message" class="auth-banner error" role="alert"></div>
 
     <form id="login-form">
       <div class="form-group">
         <label for="loginUsername">Email</label>
-        <input type="email" id="loginUsername" placeholder="your@email.com" required />
+        <input type="email" id="loginUsername" placeholder="your@email.com" required autocomplete="email" maxlength="254" />
       </div>
 
       <div class="form-group">
         <label for="loginPassword">Password</label>
         <div class="password-wrapper">
-          <input type="password" id="loginPassword" placeholder="Your password" required />
-          <span class="toggle-password" id="togglePassword">👁️</span>
+          <input type="password" id="loginPassword" placeholder="Your password" required autocomplete="current-password" maxlength="128" />
+          <i class="ti ti-eye toggle-password" id="togglePassword" role="button" tabindex="0" aria-label="Show password"></i>
         </div>
       </div>
 
@@ -108,9 +46,9 @@
         Remember me
       </label>
 
-    <button class="btn-auth" id="loginBtn">
+    <button class="btn-auth" id="loginBtn" type="submit">
       <span class="btn-text" id="loginText">Let's Go</span>
-      <span class="spinner-container" id="loginSpinner"><span class="loading-spinner" style="display:inline-block;"></span></span>
+      <span class="spinner-container" id="loginSpinner"><span class="loading-spinner"></span></span>
     </button>
 
     <div class="auth-footer">

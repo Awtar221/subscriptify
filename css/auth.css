@@ -78,6 +78,11 @@
 
 /* Full-width submit button */
 .btn-auth {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
   background: var(--accent-strong);
   color: var(--mc-800);
@@ -93,6 +98,130 @@
 
 .btn-auth:hover {
   background: var(--accent-deeper);
+}
+
+.btn-auth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-text.hidden {
+  display: none;
+}
+
+/* Inline spinner shown in place of button text while a request is in flight */
+.spinner-container {
+  display: none;
+}
+
+.spinner-container.active {
+  display: inline-flex;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid color-mix(in oklch, var(--mc-800) 40%, transparent);
+  border-top-color: var(--mc-800);
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Password field with show/hide toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 42px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--mc-200);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.toggle-password:hover {
+  color: var(--mc-80);
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--mc-80);
+  cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent-strong);
+  cursor: pointer;
+}
+
+/* Password strength meter (register page) */
+.password-strength {
+  margin-top: 8px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--mc-500);
+  overflow: hidden;
+}
+
+.password-strength-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: 4px;
+  background: var(--mc-500);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-base), background var(--transition-base);
+}
+
+.strength-text {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--mc-200);
+}
+
+/* Inline banner for form-level errors/success (replaces per-page hardcoded colors) */
+.auth-banner {
+  display: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.auth-banner.is-visible {
+  display: block;
+}
+
+.auth-banner.error {
+  background: color-mix(in oklch, var(--danger) 16%, var(--mc-700));
+  border: 1px solid color-mix(in oklch, var(--danger) 40%, transparent);
+  color: var(--danger);
+}
+
+.auth-banner.success {
+  background: color-mix(in oklch, var(--success) 16%, var(--mc-700));
+  border: 1px solid color-mix(in oklch, var(--success) 40%, transparent);
+  color: var(--success);
 }
 
 /* Link row at bottom of form */

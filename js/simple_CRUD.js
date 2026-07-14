@@ -427,18 +427,6 @@ container.innerHTML =
         this.render();
       });
     });
-    // Sidebar filter links — sync with tabs
-    var filterLinks = document.querySelectorAll('.filter-link');
-    filterLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.currentFilter = link.dataset.filter;
-        tabs.forEach(function (tab) {
-          tab.classList.toggle('active', tab.dataset.filter === link.dataset.filter);
-        });
-        this.render();
-      });
-    });
 
     // View toggle (list / grid) — UI only for now
     var viewBtns = document.querySelectorAll('.vbtn');
