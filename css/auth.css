@@ -79,6 +79,46 @@
   .auth-visual { display: none; }
 }
 
+/* --- Generative particle field (login page) --- */
+/* The fx variant swaps the static ::before blob for a canvas that auth-fx.js
+   fills with drifting glow particles in brand colors. Under reduced motion a
+   single static frame is drawn instead; with JS off the panel stays flat ink. */
+.auth-visual--fx::before {
+  content: none;
+}
+
+.auth-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --- Card tilt + focus lift (login page) --- */
+.auth-form-panel {
+  perspective: 1200px;
+}
+
+.form-group input {
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input:focus {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Cinematic sign-in exit: ink panel wipes across before redirect --- */
+.auth-exit-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mc-40);
+  z-index: 200;
+  transform: translateX(-101%);
+  pointer-events: none;
+}
+
 .auth-form-panel {
   flex: 1;
   display: flex;

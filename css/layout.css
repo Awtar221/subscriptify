@@ -186,8 +186,9 @@
   min-width: 0;
 }
 
+/* Emails run long — smaller size + ellipsis keeps the pill on one line */
 .user-name {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--mc-40);
   white-space: nowrap;

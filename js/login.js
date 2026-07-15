@@ -31,7 +31,12 @@ form.addEventListener('submit', async (e) => {
 
         if (error) throw error
 
-        window.location.href = '../index.html'
+        // Cinematic exit wipe (auth-fx.js), then redirect; falls through instantly without it.
+        if (window.authFxExit) {
+            window.authFxExit(function () { window.location.href = '../index.html' })
+        } else {
+            window.location.href = '../index.html'
+        }
 
     } catch (error) {
         showError('Invalid email or password. Please try again.')
@@ -45,6 +50,7 @@ form.addEventListener('submit', async (e) => {
 function showError(message) {
     errorDiv.textContent = message
     errorDiv.classList.add('is-visible')
+    if (window.authFxShake) window.authFxShake()
     setTimeout(() => {
         errorDiv.classList.remove('is-visible')
     }, 5000)
