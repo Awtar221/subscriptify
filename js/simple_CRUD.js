@@ -46,19 +46,7 @@ var SubscriptionManager = class {
     var active    = this.subscriptions.filter(function (s) { return s.status === 'active'; });
     var cancelled = this.subscriptions.filter(function (s) { return s.status === 'cancelled'; });
     var total     = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
-
-// Count active subs renewing within 7 days from today
-var today = new Date();
-today.setHours(0, 0, 0, 0);
-
-var renewingSoon = active.filter(function (s) {
-    var d = parseRenewalDate(s.renewalDate);
-    if (isNaN(d.getTime())) return false;
-    d.setHours(0, 0, 0, 0);
-
-    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff <= 7;
-});
+    var renewingSoon = active.filter(isRenewingSoon);
 
     this.setText('totalMonthly',     'RM ' + total.toFixed(2));
     this.setText('activeCount',      active.length);
@@ -140,16 +128,7 @@ var renewingSoon = active.filter(function (s) {
     } else if (this.currentFilter === 'cancelled') {
       result = result.filter(function (s) { return s.status === 'cancelled'; });
     } else if (this.currentFilter === 'renewing-soon') {
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      result = result.filter(function (s) {
-        if (s.status !== 'active') return false;
-        var d = parseRenewalDate(s.renewalDate);
-        if (isNaN(d.getTime())) return false;
-        d.setHours(0, 0, 0, 0);
-        var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-        return diff >= 0 && diff <= 7;
-      });
+      result = result.filter(isRenewingSoon);
     }
 
     // Search filter (name or category)

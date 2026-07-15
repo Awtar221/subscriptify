@@ -16,17 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCategoryBreakdown(active);
   renderStatusSplit(subs, active, renewingSoon);
 
-  /** Active sub renewing within 7 days — same window as the dashboard stat card. */
-  function isRenewingSoon(s) {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var d = parseRenewalDate(s.renewalDate);
-    if (isNaN(d.getTime())) return false;
-    d.setHours(0, 0, 0, 0);
-    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff <= 7;
-  }
-
   function renderStats(subs, active) {
     var total = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
     var avg = active.length ? total / active.length : 0;

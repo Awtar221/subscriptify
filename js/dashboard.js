@@ -127,16 +127,10 @@
     var el = document.getElementById('upcomingList');
     if (!el) return;
 
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     var upcoming = active
       .map(function (s) {
-        var d = parseRenewalDate(s.renewalDate);
-        if (isNaN(d.getTime())) return null;
-        d.setHours(0, 0, 0, 0);
-        var days = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-        return days >= 0 ? { sub: s, days: days } : null;
+        var days = daysUntilRenewal(s.renewalDate);
+        return !isNaN(days) && days >= 0 ? { sub: s, days: days } : null;
       })
       .filter(Boolean)
       .sort(function (a, b) { return a.days - b.days; })

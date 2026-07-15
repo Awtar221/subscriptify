@@ -1,7 +1,7 @@
 /* ======================
    shared-data.js
-   Shared subscription helpers used by simple_CRUD.js and analytics.js.
-   Load this BEFORE either of those on any page reading 'subscriptions'.
+   Shared subscription helpers used by simple_CRUD.js, analytics.js, and dashboard.js.
+   Load this BEFORE any of those on any page reading 'subscriptions'.
    ====================== */
 
 /** Parse 'YYYY-MM-DD' or 'DD-MM-YYYY'/'DD/MM/YYYY' into a Date. */
@@ -12,6 +12,23 @@ function parseRenewalDate(dateStr) {
     return new Date(parts[2], parts[1] - 1, parts[0]);
   }
   return new Date(dateStr);
+}
+
+/** Whole days from today to a subscription's renewal date (negative = past). NaN if unparseable. */
+function daysUntilRenewal(dateStr) {
+  var d = parseRenewalDate(dateStr);
+  if (isNaN(d.getTime())) return NaN;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+  return Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+}
+
+/** Active sub renewing within 7 days — the "renewing soon" window used across dashboard/analytics. */
+function isRenewingSoon(sub) {
+  if (sub.status !== 'active') return false;
+  var days = daysUntilRenewal(sub.renewalDate);
+  return !isNaN(days) && days >= 0 && days <= 7;
 }
 
 /** Build demo subscriptions with renewal dates relative to today, so the "renewing soon" filter has an example. */
