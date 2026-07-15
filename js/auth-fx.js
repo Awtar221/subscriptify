@@ -56,13 +56,17 @@
 
     var W = 0, H = 0, parts = [];
     var mouse = { x: -9999, y: -9999 };
+    var panelRect = null; // cached; refreshed on resize, not on every mousemove
 
     function resize() {
       W = panel.clientWidth;
       H = panel.clientHeight;
+      // canvas.width/height reallocates the backing bitmap — only do it here,
+      // never per-frame or per-mousemove.
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      panelRect = panel.getBoundingClientRect();
     }
 
     function seed() {
@@ -119,12 +123,20 @@
     }
 
     panel.addEventListener('mousemove', function (e) {
-      var r = panel.getBoundingClientRect();
-      mouse.x = e.clientX - r.left;
-      mouse.y = e.clientY - r.top;
+      // Cached rect, not recomputed per event — getBoundingClientRect forces a
+      // layout read, and mousemove can fire 60+ times/sec.
+      mouse.x = e.clientX - panelRect.left;
+      mouse.y = e.clientY - panelRect.top;
     });
     panel.addEventListener('mouseleave', function () { mouse.x = mouse.y = -9999; });
-    window.addEventListener('resize', function () { resize(); });
+
+    // Debounced: a raw resize listener fires continuously during a drag-resize,
+    // and resize() reallocates the canvas backing store — expensive to run per-event.
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    });
 
     (function loop(t) {
       draw(t || 0);
