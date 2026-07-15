@@ -101,6 +101,7 @@ form.addEventListener('submit', async (e) => {
 function showError(message) {
     errorDiv.textContent = message
     errorDiv.classList.add('is-visible')
+    if (window.authFxShake) window.authFxShake()
     setTimeout(() => {
         errorDiv.classList.remove('is-visible')
     }, 5000)

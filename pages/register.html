@@ -15,7 +15,9 @@
 <body>
 
 <div class="auth-shell">
-  <aside class="auth-visual">
+  <aside class="auth-visual auth-visual--fx">
+    <!-- Generative particle field — drawn by auth-fx.js; static single frame under reduced motion -->
+    <canvas class="auth-canvas" id="authCanvas" aria-hidden="true"></canvas>
     <div class="auth-visual-brand">Subtrack</div>
     <p class="auth-visual-tagline">Every subscription in one place — what you pay, when it renews, and what's quietly draining your account.</p>
     <div class="auth-visual-points">
@@ -75,6 +77,9 @@
 <script src="../js/config.js"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/ui.js"></script>
+<script src="../node_modules/animejs/dist/bundles/anime.umd.min.js"></script>
+<!-- auth-fx.js: entrance choreography, ambient orbs, feedback animations -->
+<script src="../js/auth-fx.js"></script>
 <!-- Use register.js for registration -->
 <script src="../js/register.js"></script>
 
