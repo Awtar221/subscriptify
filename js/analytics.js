@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>'
       );
     }).join('');
+    revealRows(el);
   }
 
   function formatDate(dateStr) {
@@ -133,6 +134,20 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>'
       );
     }).join('');
+    revealRows(el);
+  }
+
+  /** Stagger a list's rows in on first paint. 10 rows @ 45ms = 450ms total, well under the 500ms cap. */
+  function revealRows(container) {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof anime === 'undefined') return;
+    anime.animate(container.querySelectorAll('.rank-row'), {
+      opacity: [0, 1],
+      translateX: [-10, 0],
+      duration: 350,
+      delay: anime.stagger(45),
+      ease: 'outQuad'
+    });
   }
 
   function escapeHtml(text) {
