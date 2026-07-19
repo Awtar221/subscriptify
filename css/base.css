@@ -8,6 +8,11 @@
    @import blocks CSS parsing on the font request; a <link> lets the browser fetch it in parallel. */
 
 :root {
+  /* App is light-only; tell the browser explicitly so native controls (date
+     picker popup, scrollbars) render light even when the OS is set to dark —
+     otherwise Chrome renders those popups in dark chrome against our light page. */
+  color-scheme: light;
+
   /* Brand colour palette — user-supplied (dry sage / apricot cream / tan / dark cyan / smoky rose), light theme */
   --brand-sage:  #cacaaa;
   --brand-cream: #eec584;
