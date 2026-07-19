@@ -8,11 +8,6 @@
    @import blocks CSS parsing on the font request; a <link> lets the browser fetch it in parallel. */
 
 :root {
-  /* App is light-only; tell the browser explicitly so native controls (date
-     picker popup, scrollbars) render light even when the OS is set to dark —
-     otherwise Chrome renders those popups in dark chrome against our light page. */
-  color-scheme: light;
-
   /* Brand colour palette — user-supplied (dry sage / apricot cream / tan / dark cyan / smoky rose), light theme */
   --brand-sage:  #cacaaa;
   --brand-cream: #eec584;
@@ -82,10 +77,15 @@
   --ink-fixed: #241d16;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light; /* native controls (date picker popup, scrollbars) render light */
+}
+
 /* Dark theme — same brand hues, inverted lightness. Applied via [data-theme="dark"]
    on <html>, set synchronously by an inline script in <head> (see theme.js) so
    there's no flash of the light theme on load. */
 :root[data-theme="dark"] {
+  color-scheme: dark; /* native controls (date picker popup, scrollbars) render dark */
   --mc-800: #1b1814;  /* bg */
   --mc-700: #262119;  /* surface (cards, sidebar, topbar) */
   --mc-500: #493c2c;  /* borders, dividers */

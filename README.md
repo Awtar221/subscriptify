@@ -143,6 +143,7 @@ main (stable, production-ready — merged from dev at end of each sprint)
         │
         ├──  user-reg   (Wei Liang — login, registration, session guard)
         └── subscription-list (Li Xian — CRUD, UI, dashboard)
+        └── subscription-list (Li Xian — CRUD, UI, dashboard)
 ```
 
 The team used a four-branch model.

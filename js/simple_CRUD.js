@@ -67,6 +67,8 @@ var SubscriptionManager = class {
     var user = await getCurrentUser();
     if (!user) return;
 
+    formData.renewalDate = rollForwardDate(formData.renewalDate, formData.status);
+
     var res = await supabaseClient.from('subscriptions')
       .insert(Object.assign({ user_id: user.id }, toRow(formData)))
       .select().single();
@@ -82,6 +84,8 @@ var SubscriptionManager = class {
   async updateSubscription(id, formData) {
     var index = this.subscriptions.findIndex(function (s) { return s.id === id; });
     if (index === -1) return;
+
+    formData.renewalDate = rollForwardDate(formData.renewalDate, formData.status);
 
     var res = await supabaseClient.from('subscriptions').update(toRow(formData)).eq('id', id);
     if (res.error) { this.showToast('Could not update subscription.', 'error'); console.error(res.error); return; }

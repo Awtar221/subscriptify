@@ -32,7 +32,10 @@ function isRenewingSoon(sub) {
 }
 
 /** Add one calendar month, clamping to the target month's last day
-    (Jan 31 -> Feb 28/29, not Mar 3) instead of letting Date overflow into the month after. */
+    (Jan 31 -> Feb 28/29, not Mar 3) instead of letting Date overflow into the month after.
+    Builds the date string from local getFullYear/getMonth/getDate — NOT toISOString(),
+    which converts through UTC and shifts the day backward in any positive-UTC-offset
+    timezone (e.g. UTC+8: local midnight Feb 28 -> "2026-02-27"). */
 function advanceOneMonth(dateStr) {
   var d = parseRenewalDate(dateStr);
   var day = d.getDate();
@@ -40,7 +43,22 @@ function advanceOneMonth(dateStr) {
   d.setMonth(d.getMonth() + 1);
   var daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   d.setDate(Math.min(day, daysInMonth));
-  return d.toISOString().slice(0, 10);
+  var mm = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+/** Pure calc: roll an active date forward until it's not in the past (no-op if
+    already future, or if the sub is cancelled). Shared by autoRenewPastDue (the
+    fetch-time catch-up pass) and simple_CRUD.js (so typing a past date into the
+    edit form corrects it immediately, not just on the next page load). */
+function rollForwardDate(dateStr, status) {
+  if (status !== 'active') return dateStr;
+  var d = dateStr;
+  while (daysUntilRenewal(d) < 0) {
+    d = advanceOneMonth(d);
+  }
+  return d;
 }
 
 /** Subscriptions renew, they don't disappear: an active sub whose renewal date has
@@ -51,14 +69,10 @@ function advanceOneMonth(dateStr) {
 async function autoRenewPastDue(subs) {
   var updates = [];
   subs.forEach(function (s) {
-    if (s.status !== 'active') return;
-    var changed = false;
-    while (daysUntilRenewal(s.renewalDate) < 0) {
-      s.renewalDate = advanceOneMonth(s.renewalDate);
-      changed = true;
-    }
-    if (changed) {
-      updates.push(supabaseClient.from('subscriptions').update({ renewal_date: s.renewalDate }).eq('id', s.id));
+    var rolled = rollForwardDate(s.renewalDate, s.status);
+    if (rolled !== s.renewalDate) {
+      s.renewalDate = rolled;
+      updates.push(supabaseClient.from('subscriptions').update({ renewal_date: rolled }).eq('id', s.id));
     }
   });
   if (updates.length) await Promise.all(updates);
