@@ -254,7 +254,7 @@ container.innerHTML =
   /** Attach click handlers to edit and delete buttons after render. */
   attachRowEvents() {
     document.querySelectorAll('.edit-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id)); };
+      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id), btn); };
     });
 
     document.querySelectorAll('.delete-btn').forEach((btn) => {
@@ -264,10 +264,16 @@ container.innerHTML =
 
   /* ===== MODAL ===== */
 
-  openModal() {
+  /** @param {HTMLElement} [triggerEl] Element that opened the modal — focus returns here on close. */
+  openModal(triggerEl) {
     this.flushPendingReset();
+    this._modalTrigger = triggerEl || document.activeElement;
     var overlay = document.getElementById('modalOverlay');
     if (overlay) overlay.classList.add('is-open');
+    // Focus the first field once the open transition starts; screen readers and
+    // keyboard users land inside the dialog instead of it opening silently behind them.
+    var firstField = document.getElementById('sub-name');
+    if (firstField) setTimeout(function () { firstField.focus(); }, 50);
   }
 
   closeModal() {
@@ -280,6 +286,12 @@ container.innerHTML =
       self._resetTimer = null;
       self.resetForm();
     }, 250);
+    // Return focus to whatever opened the modal (Add button or a row's Edit button)
+    // instead of leaving it on the now-hidden dialog.
+    if (this._modalTrigger && typeof this._modalTrigger.focus === 'function') {
+      this._modalTrigger.focus();
+    }
+    this._modalTrigger = null;
   }
 
   /** Run a still-pending deferred reset now (called before reopening the modal). */
@@ -291,8 +303,9 @@ container.innerHTML =
     }
   }
 
-  /** Pre-fill the modal form for editing an existing subscription. */
-  openEditModal(id) {
+  /** Pre-fill the modal form for editing an existing subscription.
+      @param {HTMLElement} [triggerEl] The row's Edit button — focus returns here on close. */
+  openEditModal(id, triggerEl) {
     this.flushPendingReset();
     var sub = this.subscriptions.find(function (s) { return s.id === id; });
     if (!sub) return;
@@ -307,7 +320,7 @@ container.innerHTML =
     document.getElementById('modalTitle').textContent = 'Edit Subscription';
     document.getElementById('saveBtn').textContent    = 'Save Changes';
 
-    this.openModal();
+    this.openModal(triggerEl);
   }
 
   /** Clear all form inputs and reset modal title to "Add". */
@@ -317,6 +330,7 @@ container.innerHTML =
       var el = document.getElementById(id);
       if (el) el.value = '';
     });
+    this.clearFieldErrors();
     var statusEl = document.getElementById('sub-status');
     if (statusEl) statusEl.value = 'active';
 
@@ -338,13 +352,31 @@ container.innerHTML =
     };
   }
 
-  /** Return false and show a toast if any required field is missing/invalid. */
+  /** Return false, toast, and highlight+focus the offending field if any required field is missing/invalid. */
   validateForm(data) {
-    if (!data.name)                { this.showToast('Enter a service name.', 'error'); return false; }
-    if (!data.category)            { this.showToast('Select a category.', 'error');    return false; }
-    if (!data.cost || data.cost <= 0 || data.cost > 999999.99) { this.showToast('Enter a valid monthly cost.', 'error');  return false; }
-    if (!data.renewalDate)         { this.showToast('Enter a renewal date.', 'error'); return false; }
+    this.clearFieldErrors();
+    if (!data.name)                { this.showToast('Enter a service name.', 'error'); this.markFieldInvalid('sub-name'); return false; }
+    if (!data.category)            { this.showToast('Select a category.', 'error');    this.markFieldInvalid('sub-cat');  return false; }
+    if (!data.cost || data.cost <= 0 || data.cost > 999999.99) { this.showToast('Enter a valid monthly cost.', 'error');  this.markFieldInvalid('sub-cost'); return false; }
+    if (!data.renewalDate)         { this.showToast('Enter a renewal date.', 'error'); this.markFieldInvalid('sub-date'); return false; }
     return true;
+  }
+
+  /** Add the `.invalid` danger-border state to a field and focus it; clears itself on the next edit. */
+  markFieldInvalid(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('invalid');
+    el.focus();
+    el.addEventListener('input', function clear() {
+      el.classList.remove('invalid');
+      el.removeEventListener('input', clear);
+    }, { once: true });
+  }
+
+  /** Clear any leftover `.invalid` state (called on reset/reopen). */
+  clearFieldErrors() {
+    document.querySelectorAll('.field-input.invalid').forEach(function (el) { el.classList.remove('invalid'); });
   }
 
   /** Handle form submission for both create and update. */
@@ -377,7 +409,7 @@ container.innerHTML =
 
     // Open modal button
     var openBtn = document.getElementById('openModalBtn');
-    if (openBtn) openBtn.onclick = () => { this.resetForm(); this.openModal(); };
+    if (openBtn) openBtn.onclick = () => { this.resetForm(); this.openModal(openBtn); };
 
     // Close / cancel buttons
     var closeBtn  = document.getElementById('closeModalBtn');
@@ -391,11 +423,21 @@ container.innerHTML =
       overlay.onclick = (e) => { if (e.target === overlay) this.closeModal(); };
     }
 
-    // Close on Escape key
+    // Close on Escape key; trap Tab inside the modal while it's open so keyboard
+    // focus can't wander into the (visually hidden) page behind the overlay.
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        var ov = document.getElementById('modalOverlay');
-        if (ov && ov.classList.contains('is-open')) this.closeModal();
+      var ov = document.getElementById('modalOverlay');
+      if (!ov || !ov.classList.contains('is-open')) return;
+
+      if (e.key === 'Escape') { this.closeModal(); return; }
+
+      if (e.key === 'Tab') {
+        var focusable = ov.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last  = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
 
@@ -502,10 +544,10 @@ container.innerHTML =
     var overlay = document.createElement('div');
     overlay.className = 'custom-dialog-overlay';
     overlay.innerHTML =
-      '<div class="custom-dialog">' +
+      '<div class="custom-dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialogTitle">' +
         '<div class="custom-dialog-header">' +
           '<i class="ti ti-trash"></i>' +
-          '<h3>Delete subscription?</h3>' +
+          '<h3 id="dialogTitle">Delete subscription?</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
           message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
@@ -538,7 +580,9 @@ container.innerHTML =
     }
 
     var confirmBtn = overlay.querySelector('.dialog-confirm');
-    overlay.querySelector('.dialog-cancel').onclick = close;
+    var cancelBtn  = overlay.querySelector('.dialog-cancel');
+    cancelBtn.onclick = close;
+    setTimeout(function () { cancelBtn.focus(); }, 50); // safe default focus for a destructive action
     confirmBtn.onclick = function () {
       if (confirmBtn.disabled) return; // guard against double-click firing the delete twice
       confirmBtn.disabled = true;
