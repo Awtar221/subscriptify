@@ -1,12 +1,26 @@
 /* ======================
    analytics.js
-   Reads the same 'subscriptions' localStorage data as simple_CRUD.js
+   Reads the same 'subscriptions' Supabase table as simple_CRUD.js
    and renders spend-by-category bars, status split, and a top-5 list.
    Loaded by: pages/analytics.html
    ====================== */
 
-document.addEventListener('DOMContentLoaded', function () {
-  var subs = ensureSubscriptionsSeeded();
+document.addEventListener('DOMContentLoaded', async function () {
+  var result = await fetchSubscriptions();
+
+  if (result.error) {
+    ['categoryBreakdown', 'statusSplit', 'upcomingRenewals', 'topCosts'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML =
+        '<div class="empty-state">Couldn\'t load data.' +
+          '<button type="button" class="btn btn-secondary" style="margin-top:12px;" onclick="window.location.reload()">Retry</button>' +
+        '</div>';
+    });
+    return;
+  }
+
+  var subs = result.subs;
   var active = subs.filter(function (s) { return s.status === 'active'; });
   var renewingSoon = active.filter(isRenewingSoon);
 
