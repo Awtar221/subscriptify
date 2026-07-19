@@ -1,7 +1,7 @@
 /* ======================
    simple_CRUD.js
    SubscriptionManager class — full CRUD for subscriptions.
-   Reads/writes to localStorage under the key 'subscriptions'.
+   Reads/writes the 'subscriptions' table in Supabase, scoped to the current user.
    Renders the subscription table and stat cards dynamically.
 
    Loaded by: index.html, pages/subscriptions.html
@@ -11,7 +11,7 @@
 // like let/const and throws "already declared" if this script re-runs via live-reload.
 var SubscriptionManager = class {
   constructor() {
-    this.subscriptions = [];   // In-memory list (synced with localStorage)
+    this.subscriptions = [];   // In-memory list (synced with Supabase)
     this.currentFilter = 'all'; // Active filter: 'all' | 'active' | 'cancelled' | 'renewing-soon'
     this.searchTerm    = '';    // Current search string
     this.init();
@@ -19,8 +19,11 @@ var SubscriptionManager = class {
 
   /* ===== INIT ===== */
 
-  init() {
-    this.loadData();
+  async init() {
+    this.loading = true;
+    this.render(); // show loading state immediately, don't wait on the network
+    await this.loadData();
+    this.loading = false;
     this.bindEvents();
     this.render();
     this.updateStats();
@@ -28,15 +31,11 @@ var SubscriptionManager = class {
 
   /* ===== DATA PERSISTENCE ===== */
 
-  /** Load subscriptions from localStorage; seed demo data if empty. */
-  loadData() {
-    this.subscriptions = ensureSubscriptionsSeeded();
-  }
-
-  /** Persist in-memory list to localStorage and refresh the stats row. */
-  saveData() {
-    localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
-    this.updateStats();
+  /** Load subscriptions from Supabase for the current user. */
+  async loadData() {
+    var result = await fetchSubscriptions();
+    this.subscriptions = result.subs;
+    this.loadError = result.error;
   }
 
   /* ===== STAT CARDS ===== */
@@ -64,26 +63,28 @@ var SubscriptionManager = class {
   /* ===== CRUD OPERATIONS ===== */
 
   /** Create a new subscription from form data. */
-  createSubscription(formData) {
-    var newSub = {
-      id:          Date.now(),           // Simple unique id using timestamp
-      name:        formData.name,
-      category:    formData.category,
-      cost:        parseFloat(formData.cost),
-      renewalDate: formData.renewalDate,
-      status:      formData.status,
-      notes:       formData.notes || ''
-    };
-    this.subscriptions.push(newSub);
-    this.saveData();
+  async createSubscription(formData) {
+    var user = await getCurrentUser();
+    if (!user) return;
+
+    var res = await supabaseClient.from('subscriptions')
+      .insert(Object.assign({ user_id: user.id }, toRow(formData)))
+      .select().single();
+    if (res.error) { this.showToast('Could not add subscription.', 'error'); console.error(res.error); return; }
+
+    this.subscriptions.push(fromRow(res.data));
+    this.updateStats();
     this.render();
     this.showToast('Subscription added.', 'success');
   }
 
   /** Update an existing subscription by id. */
-  updateSubscription(id, formData) {
+  async updateSubscription(id, formData) {
     var index = this.subscriptions.findIndex(function (s) { return s.id === id; });
     if (index === -1) return;
+
+    var res = await supabaseClient.from('subscriptions').update(toRow(formData)).eq('id', id);
+    if (res.error) { this.showToast('Could not update subscription.', 'error'); console.error(res.error); return; }
 
     this.subscriptions[index] = {
       id:          id,
@@ -94,7 +95,7 @@ var SubscriptionManager = class {
       status:      formData.status,
       notes:       formData.notes || ''
     };
-    this.saveData();
+    this.updateStats();
     this.render();
     this.showToast('Subscription updated.', 'success');
   }
@@ -107,9 +108,12 @@ var SubscriptionManager = class {
     this.showConfirmDialog(
       'Delete',
       sub.name,
-      () => {
+      async () => {
+        var res = await supabaseClient.from('subscriptions').delete().eq('id', id);
+        if (res.error) { this.showToast('Could not delete subscription.', 'error'); console.error(res.error); return; }
+
         this.subscriptions = this.subscriptions.filter(function (s) { return s.id !== id; });
-        this.saveData();
+        this.updateStats();
         this.render();
         this.showToast('Subscription deleted.', 'success');
       }
@@ -163,6 +167,20 @@ var SubscriptionManager = class {
   render() {
     var container = document.getElementById('subscriptionsTable');
     if (!container) return;
+
+    if (this.loading) {
+      container.innerHTML = '<div class="empty-state">Loading subscriptions…</div>';
+      return;
+    }
+    if (this.loadError) {
+      container.innerHTML =
+        '<div class="empty-state">Couldn\'t load your subscriptions.' +
+          '<button type="button" class="btn btn-secondary" id="retryLoadBtn" style="margin-top:12px;">Retry</button>' +
+        '</div>';
+      var retryBtn = document.getElementById('retryLoadBtn');
+      if (retryBtn) retryBtn.onclick = () => window.location.reload();
+      return;
+    }
 
     // Dashboard variant: fixed "top 5 most expensive active" list, no filters.
     var isTop5 = container.dataset.view === 'top5';
@@ -326,18 +344,24 @@ container.innerHTML =
   }
 
   /** Handle form submission for both create and update. */
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
     var editId   = document.getElementById('editId').value;
     var formData = this.getFormData();
     if (!this.validateForm(formData)) return;
 
-    if (editId) {
-      this.updateSubscription(parseInt(editId), formData);
-    } else {
-      this.createSubscription(formData);
+    var saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.disabled = true; // guard against double-submit while the request is in flight
+    try {
+      if (editId) {
+        await this.updateSubscription(parseInt(editId), formData);
+      } else {
+        await this.createSubscription(formData);
+      }
+      this.closeModal();
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
     }
-    this.closeModal();
   }
 
   /* ===== EVENT BINDING ===== */
@@ -509,8 +533,14 @@ container.innerHTML =
       anime.animate(dialog, { scale: [1, 0.96], opacity: [1, 0], duration: 150, ease: 'inQuad' });
     }
 
-    overlay.querySelector('.dialog-cancel').onclick  = close;
-    overlay.querySelector('.dialog-confirm').onclick = function () { onConfirm(); close(); };
+    var confirmBtn = overlay.querySelector('.dialog-confirm');
+    overlay.querySelector('.dialog-cancel').onclick = close;
+    confirmBtn.onclick = function () {
+      if (confirmBtn.disabled) return; // guard against double-click firing the delete twice
+      confirmBtn.disabled = true;
+      onConfirm();
+      close();
+    };
     overlay.onclick = function (e) { if (e.target === overlay) close(); };
 
     // Close on Escape
