@@ -117,6 +117,22 @@
   box-shadow: 0 0 0 2px rgba(85, 134, 140, 0.2);
 }
 
+/* Renewal-date field's calendar icon: the popup itself is native chrome (color-scheme
+   in base.css keeps it light), this just gives the trigger icon the same hover
+   feedback as every other interactive control in the app. */
+input[type="date"].field-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+}
+
+input[type="date"].field-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: rgba(85, 134, 140, 0.10);
+}
+
 /* Style native select options to match dark theme */
 .field-input option {
   background: var(--mc-700);
