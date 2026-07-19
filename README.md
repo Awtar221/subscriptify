@@ -25,17 +25,27 @@ Subscriptify is a subscription tracker web application developed as part of the 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-repo/Subscriptify-kwl.git
+   git clone https://github.com/Awtar221/subscriptify.git
    ```
 
-2. **Open the project**
+2. **Set up Supabase**
+   - Create a Supabase project, then run `supabase_schema.sql` (SQL Editor) to create the `subscriptions` table with RLS policies.
+   - Create `js/config.js` (gitignored, not committed):
+     ```js
+     window.SUPABASE_CONFIG = {
+       url: 'https://your-project.supabase.co',
+       anonKey: 'your-publishable-anon-key'
+     }
+     ```
+
+3. **Open the project**
    - Open the folder in VS Code
    - Or double-click `index.html` to open directly in a browser
 
-3. **Start the application**
+4. **Start the application**
    - Open `index.html` in your browser
-   - If not logged in, the app redirects you to `login.html`
-   - Create a new account via `register.html`
+   - If not logged in, the app redirects you to `pages/login.html`
+   - Create a new account via `pages/register.html`
    - Log in to access the Dashboard
 
 ### Using Live Server (Recommended)
@@ -126,7 +136,7 @@ Sprint 2 works from the same eight user stories. No new stories were added. The 
 
 ### Branching Strategy
 
-```
+```text
 main (stable, production-ready — merged from dev at end of each sprint)
   │
   └── dev (integration branch, Kelvin — all feature branches merge here first)
@@ -190,74 +200,75 @@ Each team member submitted at least 2 pull requests with review comments.
 
 ---
 
-## localStorage Schema
+## Data & Auth
 
-All data is stored in the browser's localStorage under three keys.
+Auth and data persistence run on Supabase (Postgres + Auth), not localStorage.
 
-**`subtrack_users`** — Array of registered user objects:
-```json
-[
-  { "username": "string", "password": "string" }
-]
+- **Auth**: Supabase's built-in `auth.users` — no custom user table. Sessions are managed by the Supabase JS client (`js/supabase.js`, `js/session.js`); "remember me" unchecked stores the session in `sessionStorage` instead of `localStorage` so it dies with the tab.
+- **`subscriptions` table** (schema in `supabase_schema.sql`, run once in the Supabase SQL Editor) — one row per subscription, owned by the user who created it:
+
+```sql
+id            bigint primary key
+user_id       uuid references auth.users(id)
+name          text
+category      text  -- Streaming | Music | Storage | Design | Productivity | Other
+cost          numeric
+renewal_date  date
+status        text  -- active | cancelled
+notes         text
+created_at    timestamptz
 ```
 
-**`subtrack_current_user`** — String storing the username of the active session:
-```json
-"username"
-```
+Row Level Security is on, with owner-only policies (`auth.uid() = user_id`) for select/insert/update/delete, so one user can never read or write another's rows.
 
-**`subscriptions`** — Array of subscription objects:
-```json
-[
-  {
-    "id": "number (Date.now() timestamp)",
-    "name": "string",
-    "category": "Streaming | Music | Storage | Design | Productivity | Other",
-    "cost": "number (RM, 2 decimal places)",
-    "renewalDate": "string (YYYY-MM-DD)",
-    "status": "active | cancelled",
-    "notes": "string (optional)"
-  }
-]
-```
-
-On first load, `simple_CRUD.js` seeds four demo subscriptions (Netflix, Spotify, iCloud 200GB, Adobe CC) if the `subscriptions` key is empty.
+Theme preference (dark/light) is the one thing still kept client-side, in `localStorage['subtrack_theme']`.
 
 ---
 
 ## Technologies Used
 
 - HTML5
-- CSS3 (CSS Grid and Flexbox)
+- CSS3 (CSS Grid and Flexbox, CSS custom properties for theming)
 - JavaScript (ES6, no frameworks)
+- Supabase (Postgres + Auth) for data persistence and authentication
+- anime.js v4 for motion (toasts, dialogs, dropdowns, chart reveals, auth page entrance)
 - Tabler Icons (v3.10.0, CDN)
-- Google Fonts: Playfair Display, DM Sans
-- localStorage (client-side data persistence)
+- Google Fonts: Bricolage Grotesque (display), Inter (body)
 
 ---
 
 ## Project Structure
 
-```
-task-tracker-kwl/
+```text
+subscriptify/
 ├── css/
-│   ├── base.css          # CSS variables, reset, global typography
+│   ├── base.css          # CSS variables (incl. dark theme), reset, global typography
 │   ├── layout.css        # App shell, sidebar, topbar, content area
 │   ├── components.css    # Stat cards, table, badges, buttons, toasts, dialogs
 │   ├── modal.css         # Modal overlay, form fields, modal buttons
 │   └── auth.css          # Login and register page styles
 ├── js/
-│   ├── auth.js           # Registration and login logic
-│   ├── session.js        # Session guard and user display
-│   ├── simple_CRUD.js    # SubscriptionManager class (CRUD, render, filter)
-│   ├── dropdown.js       # Three-dot menu: export, import, clear all
-│   └── modal.js          # Basic modal open/close for static pages
+│   ├── config.js          # Supabase URL/anon key (gitignored, not committed)
+│   ├── supabase.js        # Supabase client factory
+│   ├── session.js         # Auth guard, logout, user display — protected pages
+│   ├── login.js / register.js
+│   ├── ui.js               # Password-visibility toggle (login/register)
+│   ├── auth-fx.js          # Login/register entrance motion, particle field
+│   ├── shared-data.js      # fetchSubscriptions, date helpers, Supabase row mapping
+│   ├── simple_CRUD.js      # SubscriptionManager class (CRUD, render, filter)
+│   ├── dashboard.js        # Spend-by-category donut, renewing-soon panel
+│   ├── analytics.js        # Analytics page charts and rankings
+│   ├── dropdown.js         # Three-dot menu: export, import, clear all
+│   ├── animate-value.js    # Animated stat-card number transitions
+│   └── theme.js            # Dark/light toggle
 ├── pages/
+│   ├── login.html
+│   ├── register.html
 │   ├── subscriptions.html
 │   └── analytics.html
-├── index.html            # Dashboard
-├── login.html
-├── register.html
+├── index.html             # Dashboard
+├── supabase_schema.sql    # DB schema + RLS policies, run once per Supabase project
+├── package.json
 └── README.md
 ```
 

@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – Login</title>
+  <!-- Set theme before first paint so there's no flash of the wrong theme. -->
+  <script>(function(){var t=localStorage.getItem('subtrack_theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -13,6 +15,10 @@
   <link rel="stylesheet" href="../css/auth.css" />
 </head>
 <body>
+
+<button class="icon-btn theme-toggle theme-toggle-fixed" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+  <i class="ti ti-moon"></i>
+</button>
 
 <div class="auth-shell">
   <aside class="auth-visual auth-visual--fx">
@@ -76,6 +82,7 @@
 <script src="../js/auth-fx.js"></script>
 <!-- Use login.js for login -->
 <script src="../js/login.js"></script>
+<script src="../js/theme.js"></script>
 
 </body>
 </html>

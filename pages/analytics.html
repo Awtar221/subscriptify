@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – Analytics</title>
+  <!-- Set theme before first paint so there's no flash of the wrong theme. -->
+  <script>(function(){var t=localStorage.getItem('subtrack_theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);})();</script>
   <!-- Safety net: if session.js fails to run at all (e.g. module scripts blocked when opened via
        file:// instead of a server), don't leave the page permanently blank. -->
   <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
@@ -69,6 +71,11 @@
   <main class="main-area">
     <header class="topbar">
       <h1 class="page-title">Analytics</h1>
+      <div class="topbar-actions">
+        <button class="icon-btn theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <i class="ti ti-moon"></i>
+        </button>
+      </div>
     </header>
 
     <div class="content">
@@ -142,6 +149,7 @@
 <!-- dashboard.js provides the shared renderDonutChart helper -->
 <script src="../js/dashboard.js"></script>
 <script src="../js/analytics.js"></script>
+<script src="../js/theme.js"></script>
 
 </body>
 </html>

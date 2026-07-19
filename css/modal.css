@@ -165,7 +165,7 @@
   font-weight: 500;
   background: var(--accent-strong);
   border: none;
-  color: var(--mc-800);
+  color: var(--on-dark);
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
