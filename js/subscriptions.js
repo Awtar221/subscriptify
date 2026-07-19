@@ -1,5 +1,5 @@
 /* ======================
-   simple_CRUD.js
+   subscriptions.js
    SubscriptionManager class — full CRUD for subscriptions.
    Reads/writes the 'subscriptions' table in Supabase, scoped to the current user.
    Renders the subscription table and stat cards dynamically.

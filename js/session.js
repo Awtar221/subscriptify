@@ -7,7 +7,7 @@
    - Wires up the logout button.
 
    Plain classic script (not type="module") — see supabase.js. Must load AFTER
-   config.js + supabase.js and BEFORE simple_CRUD.js on any protected page.
+   config.js + supabase.js and BEFORE subscriptions.js on any protected page.
    ====================== */
 
 // This file is loaded from both the site root (index.html) and pages/*.html.

@@ -1,5 +1,5 @@
 // Plain classic script — see supabase.js for why this isn't type="module".
-// Loaded after config.js, supabase.js, and ui.js. `var`, not const — see supabase.js.
+// Loaded after config.js, supabase.js, and password-toggle.js. `var`, not const — see supabase.js.
 var form = document.getElementById('login-form')
 var errorDiv = document.getElementById('error-message')
 var loginText = document.getElementById('loginText')

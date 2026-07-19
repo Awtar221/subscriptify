@@ -1,6 +1,6 @@
 /* ======================
    shared-data.js
-   Shared subscription helpers used by simple_CRUD.js, analytics.js, and dashboard.js.
+   Shared subscription helpers used by subscriptions.js, analytics.js, and charts.js.
    Load this BEFORE any of those on any page reading 'subscriptions'.
    ====================== */
 
@@ -50,7 +50,7 @@ function advanceOneMonth(dateStr) {
 
 /** Pure calc: roll an active date forward until it's not in the past (no-op if
     already future, or if the sub is cancelled). Shared by autoRenewPastDue (the
-    fetch-time catch-up pass) and simple_CRUD.js (so typing a past date into the
+    fetch-time catch-up pass) and subscriptions.js (so typing a past date into the
     edit form corrects it immediately, not just on the next page load). */
 function rollForwardDate(dateStr, status) {
   if (status !== 'active') return dateStr;

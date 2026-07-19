@@ -1,6 +1,6 @@
 /* ======================
    analytics.js
-   Reads the same 'subscriptions' Supabase table as simple_CRUD.js
+   Reads the same 'subscriptions' Supabase table as subscriptions.js
    and renders spend-by-category bars, status split, and a top-5 list.
    Loaded by: pages/analytics.html
    ====================== */

@@ -1,10 +1,12 @@
 /* ======================
-   dashboard.js
-   Dashboard-only side panels: animated spend-by-category donut and the
-   "Renewing Soon" list. Exposes renderDashboardExtras(subs), which
-   simple_CRUD.js calls on every render so the panels stay in sync with CRUD.
+   charts.js
+   Shared donut chart renderer (window.renderDonutChart) used by both the
+   dashboard and analytics pages, plus the dashboard-only side panels built on
+   top of it: animated spend-by-category donut and the "Renewing Soon" list.
+   Exposes renderDashboardExtras(subs), which subscriptions.js calls on every
+   render so the dashboard panels stay in sync with CRUD.
 
-   Loaded by: index.html (before simple_CRUD.js)
+   Loaded by: index.html (before subscriptions.js), pages/analytics.html (before analytics.js)
    ====================== */
 
 (function () {
@@ -153,7 +155,7 @@
     }).join('');
   }
 
-  /** Called by simple_CRUD.render(); no-op on pages without the dashboard panels. */
+  /** Called by SubscriptionManager.render() in subscriptions.js; no-op on pages without the dashboard panels. */
   window.renderDashboardExtras = function (subs) {
     var active = subs.filter(function (s) { return s.status === 'active'; });
     renderDonut(active);
