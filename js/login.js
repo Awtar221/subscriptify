@@ -1,10 +1,9 @@
-import { supabase } from './supabase.js'
-import { wirePasswordToggle } from './ui.js'
-
-const form = document.getElementById('login-form')
-const errorDiv = document.getElementById('error-message')
-const loginText = document.getElementById('loginText')
-const loginSpinner = document.getElementById('loginSpinner')
+// Plain classic script — see supabase.js for why this isn't type="module".
+// Loaded after config.js, supabase.js, and password-toggle.js. `var`, not const — see supabase.js.
+var form = document.getElementById('login-form')
+var errorDiv = document.getElementById('error-message')
+var loginText = document.getElementById('loginText')
+var loginSpinner = document.getElementById('loginSpinner')
 
 wirePasswordToggle(document.getElementById('togglePassword'), document.getElementById('loginPassword'))
 
@@ -13,22 +12,32 @@ form.addEventListener('submit', async (e) => {
     
     const email = document.getElementById('loginUsername').value
     const password = document.getElementById('loginPassword').value
+    const rememberMe = document.getElementById('rememberMe').checked
+
+    // Must be set before creating the client, since a client's storage is fixed at creation time.
+    localStorage.setItem('subtrack_remember', rememberMe ? 'true' : 'false')
+    const freshSupabaseClient = createSupabaseClient()
 
     // Show loading
     loginText.classList.add('hidden')
     loginSpinner.classList.add('active')
-    errorDiv.style.display = 'none'
+    errorDiv.classList.remove('is-visible')
 
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await freshSupabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         })
-        
+
         if (error) throw error
-        
-        window.location.href = 'index.html'
-        
+
+        // Cinematic exit wipe (auth-fx.js), then redirect; falls through instantly without it.
+        if (window.authFxExit) {
+            window.authFxExit(function () { window.location.href = '../index.html' })
+        } else {
+            window.location.href = '../index.html'
+        }
+
     } catch (error) {
         showError('Invalid email or password. Please try again.')
     } finally {
@@ -40,8 +49,9 @@ form.addEventListener('submit', async (e) => {
 
 function showError(message) {
     errorDiv.textContent = message
-    errorDiv.style.display = 'block'
+    errorDiv.classList.add('is-visible')
+    if (window.authFxShake) window.authFxShake()
     setTimeout(() => {
-        errorDiv.style.display = 'none'
+        errorDiv.classList.remove('is-visible')
     }, 5000)
 }

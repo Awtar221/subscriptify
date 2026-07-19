@@ -1,15 +1,17 @@
 /* ======================
-   simple_CRUD.js
+   subscriptions.js
    SubscriptionManager class — full CRUD for subscriptions.
-   Reads/writes to localStorage under the key 'subscriptions'.
+   Reads/writes the 'subscriptions' table in Supabase, scoped to the current user.
    Renders the subscription table and stat cards dynamically.
 
    Loaded by: index.html, pages/subscriptions.html
    ====================== */
 
-class SubscriptionManager {
+// `var X = class {}` not `class X {}` — a top-level class declaration is a lexical binding
+// like let/const and throws "already declared" if this script re-runs via live-reload.
+var SubscriptionManager = class {
   constructor() {
-    this.subscriptions = [];   // In-memory list (synced with localStorage)
+    this.subscriptions = [];   // In-memory list (synced with Supabase)
     this.currentFilter = 'all'; // Active filter: 'all' | 'active' | 'cancelled' | 'renewing-soon'
     this.searchTerm    = '';    // Current search string
     this.init();
@@ -17,8 +19,11 @@ class SubscriptionManager {
 
   /* ===== INIT ===== */
 
-  init() {
-    this.loadData();
+  async init() {
+    this.loading = true;
+    this.render(); // show loading state immediately, don't wait on the network
+    await this.loadData();
+    this.loading = false;
     this.bindEvents();
     this.render();
     this.updateStats();
@@ -26,22 +31,11 @@ class SubscriptionManager {
 
   /* ===== DATA PERSISTENCE ===== */
 
-  /** Load subscriptions from localStorage; seed demo data if empty. */
-  loadData() {
-    var stored = localStorage.getItem('subscriptions');
-    if (stored) {
-      this.subscriptions = JSON.parse(stored);
-    } else {
-      // Demo seed data shown on first run
-      this.subscriptions = [];
-      this.saveData();
-    }
-  }
-
-  /** Persist in-memory list to localStorage and refresh the stats row. */
-  saveData() {
-    localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
-    this.updateStats();
+  /** Load subscriptions from Supabase for the current user. */
+  async loadData() {
+    var result = await fetchSubscriptions();
+    this.subscriptions = result.subs;
+    this.loadError = result.error;
   }
 
   /* ===== STAT CARDS ===== */
@@ -51,34 +45,7 @@ class SubscriptionManager {
     var active    = this.subscriptions.filter(function (s) { return s.status === 'active'; });
     var cancelled = this.subscriptions.filter(function (s) { return s.status === 'cancelled'; });
     var total     = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
-
-// Count active subs renewing within 7 days from today
-var today = new Date();
-today.setHours(0, 0, 0, 0);
-
-var renewingSoon = active.filter(function (s) {
-   
-    var parts = s.renewalDate.split(/[/-]/); 
-    var d;
-    
-    if (parts.length === 3) {
-        
-        if (parts[0].length === 4) {
-            d = new Date(parts[0], parts[1] - 1, parts[2]); 
-        } else {
-            d = new Date(parts[2], parts[1] - 1, parts[0]); 
-        }
-    } else {
-        d = new Date(s.renewalDate); 
-    }
-
-    d.setHours(0, 0, 0, 0);
-    
-    if (isNaN(d.getTime())) return false; 
-
-    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff <= 7;
-});
+    var renewingSoon = active.filter(isRenewingSoon);
 
     this.setText('totalMonthly',     'RM ' + total.toFixed(2));
     this.setText('activeCount',      active.length);
@@ -96,26 +63,32 @@ var renewingSoon = active.filter(function (s) {
   /* ===== CRUD OPERATIONS ===== */
 
   /** Create a new subscription from form data. */
-  createSubscription(formData) {
-    var newSub = {
-      id:          Date.now(),           // Simple unique id using timestamp
-      name:        formData.name,
-      category:    formData.category,
-      cost:        parseFloat(formData.cost),
-      renewalDate: formData.renewalDate,
-      status:      formData.status,
-      notes:       formData.notes || ''
-    };
-    this.subscriptions.push(newSub);
-    this.saveData();
+  async createSubscription(formData) {
+    var user = await getCurrentUser();
+    if (!user) return;
+
+    formData.renewalDate = rollForwardDate(formData.renewalDate, formData.status);
+
+    var res = await supabaseClient.from('subscriptions')
+      .insert(Object.assign({ user_id: user.id }, toRow(formData)))
+      .select().single();
+    if (res.error) { this.showToast('Could not add subscription.', 'error'); console.error(res.error); return; }
+
+    this.subscriptions.push(fromRow(res.data));
+    this.updateStats();
     this.render();
-    this.showToast('Added! Welcome to the list.', 'success');
+    this.showToast('Subscription added.', 'success');
   }
 
   /** Update an existing subscription by id. */
-  updateSubscription(id, formData) {
+  async updateSubscription(id, formData) {
     var index = this.subscriptions.findIndex(function (s) { return s.id === id; });
     if (index === -1) return;
+
+    formData.renewalDate = rollForwardDate(formData.renewalDate, formData.status);
+
+    var res = await supabaseClient.from('subscriptions').update(toRow(formData)).eq('id', id);
+    if (res.error) { this.showToast('Could not update subscription.', 'error'); console.error(res.error); return; }
 
     this.subscriptions[index] = {
       id:          id,
@@ -126,9 +99,9 @@ var renewingSoon = active.filter(function (s) {
       status:      formData.status,
       notes:       formData.notes || ''
     };
-    this.saveData();
+    this.updateStats();
     this.render();
-    this.showToast('Updated! Looking good.', 'success');
+    this.showToast('Subscription updated.', 'success');
   }
 
   /** Prompt for confirmation then delete a subscription by id. */
@@ -137,13 +110,16 @@ var renewingSoon = active.filter(function (s) {
     if (!sub) return;
 
     this.showConfirmDialog(
-      'Ready to say goodbye to',
+      'Delete',
       sub.name,
-      () => {
+      async () => {
+        var res = await supabaseClient.from('subscriptions').delete().eq('id', id);
+        if (res.error) { this.showToast('Could not delete subscription.', 'error'); console.error(res.error); return; }
+
         this.subscriptions = this.subscriptions.filter(function (s) { return s.id !== id; });
-        this.saveData();
+        this.updateStats();
         this.render();
-        this.showToast('Gone. Bye bye!', 'success');
+        this.showToast('Subscription deleted.', 'success');
       }
     );
   }
@@ -160,15 +136,7 @@ var renewingSoon = active.filter(function (s) {
     } else if (this.currentFilter === 'cancelled') {
       result = result.filter(function (s) { return s.status === 'cancelled'; });
     } else if (this.currentFilter === 'renewing-soon') {
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      result = result.filter(function (s) {
-        if (s.status !== 'active') return false;
-        var d    = new Date(s.renewalDate);
-        d.setHours(0, 0, 0, 0);
-        var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-        return diff >= 0 && diff <= 7;
-      });
+      result = result.filter(isRenewingSoon);
     }
 
     // Search filter (name or category)
@@ -204,10 +172,34 @@ var renewingSoon = active.filter(function (s) {
     var container = document.getElementById('subscriptionsTable');
     if (!container) return;
 
-    var list = this.getFilteredSubscriptions();
+    if (this.loading) {
+      container.innerHTML = '<div class="empty-state">Loading subscriptions…</div>';
+      return;
+    }
+    if (this.loadError) {
+      container.innerHTML =
+        '<div class="empty-state">Couldn\'t load your subscriptions.' +
+          '<button type="button" class="btn btn-secondary" id="retryLoadBtn" style="margin-top:12px;">Retry</button>' +
+        '</div>';
+      var retryBtn = document.getElementById('retryLoadBtn');
+      if (retryBtn) retryBtn.onclick = () => window.location.reload();
+      return;
+    }
+
+    // Dashboard variant: fixed "top 5 most expensive active" list, no filters.
+    var isTop5 = container.dataset.view === 'top5';
+    var list = isTop5
+      ? this.subscriptions
+          .filter(function (s) { return s.status === 'active'; })
+          .sort(function (a, b) { return b.cost - a.cost; })
+          .slice(0, 5)
+      : this.getFilteredSubscriptions();
+
+    // Keep the dashboard side panels (donut, renewals) in sync with every re-render.
+    if (typeof renderDashboardExtras === 'function') renderDashboardExtras(this.subscriptions);
 
     if (list.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nothing here. Add a sub to get started!</div>';
+      container.innerHTML = '<div class="empty-state">No subscriptions yet. Add one to get started.</div>';
       return;
     }
 
@@ -219,20 +211,19 @@ var rows = list.map((sub) => {
 
       return (
         '<div class="table-row">' +
-          '<div class="td sub-name-wrap">' + // 增加 td 类
+          '<div class="td sub-name-wrap">' +
             '<div class="sub-icon"><i class="ti ' + icon + '"></i></div>' +
-            '<div>' +
-              '<div class="sub-name">' + this.escapeHtml(sub.name) + '</div>' +
+            '<div class="sub-name-text">' +
+              '<div class="sub-name" title="' + this.escapeHtml(sub.name) + '">' + this.escapeHtml(sub.name) + '</div>' +
               '<div class="sub-category">' + sub.category + '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="td">RM ' + sub.cost.toFixed(2) + '</div>' +
+          '<div class="td td-cost">RM ' + sub.cost.toFixed(2) + '</div>' +
           '<div class="td">' + this.formatDate(sub.renewalDate) + '</div>' +
           '<div class="td">' +
             '<span class="badge ' + badgeClass + '">' +
               '<span class="badge-dot"></span>' + statusLabel +
             '</span>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '" aria-label="More actions for ' + this.escapeHtml(sub.name) + '">&#8942;</button>' +
           '</div>' +
           '<div class="row-actions">' +
             '<button class="icon-btn edit-btn" data-id="' + sub.id + '" title="Edit" aria-label="Edit ' + this.escapeHtml(sub.name) + '">' +
@@ -241,7 +232,6 @@ var rows = list.map((sub) => {
             '<button class="icon-btn delete-btn" data-id="' + sub.id + '" title="Delete" aria-label="Delete ' + this.escapeHtml(sub.name) + '">' +
               '<i class="ti ti-trash"></i>' +
             '</button>' +
-            '<button class="status-menu-btn" data-id="' + sub.id + '">&#8942;</button>' +
           '</div>' +
         '</div>'
       );
@@ -254,75 +244,69 @@ container.innerHTML =
     '<div class="th">Cost / mo</div>' +
     '<div class="th">Renewal Date</div>' +
     '<div class="th">Status</div>' +
-    '<div class="th" style="justify-content: flex-end;">Actions</div>' + // 这里加个样式靠右对齐
+    '<div class="th" style="justify-content: flex-end;">Actions</div>' +
   '</div>' +
   rows.join('');
 
     this.attachRowEvents();
   }
 
-  /** Attach click handlers to edit, delete, and three-dot buttons after render. */
+  /** Attach click handlers to edit and delete buttons after render. */
   attachRowEvents() {
     document.querySelectorAll('.edit-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id)); };
+      btn.onclick = (e) => { e.stopPropagation(); this.openEditModal(parseInt(btn.dataset.id), btn); };
     });
 
     document.querySelectorAll('.delete-btn').forEach((btn) => {
       btn.onclick = (e) => { e.stopPropagation(); this.deleteSubscription(parseInt(btn.dataset.id)); };
     });
-
-    document.querySelectorAll('.status-menu-btn').forEach((btn) => {
-      btn.onclick = (e) => { e.stopPropagation(); this.showStatusMenu(btn, parseInt(btn.dataset.id)); };
-    });
-  }
-
-  /* ===== CONTEXT MENU (three-dot) ===== */
-
-  /** Show a small floating menu near the clicked button. */
-  showStatusMenu(triggerEl, id) {
-    // Remove any existing menu first
-    var existing = document.querySelector('.status-popup-menu');
-    if (existing) existing.remove();
-
-    var rect = triggerEl.getBoundingClientRect();
-    var menu = document.createElement('div');
-    menu.className = 'status-popup-menu';
-    menu.style.top  = (rect.bottom + 5) + 'px';
-    menu.style.left = rect.left + 'px';
-
-    menu.innerHTML =
-      '<div class="menu-item" data-action="edit"><i class="ti ti-edit"></i><span>Edit</span></div>' +
-      '<div class="menu-item danger" data-action="delete"><i class="ti ti-trash"></i><span>Delete</span></div>';
-
-    document.body.appendChild(menu);
-
-    menu.querySelector('[data-action="edit"]').onclick   = () => { this.openEditModal(id); menu.remove(); };
-    menu.querySelector('[data-action="delete"]').onclick = () => { this.deleteSubscription(id); menu.remove(); };
-
-    // Close menu when clicking elsewhere
-    setTimeout(function () {
-      document.addEventListener('click', function handler() {
-        menu.remove();
-        document.removeEventListener('click', handler);
-      });
-    }, 0);
   }
 
   /* ===== MODAL ===== */
 
-  openModal() {
+  /** @param {HTMLElement} [triggerEl] Element that opened the modal — focus returns here on close. */
+  openModal(triggerEl) {
+    this.flushPendingReset();
+    this._modalTrigger = triggerEl || document.activeElement;
     var overlay = document.getElementById('modalOverlay');
     if (overlay) overlay.classList.add('is-open');
+    // Focus the first field once the open transition starts; screen readers and
+    // keyboard users land inside the dialog instead of it opening silently behind them.
+    var firstField = document.getElementById('sub-name');
+    if (firstField) setTimeout(function () { firstField.focus(); }, 50);
   }
 
   closeModal() {
     var overlay = document.getElementById('modalOverlay');
     if (overlay) overlay.classList.remove('is-open');
-    this.resetForm();
+    // Defer the reset until the overlay's 0.2s fade-out finishes, otherwise the
+    // title/button flip back to "Add Subscription" while the modal is still visible.
+    var self = this;
+    this._resetTimer = setTimeout(function () {
+      self._resetTimer = null;
+      self.resetForm();
+    }, 250);
+    // Return focus to whatever opened the modal (Add button or a row's Edit button)
+    // instead of leaving it on the now-hidden dialog.
+    if (this._modalTrigger && typeof this._modalTrigger.focus === 'function') {
+      this._modalTrigger.focus();
+    }
+    this._modalTrigger = null;
   }
 
-  /** Pre-fill the modal form for editing an existing subscription. */
-  openEditModal(id) {
+  /** Run a still-pending deferred reset now (called before reopening the modal). */
+  flushPendingReset() {
+    if (this._resetTimer) {
+      clearTimeout(this._resetTimer);
+      this._resetTimer = null;
+      this.resetForm();
+    }
+  }
+
+  /** Pre-fill the modal form for editing an existing subscription.
+      @param {HTMLElement} [triggerEl] The row's Edit button — focus returns here on close. */
+  openEditModal(id, triggerEl) {
+    this.flushPendingReset();
     var sub = this.subscriptions.find(function (s) { return s.id === id; });
     if (!sub) return;
 
@@ -333,10 +317,10 @@ container.innerHTML =
     document.getElementById('sub-date').value    = sub.renewalDate;
     document.getElementById('sub-status').value  = sub.status;
     document.getElementById('sub-notes').value   = sub.notes || '';
-    document.getElementById('modalTitle').textContent = 'Edit This Sub';
+    document.getElementById('modalTitle').textContent = 'Edit Subscription';
     document.getElementById('saveBtn').textContent    = 'Save Changes';
 
-    this.openModal();
+    this.openModal(triggerEl);
   }
 
   /** Clear all form inputs and reset modal title to "Add". */
@@ -346,13 +330,14 @@ container.innerHTML =
       var el = document.getElementById(id);
       if (el) el.value = '';
     });
+    this.clearFieldErrors();
     var statusEl = document.getElementById('sub-status');
     if (statusEl) statusEl.value = 'active';
 
     var titleEl = document.getElementById('modalTitle');
-    if (titleEl) titleEl.textContent = 'Add a Sub';
+    if (titleEl) titleEl.textContent = 'Add Subscription';
     var saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.textContent = 'Add It';
+    if (saveBtn) saveBtn.textContent = 'Add Subscription';
   }
 
   /** Read all form values into a plain object. */
@@ -367,28 +352,52 @@ container.innerHTML =
     };
   }
 
-  /** Return false and show a toast if any required field is missing/invalid. */
+  /** Return false, toast, and highlight+focus the offending field if any required field is missing/invalid. */
   validateForm(data) {
-    if (!data.name)                { this.showToast('Give it a name first!', 'error'); return false; }
-    if (!data.category)            { this.showToast('Pick a category.', 'error');    return false; }
-    if (!data.cost || data.cost <= 0) { this.showToast('That cost doesn\'t look right.', 'error');  return false; }
-    if (!data.renewalDate)         { this.showToast('When does this renew?', 'error'); return false; }
+    this.clearFieldErrors();
+    if (!data.name)                { this.showToast('Enter a service name.', 'error'); this.markFieldInvalid('sub-name'); return false; }
+    if (!data.category)            { this.showToast('Select a category.', 'error');    this.markFieldInvalid('sub-cat');  return false; }
+    if (!data.cost || data.cost <= 0 || data.cost > 999999.99) { this.showToast('Enter a valid monthly cost.', 'error');  this.markFieldInvalid('sub-cost'); return false; }
+    if (!data.renewalDate)         { this.showToast('Enter a renewal date.', 'error'); this.markFieldInvalid('sub-date'); return false; }
     return true;
   }
 
+  /** Add the `.invalid` danger-border state to a field and focus it; clears itself on the next edit. */
+  markFieldInvalid(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('invalid');
+    el.focus();
+    el.addEventListener('input', function clear() {
+      el.classList.remove('invalid');
+      el.removeEventListener('input', clear);
+    }, { once: true });
+  }
+
+  /** Clear any leftover `.invalid` state (called on reset/reopen). */
+  clearFieldErrors() {
+    document.querySelectorAll('.field-input.invalid').forEach(function (el) { el.classList.remove('invalid'); });
+  }
+
   /** Handle form submission for both create and update. */
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
     var editId   = document.getElementById('editId').value;
     var formData = this.getFormData();
     if (!this.validateForm(formData)) return;
 
-    if (editId) {
-      this.updateSubscription(parseInt(editId), formData);
-    } else {
-      this.createSubscription(formData);
+    var saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.disabled = true; // guard against double-submit while the request is in flight
+    try {
+      if (editId) {
+        await this.updateSubscription(parseInt(editId), formData);
+      } else {
+        await this.createSubscription(formData);
+      }
+      this.closeModal();
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
     }
-    this.closeModal();
   }
 
   /* ===== EVENT BINDING ===== */
@@ -400,7 +409,7 @@ container.innerHTML =
 
     // Open modal button
     var openBtn = document.getElementById('openModalBtn');
-    if (openBtn) openBtn.onclick = () => { this.resetForm(); this.openModal(); };
+    if (openBtn) openBtn.onclick = () => { this.resetForm(); this.openModal(openBtn); };
 
     // Close / cancel buttons
     var closeBtn  = document.getElementById('closeModalBtn');
@@ -414,11 +423,21 @@ container.innerHTML =
       overlay.onclick = (e) => { if (e.target === overlay) this.closeModal(); };
     }
 
-    // Close on Escape key
+    // Close on Escape key; trap Tab inside the modal while it's open so keyboard
+    // focus can't wander into the (visually hidden) page behind the overlay.
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        var ov = document.getElementById('modalOverlay');
-        if (ov && ov.classList.contains('is-open')) this.closeModal();
+      var ov = document.getElementById('modalOverlay');
+      if (!ov || !ov.classList.contains('is-open')) return;
+
+      if (e.key === 'Escape') { this.closeModal(); return; }
+
+      if (e.key === 'Tab') {
+        var focusable = ov.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last  = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
 
@@ -448,27 +467,7 @@ container.innerHTML =
         this.render();
       });
     });
-    // Sidebar filter links — sync with tabs
-    var filterLinks = document.querySelectorAll('.filter-link');
-    filterLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.currentFilter = link.dataset.filter;
-        tabs.forEach(function (tab) {
-          tab.classList.toggle('active', tab.dataset.filter === link.dataset.filter);
-        });
-        this.render();
-      });
-    });
 
-    // View toggle (list / grid) — UI only for now
-    var viewBtns = document.querySelectorAll('.vbtn');
-    viewBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        viewBtns.forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-      });
-    });
   }
 
   /* ===== UI HELPERS ===== */
@@ -499,21 +498,37 @@ container.innerHTML =
       '<div class="toast-content">' + message + '</div>' +
       '<i class="ti ti-x toast-close" role="button" tabindex="0" aria-label="Dismiss"></i>';
 
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     document.body.appendChild(toast);
 
-    // Manual close
-    toast.querySelector('.toast-close').onclick = function () {
-      toast.style.animation = 'slideOutRight 0.3s ease';
-      setTimeout(function () { toast.remove(); }, 300);
-    };
+    var dismissed = false;
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      if (reduceMotion || typeof anime === 'undefined') { toast.remove(); return; }
+      anime.animate(toast, {
+        translateX: [0, 24],
+        opacity: [1, 0],
+        duration: 200,
+        ease: 'inQuad',
+        onComplete: function () { toast.remove(); }
+      });
+    }
 
-    // Auto-dismiss after 3 seconds
-    setTimeout(function () {
-      if (toast.parentNode) {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(function () { toast.remove(); }, 300);
-      }
-    }, 3000);
+    if (reduceMotion || typeof anime === 'undefined') {
+      toast.style.opacity = 1;
+    } else {
+      anime.animate(toast, {
+        translateX: [24, 0],
+        opacity: [0, 1],
+        duration: 280,
+        ease: 'outQuint'
+      });
+    }
+
+    toast.querySelector('.toast-close').onclick = dismiss;
+    setTimeout(dismiss, 3000);
   }
 
   /**
@@ -529,30 +544,56 @@ container.innerHTML =
     var overlay = document.createElement('div');
     overlay.className = 'custom-dialog-overlay';
     overlay.innerHTML =
-      '<div class="custom-dialog">' +
+      '<div class="custom-dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialogTitle">' +
         '<div class="custom-dialog-header">' +
           '<i class="ti ti-trash"></i>' +
-          '<h3>Wait, Really?</h3>' +
+          '<h3 id="dialogTitle">Delete subscription?</h3>' +
         '</div>' +
         '<div class="custom-dialog-body">' +
           message + ' <span class="subscription-name">"' + this.escapeHtml(subscriptionName) + '"</span>?' +
-          '<span class="dialog-note">No undo button here — it\'s gone for good.</span>' +
+          '<span class="dialog-note">This can\'t be undone.</span>' +
         '</div>' +
         '<div class="custom-dialog-footer">' +
-          '<button class="dialog-cancel">Never Mind</button>' +
-          '<button class="dialog-confirm">Yep, Delete It</button>' +
+          '<button class="dialog-cancel">Cancel</button>' +
+          '<button class="dialog-confirm">Delete</button>' +
         '</div>' +
       '</div>';
 
     document.body.appendChild(overlay);
 
-    overlay.querySelector('.dialog-cancel').onclick  = function () { overlay.remove(); };
-    overlay.querySelector('.dialog-confirm').onclick = function () { onConfirm(); overlay.remove(); };
-    overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
+    var dialog = overlay.querySelector('.custom-dialog');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduceMotion && typeof anime !== 'undefined') {
+      anime.animate(overlay, { opacity: [0, 1], duration: 180, ease: 'outQuad' });
+      anime.animate(dialog, { scale: [0.94, 1], opacity: [0, 1], duration: 220, ease: 'outQuint' });
+    }
+
+    var closed = false;
+    function close() {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener('keydown', escHandler);
+      if (reduceMotion || typeof anime === 'undefined') { overlay.remove(); return; }
+      anime.animate(overlay, { opacity: [1, 0], duration: 150, ease: 'inQuad', onComplete: function () { overlay.remove(); } });
+      anime.animate(dialog, { scale: [1, 0.96], opacity: [1, 0], duration: 150, ease: 'inQuad' });
+    }
+
+    var confirmBtn = overlay.querySelector('.dialog-confirm');
+    var cancelBtn  = overlay.querySelector('.dialog-cancel');
+    cancelBtn.onclick = close;
+    setTimeout(function () { cancelBtn.focus(); }, 50); // safe default focus for a destructive action
+    confirmBtn.onclick = function () {
+      if (confirmBtn.disabled) return; // guard against double-click firing the delete twice
+      confirmBtn.disabled = true;
+      onConfirm();
+      close();
+    };
+    overlay.onclick = function (e) { if (e.target === overlay) close(); };
 
     // Close on Escape
     var escHandler = function (e) {
-      if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
+      if (e.key === 'Escape') close();
     };
     document.addEventListener('keydown', escHandler);
   }
@@ -574,7 +615,7 @@ container.innerHTML =
 
   /** Format a YYYY-MM-DD string to "1 Jun 2025". */
   formatDate(dateStr) {
-    var d = new Date(dateStr);
+    var d = parseRenewalDate(dateStr);
     return d.getDate() + ' ' +
            d.toLocaleString('default', { month: 'short' }) + ' ' +
            d.getFullYear();
@@ -592,4 +633,5 @@ container.innerHTML =
 document.addEventListener('DOMContentLoaded', function () {
   window.subscriptionManager = new SubscriptionManager();
 });
+
 

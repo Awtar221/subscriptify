@@ -1,0 +1,119 @@
+/* ======================
+   shared-data.js
+   Shared subscription helpers used by subscriptions.js, analytics.js, and charts.js.
+   Load this BEFORE any of those on any page reading 'subscriptions'.
+   ====================== */
+
+/** Parse 'YYYY-MM-DD' or 'DD-MM-YYYY'/'DD/MM/YYYY' into a Date. */
+function parseRenewalDate(dateStr) {
+  var parts = dateStr.split(/[/-]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) return new Date(parts[0], parts[1] - 1, parts[2]);
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+  }
+  return new Date(dateStr);
+}
+
+/** Whole days from today to a subscription's renewal date (negative = past). NaN if unparseable. */
+function daysUntilRenewal(dateStr) {
+  var d = parseRenewalDate(dateStr);
+  if (isNaN(d.getTime())) return NaN;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+  return Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+}
+
+/** Active sub renewing within 7 days — the "renewing soon" window used across dashboard/analytics. */
+function isRenewingSoon(sub) {
+  if (sub.status !== 'active') return false;
+  var days = daysUntilRenewal(sub.renewalDate);
+  return !isNaN(days) && days >= 0 && days <= 7;
+}
+
+/** Add one calendar month, clamping to the target month's last day
+    (Jan 31 -> Feb 28/29, not Mar 3) instead of letting Date overflow into the month after.
+    Builds the date string from local getFullYear/getMonth/getDate — NOT toISOString(),
+    which converts through UTC and shifts the day backward in any positive-UTC-offset
+    timezone (e.g. UTC+8: local midnight Feb 28 -> "2026-02-27"). */
+function advanceOneMonth(dateStr) {
+  var d = parseRenewalDate(dateStr);
+  var day = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + 1);
+  var daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(day, daysInMonth));
+  var mm = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+/** Pure calc: roll an active date forward until it's not in the past (no-op if
+    already future, or if the sub is cancelled). Shared by autoRenewPastDue (the
+    fetch-time catch-up pass) and subscriptions.js (so typing a past date into the
+    edit form corrects it immediately, not just on the next page load). */
+function rollForwardDate(dateStr, status) {
+  if (status !== 'active') return dateStr;
+  var d = dateStr;
+  while (daysUntilRenewal(d) < 0) {
+    d = advanceOneMonth(d);
+  }
+  return d;
+}
+
+/** Subscriptions renew, they don't disappear: an active sub whose renewal date has
+    passed rolls forward a month at a time (handling however many cycles were missed)
+    instead of being treated as stale data. Cancelled subs are left alone — their last
+    renewal date is history, not a thing to keep advancing. Persists any date that
+    changed back to Supabase so the roll-forward isn't just a display-time illusion. */
+async function autoRenewPastDue(subs) {
+  var updates = [];
+  subs.forEach(function (s) {
+    var rolled = rollForwardDate(s.renewalDate, s.status);
+    if (rolled !== s.renewalDate) {
+      s.renewalDate = rolled;
+      updates.push(supabaseClient.from('subscriptions').update({ renewal_date: rolled }).eq('id', s.id));
+    }
+  });
+  if (updates.length) await Promise.all(updates);
+  return subs;
+}
+
+/** Map a Supabase `subscriptions` row to the app's in-memory subscription shape.
+    id coerced to Number: PostgREST returns bigint ids as strings, but the app
+    compares ids with `===` against parseInt() results elsewhere. */
+function fromRow(row) {
+  return {
+    id:          Number(row.id),
+    name:        row.name,
+    category:    row.category,
+    cost:        Number(row.cost),
+    renewalDate: row.renewal_date,
+    status:      row.status,
+    notes:       row.notes || ''
+  };
+}
+
+/** Map form data to a Supabase `subscriptions` row for insert/update. */
+function toRow(formData) {
+  return {
+    name:         formData.name,
+    category:     formData.category,
+    cost:         parseFloat(formData.cost),
+    renewal_date: formData.renewalDate,
+    status:       formData.status,
+    notes:        formData.notes || ''
+  };
+}
+
+/** Fetch the current user's subscriptions from Supabase.
+    Returns { subs, error } so callers can tell "no data" from "fetch failed" —
+    those need different UI (empty state vs retry). */
+async function fetchSubscriptions() {
+  var user = await getCurrentUser();
+  if (!user) return { subs: [], error: null };
+  var res = await supabaseClient.from('subscriptions').select('*').eq('user_id', user.id);
+  if (res.error) { console.error('fetchSubscriptions failed:', res.error); return { subs: [], error: res.error }; }
+  var subs = await autoRenewPastDue(res.data.map(fromRow));
+  return { subs: subs, error: null };
+}

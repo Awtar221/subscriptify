@@ -4,7 +4,8 @@
    Imported by every page in the project.
    ====================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+/* Font loaded via <link rel="preconnect"/stylesheet> in each page's <head>, not @import here —
+   @import blocks CSS parsing on the font request; a <link> lets the browser fetch it in parallel. */
 
 :root {
   /* Brand colour palette — user-supplied (dry sage / apricot cream / tan / dark cyan / smoky rose), light theme */
@@ -34,18 +35,74 @@
   --attention: #8a5f1f; /* apricot-cream, deepened — "renewing soon" — 4.9:1 on surface */
 
   /* Typography */
-  --font-display: 'Playfair Display', serif;
-  --font-body:    'DM Sans', sans-serif;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Type scale — rem-based (respects browser zoom/font-size settings), fixed for product UI. */
+  --text-2xs: 0.6875rem;  /* 11px — micro nav labels */
+  --text-xs:  0.8125rem;  /* 13px — stat labels, badges, meta */
+  --text-sm:  0.9375rem;  /* 15px — secondary UI, tabs, table cells */
+  --text-base:1rem;       /* 16px — body, buttons, inputs */
+  --text-md:  1.125rem;   /* 18px — icons, emphasized fields */
+  --text-lg:  1.3125rem;  /* 21px — modal/dialog titles */
+  --text-xl:  1.4375rem;  /* 23px — page titles */
+  --text-2xl: 1.75rem;    /* 28px — auth title */
+  --text-3xl: 2.25rem;    /* 36px — stat values */
+  --text-4xl: 3.25rem;    /* 52px — the one spotlighted stat per page */
+
+  /* Shared header height — topbar and sidebar logo block share this so their
+     bottom borders align into one continuous line on every page. */
+  --header-h: 92px;
 
   /* Border radius scale */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 7px;
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 
   /* Transition */
   --transition-fast: 0.15s cubic-bezier(0.22, 1, 0.36, 1);
   --transition-base: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Shadow scale — tinted to ink, not pure black. Replaces 4x-repeated inline rgba strings. */
+  --shadow-sm: 0 1px 2px rgba(43, 36, 28, 0.05);
+  --shadow-md: 0 6px 16px rgba(43, 36, 28, 0.08);
+  --shadow-lg: 0 20px 40px rgba(43, 36, 28, 0.16);
+
+  /* Fixed (theme-invariant): text/spinners drawn on surfaces that stay dark in
+     both themes — accent-filled buttons, the auth-visual brand panel. --mc-800
+     itself flips with the theme, so it can't be reused here (it used to be,
+     which is exactly what broke those surfaces when dark mode was added). */
+  --on-dark:   #f7f7f2;
+  --ink-fixed: #241d16;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light; /* native controls (date picker popup, scrollbars) render light */
+}
+
+/* Dark theme — same brand hues, inverted lightness. Applied via [data-theme="dark"]
+   on <html>, set synchronously by an inline script in <head> (see theme.js) so
+   there's no flash of the light theme on load. */
+:root[data-theme="dark"] {
+  color-scheme: dark; /* native controls (date picker popup, scrollbars) render dark */
+  --mc-800: #1b1814;  /* bg */
+  --mc-700: #262119;  /* surface (cards, sidebar, topbar) */
+  --mc-500: #493c2c;  /* borders, dividers */
+  --mc-200: #b0a189;  /* muted/secondary text */
+  --mc-80:  #d9cdb5;  /* labels, icons */
+  --mc-50:  #8fc4ca;  /* accent text/icons */
+  --mc-40:  #f2ede2;  /* emphasis text: stat values, active nav, body text */
+  --mc-30:  #faf8f2;  /* headings: page/modal titles */
+
+  --success:   #86af5c;
+  --warning:   #d1a563;
+  --danger:    #b97e8f;
+  --attention: #d9a34d;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -55,6 +112,15 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Theme toggle: replace the browser's default cross-fade with our own radial-wipe
+   clip-path animation (driven from theme.js), and don't let old/new root layers
+   blend into each other while the wipe plays. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 /* Global reset */
@@ -88,6 +154,14 @@ button {
 
 input, select, textarea {
   font-family: var(--font-body);
+}
+
+/* Hide scrollbars everywhere — scrolling still works via wheel/touch/keys */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
 }
 
 /* Keyboard-visible focus ring everywhere; invisible for mouse/touch (:focus-visible) */

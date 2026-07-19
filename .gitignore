@@ -1,6 +1,8 @@
 .impeccable/
-.vscode./
+.vscode/
 PRODUCT.md
 DESIGN.md
 TODO.md
 js/config.js
+node_modules/
+Summary.md

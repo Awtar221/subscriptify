@@ -1,27 +1,149 @@
 /* ======================
    AUTH.CSS
    Styles for login.html and register.html only.
-   Centers the auth card and hides the sidebar layout.
+   Split layout: a dark brand panel + the form, instead of a generic centered card.
    ====================== */
 
-/* Center the card in full viewport */
-.app-shell {
+.auth-shell {
   display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
 }
 
-/* Auth card: the white-ish panel holding the form */
-.auth-card {
+/* Auth pages have no sidebar/topbar to host the toggle, so it floats fixed. */
+.theme-toggle-fixed {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
   background: var(--mc-700);
   border: 1px solid var(--mc-500);
-  border-radius: var(--radius-xl);
-  padding: 32px;
+}
+
+/* Left brand panel — reversed contrast (dark ink bg) so login/register read as a
+   deliberate arrival moment, not the same surface as the rest of the app. Hidden
+   on narrow viewports where there's no room for it without crowding the form. */
+.auth-visual {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+  padding: 74px;
+  background: var(--ink-fixed);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-visual::before {
+  content: '';
+  position: absolute;
+  inset: -20% -20% auto auto;
+  width: 552px;
+  height: 552px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--accent) 35%, transparent);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.auth-visual-brand {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
+  color: var(--on-dark);
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+.auth-visual-tagline {
+  max-width: 34ch;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--on-dark) 78%, transparent);
+  position: relative;
+}
+
+.auth-visual-points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 9px;
+  position: relative;
+}
+
+.auth-visual-point {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: var(--text-sm);
+  color: color-mix(in oklch, var(--on-dark) 85%, transparent);
+}
+
+.auth-visual-point i {
+  font-size: var(--text-md);
+  color: var(--brand-cream);
+  flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+  .auth-visual { display: none; }
+}
+
+/* --- Generative particle field (login page) --- */
+/* The fx variant swaps the static ::before blob for a canvas that auth-fx.js
+   fills with drifting glow particles in brand colors. Under reduced motion a
+   single static frame is drawn instead; with JS off the panel stays flat ink. */
+.auth-visual--fx::before {
+  content: none;
+}
+
+.auth-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 400px;
-  margin: 20px;
-  box-shadow: 0 12px 32px rgba(43, 36, 28, 0.10);
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --- Card tilt + focus lift (login page) --- */
+.auth-form-panel {
+  perspective: 1200px;
+}
+
+.form-group input {
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input:focus {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Cinematic sign-in exit: ink panel wipes across before redirect --- */
+.auth-exit-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ink-fixed);
+  z-index: 200;
+  transform: translateX(-101%);
+  pointer-events: none;
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: var(--mc-800);
+  min-width: 0;
+}
+
+/* Auth card: the panel holding the form */
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  margin: 23px;
   animation: authCardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
@@ -32,28 +154,30 @@
 
 .auth-title {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--mc-30);
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 .auth-sub {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--mc-200);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 /* Form group: label + input pair */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 }
 
 .form-group label {
   display: block;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--mc-80);
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 }
 
 .form-group input {
@@ -61,8 +185,8 @@
   background: var(--mc-800);
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: var(--text-base);
   color: var(--mc-40);
   outline: none;
   transition: border-color var(--transition-fast);
@@ -78,28 +202,161 @@
 
 /* Full-width submit button */
 .btn-auth {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
   background: var(--accent-strong);
-  color: var(--mc-800);
+  color: var(--on-dark);
   border: none;
   border-radius: var(--radius-md);
-  padding: 10px;
-  font-size: 14px;
+  padding: 12px;
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  margin-top: 8px;
-  transition: background var(--transition-fast);
+  margin-top: 9px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-auth:hover {
   background: var(--accent-deeper);
 }
 
+.btn-auth:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-auth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-text.hidden {
+  display: none;
+}
+
+/* Inline spinner shown in place of button text while a request is in flight */
+.spinner-container {
+  display: none;
+}
+
+.spinner-container.active {
+  display: inline-flex;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid color-mix(in oklch, var(--on-dark) 40%, transparent);
+  border-top-color: var(--on-dark);
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Password field with show/hide toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 48px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--mc-200);
+  font-size: var(--text-md);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.toggle-password:hover {
+  color: var(--mc-80);
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 23px;
+  font-size: var(--text-sm);
+  color: var(--mc-80);
+  cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent-strong);
+  cursor: pointer;
+}
+
+/* Password strength meter (register page) */
+.password-strength {
+  margin-top: 9px;
+  height: 5px;
+  border-radius: 5px;
+  background: var(--mc-500);
+  overflow: hidden;
+}
+
+.password-strength-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  background: var(--mc-500);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-base), background var(--transition-base);
+}
+
+.strength-text {
+  font-size: var(--text-xs);
+  margin-top: 5px;
+  color: var(--mc-200);
+}
+
+/* Inline banner for form-level errors/success (replaces per-page hardcoded colors) */
+.auth-banner {
+  display: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.auth-banner.is-visible {
+  display: block;
+}
+
+.auth-banner.error {
+  background: color-mix(in oklch, var(--danger) 16%, var(--mc-700));
+  border: 1px solid color-mix(in oklch, var(--danger) 40%, transparent);
+  color: var(--danger);
+}
+
+.auth-banner.success {
+  background: color-mix(in oklch, var(--success) 16%, var(--mc-700));
+  border: 1px solid color-mix(in oklch, var(--success) 40%, transparent);
+  color: var(--success);
+}
+
 /* Link row at bottom of form */
 .auth-footer {
   text-align: center;
-  margin-top: 20px;
-  font-size: 13px;
+  margin-top: 23px;
+  font-size: var(--text-sm);
   color: var(--mc-200);
 }
 
@@ -111,14 +368,14 @@
 /* Inline feedback messages */
 .error-msg {
   color: var(--danger);
-  font-size: 12px;
-  margin-top: 8px;
+  font-size: var(--text-sm);
+  margin-top: 9px;
 }
 
 .success-msg {
   color: var(--success);
-  font-size: 12px;
-  margin-top: 8px;
+  font-size: var(--text-sm);
+  margin-top: 9px;
 }
 
 .success-msg a {
@@ -129,11 +386,11 @@
 .auth-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 }
 .auth-logo img {
-  width: 90px;
-  height: 90px;
-  border-radius: 16px;
+  width: 103px;
+  height: 103px;
+  border-radius: 18px;
   object-fit: cover;
 }

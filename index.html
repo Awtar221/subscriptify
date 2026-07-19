@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Hidden until session.js confirms an authenticated session, so an unauthenticated visitor
+     is redirected to login.html before ever seeing the dashboard render. -->
+<html lang="en" style="visibility:hidden">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subtrack – Dashboard</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <!-- Set theme before first paint so there's no flash of the wrong theme. -->
+  <script>(function(){var t=localStorage.getItem('subtrack_theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);})();</script>
+  <!-- Safety net: if session.js fails to run at all (e.g. module scripts blocked when opened via
+       file:// instead of a server), don't leave the page permanently blank. -->
+  <script>setTimeout(function () { document.documentElement.style.visibility = 'visible'; }, 1500)</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/modal.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -20,7 +29,7 @@
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-text">Subtrack</div>
-      <div class="logo-sub">Your Sub Sidekick</div>
+      <div class="logo-sub">Subscription Tracker</div>
     </div>
 
     <div class="nav-section">
@@ -31,7 +40,7 @@
       </a>
       <a href="pages/analytics.html" class="nav-item">
         <i class="ti ti-chart-bar"></i>
-        <span>Funny Numbers</span>
+        <span>Analytics</span>
       </a>
       <a href="pages/subscriptions.html" class="nav-item">
         <i class="ti ti-list"></i>
@@ -42,26 +51,23 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="user-pill">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <div class="user-name"></div>
-          <div class="user-role">Free plan</div>
+      <!-- Click to reveal the logout action — wired up by session.js -->
+      <button class="user-pill" id="userPill" type="button" aria-expanded="false" aria-controls="logoutReveal">
+        <span class="avatar"><i class="ti ti-user"></i></span>
+        <span class="user-info">
+          <span class="user-name"></span>
+        </span>
+        <i class="ti ti-chevron-up user-chevron"></i>
+      </button>
+      <div class="logout-reveal" id="logoutReveal">
+        <div class="logout-reveal-inner">
+          <button class="logout-btn" id="logoutBtn" type="button">
+            <i class="ti ti-logout"></i>
+            <span>Log out</span>
+          </button>
         </div>
-        <!-- Logout button — wired up by session.js -->
-        <i class="ti ti-logout settings-icon" id="logoutBtn" role="button" tabindex="0" title="Logout" aria-label="Log out"></i>
       </div>
     </div>
-  </div>
-  <!-- Logout button moved outside user-pill -->
-  <div style="padding: 10px 16px; border-top: 1px solid #eee; margin-top: 8px;">
-    <a href="#" id="logoutBtn" style="display: flex; align-items: center; gap: 10px; color: #dc3545; text-decoration: none; padding: 8px 12px; border-radius: 6px; background: #f8f9fa;">
-      <i class="ti ti-logout"></i>
-      <span>Logout</span>
-    </a>
-  </div>
-</div>
-    
   </aside>
 
   <!-- ===== MAIN ===== -->
@@ -70,13 +76,8 @@
     <header class="topbar">
       <h1 class="page-title">Dashboard</h1>
       <div class="topbar-actions">
-        <div class="view-toggle">
-          <button class="vbtn active" data-view="list" title="List view" aria-label="List view"><i class="ti ti-list"></i></button>
-          <button class="vbtn" data-view="grid" title="Grid view" aria-label="Grid view"><i class="ti ti-layout-grid"></i></button>
-        </div>
-        <button class="btn-add" id="openModalBtn">
-          <i class="ti ti-plus"></i>
-          Add a Sub
+        <button class="icon-btn theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <i class="ti ti-moon"></i>
         </button>
       </div>
     </header>
@@ -85,40 +86,51 @@
 
       <!-- Stat cards -->
       <div class="summary-row">
-        <div class="stat-card">
-          <div class="stat-label">Monthly Damage</div>
+        <div class="stat-card stat-card--primary">
+          <div class="stat-label">Monthly Spend</div>
           <div class="stat-value" id="totalMonthly">RM 0</div>
-          <div class="stat-sub">keeping <span id="activeCount">0</span> subs alive</div>
+          <div class="stat-sub">across <span id="activeCount">0</span> active subscriptions</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Active</div>
           <div class="stat-value" id="activeSubCount">0</div>
-          <div class="stat-sub">and counting</div>
+          <div class="stat-sub">currently subscribed</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Renewing Soon</div>
           <div class="stat-value" id="renewingSoonCount" style="color: var(--attention);">0</div>
-          <div class="stat-sub">in the next week</div>
+          <div class="stat-sub">in the next 7 days</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Cancelled</div>
           <div class="stat-value" id="cancelledCount">0</div>
-          <div class="stat-sub">shown the door</div>
+          <div class="stat-sub">no longer billing</div>
         </div>
       </div>
 
-      <!-- Filter tabs + table -->
-      <div class="section-header">
-        <div class="section-title">The Full Lineup</div>
-        <div class="filter-tabs" id="filterTabs">
-          <button type="button" class="tab active" data-filter="all">All</button>
-          <button type="button" class="tab" data-filter="active">Active</button>
-          <button type="button" class="tab" data-filter="cancelled">Cancelled</button>
-        </div>
-      </div>
+      <!-- Main dashboard grid: costliest subscriptions + spend breakdown side panels -->
+      <div class="dashboard-grid">
 
-      <!-- Table rendered dynamically -->
-      <div id="subscriptionsTable"></div>
+        <section class="dashboard-main">
+          <div class="section-header">
+            <div class="section-title">Top 5 Most Expensive</div>
+          </div>
+          <!-- Table rendered dynamically (top-5 view) -->
+          <div id="subscriptionsTable" data-view="top5"></div>
+        </section>
+
+        <aside class="dashboard-side">
+          <div class="analytics-panel">
+            <div class="analytics-panel-title">Spend by Category</div>
+            <div id="categoryDonut" class="donut-wrap"></div>
+          </div>
+          <div class="analytics-panel">
+            <div class="analytics-panel-title">Renewing Soon</div>
+            <div id="upcomingList"></div>
+          </div>
+        </aside>
+
+      </div>
 
     </div>
   </main>
@@ -126,9 +138,9 @@
 
 <!-- ===== ADD / EDIT MODAL ===== -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Add a Sub</div>
+      <div class="modal-title" id="modalTitle">Add Subscription</div>
       <button class="close-btn" id="closeModalBtn" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>
 
@@ -137,7 +149,7 @@
 
       <div class="form-field">
         <label class="field-label" for="sub-name">Service name</label>
-        <input class="field-input" id="sub-name" type="text" placeholder="e.g. Netflix, Spotify..." required />
+        <input class="field-input" id="sub-name" type="text" placeholder="e.g. Netflix, Spotify..." required maxlength="60" />
       </div>
 
       <div class="form-field">
@@ -156,7 +168,7 @@
       <div class="field-row">
         <div class="form-field">
           <label class="field-label" for="sub-cost">Monthly cost (RM)</label>
-          <input class="field-input" id="sub-cost" type="number" step="0.01" placeholder="0.00" required />
+          <input class="field-input" id="sub-cost" type="number" step="0.01" min="0.01" max="999999.99" placeholder="0.00" required />
         </div>
         <div class="form-field">
           <label class="field-label" for="sub-date">Renewal date</label>
@@ -174,22 +186,30 @@
 
       <div class="form-field">
         <label class="field-label" for="sub-notes">Notes (optional)</label>
-        <input class="field-input" id="sub-notes" type="text" placeholder="Any notes..." />
+        <input class="field-input" id="sub-notes" type="text" placeholder="Any notes..." maxlength="200" />
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary" id="saveBtn">Add It</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Add Subscription</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- session.js runs first: guards the page and sets user display -->
+<!-- Load order matters: config -> supabase client -> session guard -> everything else -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
 <script src="js/session.js"></script>
 <script src="js/animate-value.js"></script>
-<!-- simple_CRUD.js handles all subscription logic and modal state -->
-<script src="js/simple_CRUD.js"></script>
+<script src="js/shared-data.js"></script>
+<script src="node_modules/animejs/dist/bundles/anime.umd.min.js"></script>
+<!-- charts.js defines renderDashboardExtras (donut + renewals) used by subscriptions.js's render -->
+<script src="js/charts.js"></script>
+<!-- subscriptions.js handles all subscription logic and modal state -->
+<script src="js/subscriptions.js"></script>
+<script src="js/theme.js"></script>
 
 </body>
 </html>

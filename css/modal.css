@@ -31,10 +31,10 @@
   background: var(--mc-700);
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-xl);
-  width: 460px;
+  width: 529px;
   max-width: calc(100vw - 40px);
-  padding: 28px;
-  box-shadow: 0 20px 40px rgba(43, 36, 28, 0.16);
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
 
   /* Slide-up entrance animation */
   transform: translateY(12px);
@@ -50,19 +50,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 400;
+  font-size: var(--text-lg);
+  font-weight: 600;
   color: var(--mc-30);
 }
 
 .close-btn {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,7 +70,7 @@
   border: 1px solid var(--mc-500);
   border-radius: var(--radius-sm);
   color: var(--mc-200);
-  font-size: 16px;
+  font-size: var(--text-md);
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
@@ -83,12 +83,12 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 7px;
+  margin-bottom: 18px;
 }
 
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--mc-80);
   letter-spacing: 0.4px;
@@ -99,8 +99,8 @@
   background: var(--mc-800);
   border: 2px solid var(--mc-500);
   border-radius: var(--radius-md);
-  padding: 9px 12px;
-  font-size: 13.5px;
+  padding: 10px 14px;
+  font-size: var(--text-base);
   color: var(--mc-40);
   outline: none;
   width: 100%;
@@ -117,6 +117,31 @@
   box-shadow: 0 0 0 2px rgba(85, 134, 140, 0.2);
 }
 
+/* Validation: points at the specific field that failed, not just a generic toast. */
+.field-input.invalid {
+  border-color: var(--danger);
+}
+
+.field-input.invalid:focus {
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--danger) 30%, transparent);
+}
+
+/* Renewal-date field's calendar icon: the popup itself is native chrome (color-scheme
+   in base.css keeps it light), this just gives the trigger icon the same hover
+   feedback as every other interactive control in the app. */
+input[type="date"].field-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+}
+
+input[type="date"].field-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: rgba(85, 134, 140, 0.10);
+}
+
 /* Style native select options to match dark theme */
 .field-input option {
   background: var(--mc-700);
@@ -127,29 +152,29 @@
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* --- Modal footer: action buttons --- */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 24px;
-  padding-top: 20px;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 23px;
   border-top: 1px solid var(--mc-500);
 }
 
 /* Ghost/secondary button */
 .btn-secondary {
-  padding: 9px 18px;
+  padding: 10px 21px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 400;
   background: transparent;
   border: 1px solid var(--mc-500);
   color: var(--mc-80);
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -159,16 +184,21 @@
 
 /* Filled primary button */
 .btn-primary {
-  padding: 9px 18px;
+  padding: 10px 21px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   background: var(--accent-strong);
   border: none;
-  color: var(--mc-800);
-  transition: background var(--transition-fast);
+  color: var(--on-dark);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-primary:hover {
   background: var(--accent-deeper);
+}
+
+.btn-secondary:active,
+.btn-primary:active {
+  transform: scale(0.97);
 }

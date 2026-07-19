@@ -4,7 +4,7 @@
    count from the old value to the new one instead of snapping.
    Falls back to an instant set for non-numeric text or prefers-reduced-motion.
 
-   Loaded by: index.html, pages/analytics.html (before simple_CRUD.js / analytics.js)
+   Loaded by: index.html, pages/analytics.html (before subscriptions.js / analytics.js)
    ====================== */
 
 function animateStatValue(el, newValue) {

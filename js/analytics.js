@@ -1,13 +1,26 @@
 /* ======================
    analytics.js
-   Reads the same 'subscriptions' localStorage data as simple_CRUD.js
+   Reads the same 'subscriptions' Supabase table as subscriptions.js
    and renders spend-by-category bars, status split, and a top-5 list.
    Loaded by: pages/analytics.html
    ====================== */
 
-document.addEventListener('DOMContentLoaded', function () {
-  var stored = localStorage.getItem('subscriptions');
-  var subs = stored ? JSON.parse(stored) : [];
+document.addEventListener('DOMContentLoaded', async function () {
+  var result = await fetchSubscriptions();
+
+  if (result.error) {
+    ['categoryBreakdown', 'statusSplit', 'upcomingRenewals', 'topCosts'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML =
+        '<div class="empty-state">Couldn\'t load data.' +
+          '<button type="button" class="btn btn-secondary" style="margin-top:12px;" onclick="window.location.reload()">Retry</button>' +
+        '</div>';
+    });
+    return;
+  }
+
+  var subs = result.subs;
   var active = subs.filter(function (s) { return s.status === 'active'; });
   var renewingSoon = active.filter(isRenewingSoon);
 
@@ -16,16 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderTopCosts(active);
   renderCategoryBreakdown(active);
   renderStatusSplit(subs, active, renewingSoon);
-
-  /** Active sub renewing within 7 days — same window as the dashboard stat card. */
-  function isRenewingSoon(s) {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var d = new Date(s.renewalDate);
-    d.setHours(0, 0, 0, 0);
-    var diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff <= 7;
-  }
 
   function renderStats(subs, active) {
     var total = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
@@ -45,11 +48,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el) return;
 
     var upcoming = active.slice().sort(function (a, b) {
-      return new Date(a.renewalDate) - new Date(b.renewalDate);
+      return parseRenewalDate(a.renewalDate) - parseRenewalDate(b.renewalDate);
     }).slice(0, 5);
 
     if (upcoming.length === 0) {
-      el.innerHTML = '<div class="empty-state">Nothing renewing — you\'re all clear.</div>';
+      el.innerHTML = '<div class="empty-state">Nothing renewing soon.</div>';
       return;
     }
 
@@ -62,10 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>'
       );
     }).join('');
+    revealRows(el);
   }
 
   function formatDate(dateStr) {
-    var d = new Date(dateStr);
+    var d = parseRenewalDate(dateStr);
     return d.getDate() + ' ' + d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear();
   }
 
@@ -76,46 +80,42 @@ document.addEventListener('DOMContentLoaded', function () {
     var totals = {};
     active.forEach(function (s) { totals[s.category] = (totals[s.category] || 0) + s.cost; });
     var grandTotal = active.reduce(function (sum, s) { return sum + s.cost; }, 0);
-
     var categories = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
-    if (categories.length === 0) {
-      el.innerHTML = '<div class="empty-state">No active subscriptions.</div>';
-      return;
-    }
 
-    el.innerHTML = categories.map(function (cat) {
-      var pct = grandTotal ? (totals[cat] / grandTotal * 100) : 0;
-      return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + cat + '</div>' +
-          '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-          '<div class="bar-value">RM ' + totals[cat].toFixed(2) + '</div>' +
-        '</div>'
-      );
-    }).join('');
+    renderDonutChart(el, categories.map(function (cat) {
+      return { label: cat, value: totals[cat], display: 'RM ' + totals[cat].toFixed(2) };
+    }), {
+      centerValue: 'RM ' + grandTotal.toFixed(2),
+      centerSub: 'per month',
+      ariaLabel: 'Monthly spend split by category',
+      animate: true
+    });
   }
 
   function renderStatusSplit(subs, active, renewingSoon) {
     var el = document.getElementById('statusSplit');
     if (!el) return;
 
+    // Partition (no overlap): renewing-soon subs counted once, not also as "active".
     var cancelled = subs.length - active.length;
-    var total = subs.length || 1;
+    var activeNotSoon = active.length - renewingSoon.length;
 
-    function row(label, count, fillClass) {
-      return (
-        '<div class="bar-row">' +
-          '<div class="bar-label">' + label + '</div>' +
-          '<div class="bar-track"><div class="bar-fill' + (fillClass ? ' ' + fillClass : '') + '" style="width:' + (count / total * 100).toFixed(1) + '%"></div></div>' +
-          '<div class="bar-value">' + count + '</div>' +
-        '</div>'
-      );
-    }
+    // Filter zero slices here (not in the helper) so each status keeps its semantic color.
+    var rows = [
+      { label: 'Active',        value: activeNotSoon,       token: '--success' },
+      { label: 'Renewing Soon', value: renewingSoon.length, token: '--attention' },
+      { label: 'Cancelled',     value: cancelled,           token: '--mc-200' }
+    ].filter(function (r) { return r.value > 0; });
 
-    el.innerHTML =
-      row('Active', active.length) +
-      row('Renewing Soon', renewingSoon.length, 'bar-fill-attention') +
-      row('Cancelled', cancelled, 'bar-fill-muted');
+    renderDonutChart(el, rows.map(function (r) {
+      return { label: r.label, value: r.value, display: String(r.value) };
+    }), {
+      centerValue: String(subs.length),
+      centerSub: 'subscriptions',
+      ariaLabel: 'Subscription status breakdown',
+      tokens: rows.map(function (r) { return r.token; }),
+      animate: true
+    });
   }
 
   function renderTopCosts(active) {
@@ -137,6 +137,20 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>'
       );
     }).join('');
+    revealRows(el);
+  }
+
+  /** Stagger a list's rows in on first paint. 10 rows @ 45ms = 450ms total, well under the 500ms cap. */
+  function revealRows(container) {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof anime === 'undefined') return;
+    anime.animate(container.querySelectorAll('.rank-row'), {
+      opacity: [0, 1],
+      translateX: [-10, 0],
+      duration: 350,
+      delay: anime.stagger(45),
+      ease: 'outQuad'
+    });
   }
 
   function escapeHtml(text) {
